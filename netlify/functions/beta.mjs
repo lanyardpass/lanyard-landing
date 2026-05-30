@@ -35,11 +35,13 @@ export default async (req) => {
   const cadence = String(body.cadence || '').trim();
   const why = String(body.why || '').trim();
 
+  const debug = body._debug === 'lanyard'; // gated: only our probe sets this
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.FROM_ADDRESS || 'Lanyard <hello@lanyardpass.com>';
   const to = process.env.TO_ADDRESS || 'dan@lanyardpass.com';
   if (!apiKey) {
     console.error('RESEND_API_KEY missing');
+    if (debug) return json({ ok: false, stage: 'no-key' }, 200);
     return json({ error: 'Server not configured.' }, 500);
   }
 
@@ -89,14 +91,18 @@ export default async (req) => {
     });
   } catch (err) {
     console.error('Resend fetch failed', err);
+    if (debug) return json({ ok: false, stage: 'fetch-threw', message: String(err), from, to, hasKey: !!apiKey }, 200);
     return json({ error: 'Could not send. Please try again.' }, 502);
   }
 
   if (!res.ok) {
-    console.error('Resend error', res.status, await res.text());
+    const detail = await res.text();
+    console.error('Resend error', res.status, detail);
+    if (debug) return json({ ok: false, stage: 'resend-rejected', status: res.status, detail, from, to, hasKey: !!apiKey }, 200);
     return json({ error: 'Could not send. Please try again.' }, 502);
   }
 
+  if (debug) return json({ ok: true, sent: true, from, to }, 200);
   return json({ ok: true });
 };
 
