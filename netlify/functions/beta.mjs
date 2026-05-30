@@ -35,6 +35,9 @@ export default async (req) => {
   const cadence = String(body.cadence || '').trim();
   const testflight = String(body.testflight || '').trim();
   const why = String(body.why || '').trim();
+  const source = String(body.source || '').trim();
+  const referrer = String(body.referrer || '').trim();
+  const sourceLine = source || (referrer ? `(referrer) ${referrer}` : 'direct / unknown');
 
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.FROM_ADDRESS || 'Lanyard <hello@lanyardpass.com>';
@@ -65,6 +68,7 @@ export default async (req) => {
     `iOS:     ${ios || '—'}`,
     `Visits:  ${cadence || '—'}`,
     `TestFlight: ${testflight || '—'}`,
+    `Source:  ${sourceLine}`,
     '',
     'Passes:',
     passLines,

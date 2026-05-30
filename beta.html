@@ -454,6 +454,7 @@
       if (state.passes.length === 0) { errEl.textContent = 'Add at least one pass so we know what you hold.'; return; }
       if (!/.+@.+\..+/.test(email)) { errEl.textContent = 'Enter a valid email — it’s where your invite goes.'; return; }
 
+      const qs = new URLSearchParams(location.search);
       const payload = {
         name: document.getElementById('name').value.trim(),
         email,
@@ -464,6 +465,8 @@
         why: document.getElementById('why').value.trim(),
         botField: document.querySelector('[name=botField]').value,
         passes: state.passes,
+        source: qs.get('src') || qs.get('utm_source') || qs.get('ref') || '',
+        referrer: document.referrer || '',
       };
 
       const btn = document.getElementById('submitBtn');
