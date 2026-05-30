@@ -33,6 +33,7 @@ export default async (req) => {
   const iphone = String(body.iphone || '').trim();
   const ios = String(body.ios || '').trim();
   const cadence = String(body.cadence || '').trim();
+  const testflight = String(body.testflight || '').trim();
   const why = String(body.why || '').trim();
 
   const apiKey = process.env.RESEND_API_KEY;
@@ -63,6 +64,7 @@ export default async (req) => {
     `iPhone:  ${iphone || '—'}`,
     `iOS:     ${ios || '—'}`,
     `Visits:  ${cadence || '—'}`,
+    `TestFlight: ${testflight || '—'}`,
     '',
     'Passes:',
     passLines,

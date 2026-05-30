@@ -7,6 +7,21 @@
   <title>Test Lanyard — Apply for the beta</title>
   <meta name="description" content="Apply to be an early tester for Lanyard, the Florida theme park annual pass tracker. Tell us which passes you hold and help shape the app." />
   <meta name="robots" content="noindex" />
+
+  <!-- Open Graph / iMessage / social sharing -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://lanyardpass.com/beta" />
+  <meta property="og:title"       content="You're invited to test Lanyard" />
+  <meta property="og:description" content="Apply to be an early tester — tell us which passes you hold and help shape the app. You shall pass." />
+  <meta property="og:image"       content="https://lanyardpass.com/og-image-beta.png?v=1" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="You're invited to test Lanyard" />
+  <meta name="twitter:description" content="Apply to be an early tester — tell us which passes you hold and help shape the app." />
+  <meta name="twitter:image"       content="https://lanyardpass.com/og-image-beta.png?v=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet" />
@@ -260,6 +275,15 @@
           </select>
         </div>
         <div class="field">
+          <label for="testflight">Have you used TestFlight before?</label>
+          <select id="testflight" name="testflight">
+            <option value="">Choose one…</option>
+            <option>Yes — I've tested apps before</option>
+            <option>No — this would be my first time</option>
+            <option>Not sure what that is</option>
+          </select>
+        </div>
+        <div class="field">
           <label for="why">Why do you want to test Lanyard?</label>
           <textarea id="why" name="why" placeholder="What would make this app genuinely useful to you?"></textarea>
         </div>
@@ -436,6 +460,7 @@
         iphone: document.getElementById('iphone').value.trim(),
         ios: document.getElementById('ios').value.trim(),
         cadence: document.getElementById('cadence').value,
+        testflight: document.getElementById('testflight').value,
         why: document.getElementById('why').value.trim(),
         botField: document.querySelector('[name=botField]').value,
         passes: state.passes,
