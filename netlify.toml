@@ -1,0 +1,17 @@
+# Static site at repo root + serverless functions for the beta form.
+# Previously this site had no build step; publish="." keeps it static and
+# just tells Netlify where the functions live.
+
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Pretty endpoint for the beta form POST.
+[[redirects]]
+  from = "/api/beta"
+  to = "/.netlify/functions/beta"
+  status = 200
+  force = true
