@@ -12,6 +12,21 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="apple-touch-icon" href="favicon.svg" />
 
+  <!-- TelemetryDeck Web Analytics — privacy-first, cookieless, no IP storage.
+       Auto-sends a pageView on every load and auto-extracts src / ref / source /
+       utm_* / referer / country / device as first-class params. No custom signal
+       code, so there is NOTHING to mistype here.
+       TYPE RULE (the one that bit us before): if you ever send a NUMERIC value on
+       a signal, it MUST go in the `floatValue` key — every other payload value is
+       converted to a String and can't be aggregated. We send no numbers from web.
+       The data-app-id below is the public "Lanyard Web" appID — not a secret, it
+       ships in the client. Add data-is-test-mode="true" while testing locally. -->
+  <script
+    src="https://cdn.telemetrydeck.com/websdk/telemetrydeck.min.js"
+    data-app-id="155A1765-42BE-4F22-B380-691BB80566D5"
+    data-is-test-mode="true"
+  ></script>
+
   <!-- Open Graph / iMessage / social sharing -->
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content="https://lanyardpass.com" />
@@ -286,6 +301,31 @@
       text-align: center;
     }
 
+    /* ── BETA CTA (under the waitlist form) ── */
+    .beta-cta {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+
+    .beta-cta strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 6px;
+    }
+
+    .beta-cta a {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--green-accent);
+      text-decoration: none;
+    }
+
+    .beta-cta a:hover { text-decoration: underline; }
+
     @media (max-width: 480px) {
       .form-row { flex-direction: column; }
       .submit-btn { width: 100%; text-align: center; }
@@ -374,6 +414,11 @@
       </form>
       <p class="form-note">No spam. One email when the app launches.</p>
       <p class="success-msg" id="success">You're on the list. 🎢</p>
+
+      <p class="beta-cta">
+        <strong>The beta's open.</strong>
+        <a href="/beta?src=landingpage">Test Lanyard on your iPhone before launch →</a>
+      </p>
     </div>
   </section>
 

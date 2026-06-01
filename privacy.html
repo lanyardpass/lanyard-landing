@@ -10,6 +10,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
+  <!-- TelemetryDeck Web Analytics — privacy-first, cookieless, no IP storage.
+       Auto-sends a pageView on every load and auto-extracts src / ref / source /
+       utm_* / referer / country / device as first-class params. No custom signal
+       code, so there is NOTHING to mistype here.
+       TYPE RULE (the one that bit us before): if you ever send a NUMERIC value on
+       a signal, it MUST go in the `floatValue` key — every other payload value is
+       converted to a String and can't be aggregated. We send no numbers from web.
+       The data-app-id below is the public "Lanyard Web" appID — not a secret, it
+       ships in the client. Add data-is-test-mode="true" while testing locally. -->
+  <script
+    src="https://cdn.telemetrydeck.com/websdk/telemetrydeck.min.js"
+    data-app-id="155A1765-42BE-4F22-B380-691BB80566D5"
+    data-is-test-mode="true"
+  ></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
