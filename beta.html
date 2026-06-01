@@ -29,18 +29,18 @@
   <link rel="apple-touch-icon" href="favicon.svg" />
 
   <!-- TelemetryDeck Web Analytics — privacy-first, cookieless, no IP storage.
-       Auto-sends a pageView on every load and auto-extracts src / ref / source /
-       utm_* / referer / country / device as first-class params. No custom signal
-       code, so there is NOTHING to mistype here.
-       TYPE RULE (the one that bit us before): if you ever send a NUMERIC value on
-       a signal, it MUST go in the `floatValue` key — every other payload value is
-       converted to a String and can't be aggregated. We send no numbers from web.
-       The data-app-id below is the public "Lanyard Web" appID — not a secret, it
-       ships in the client. Add data-is-test-mode="true" while testing locally. -->
+       WebSDK 1.1.0 fires ONE pageView per load: a POST to nom.telemetrydeck.com
+       carrying { appID, url (full href, incl. query string), referrer, locale }.
+       It sends no numbers and exposes no signal() API, so there is nothing to
+       mistype. TelemetryDeck derives src / utm_* / path / country / device
+       server-side from that url + the request. So src attribution works because
+       ?src=... rides inside the url.
+       data-app-id is the public "Lanyard Web" appID — not a secret, it ships in
+       the client. Add data-is-test-mode="true" to keep test loads out of prod
+       (localhost / 127.* / ::1 / file: are auto-flagged as test by the SDK). -->
   <script
     src="https://cdn.telemetrydeck.com/websdk/telemetrydeck.min.js"
     data-app-id="155A1765-42BE-4F22-B380-691BB80566D5"
-    data-is-test-mode="true"
   ></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
