@@ -131,13 +131,23 @@
 }
 
 /* =============================================================
-   Mobile composition (≤860px). The SAME pinned morph, relocated for a
-   portrait frame: the hand-phone is big and anchored low + biased right
-   so the hand/thumb bleed off the edges (never the screen), and the
-   caption rides the freed zone up top. svh keeps iOS Safari's address
-   bar from breaking the pin.
+   Mobile composition (≤700px → phones; tablets get the desktop two-column).
+   The SAME pinned morph, relocated for a portrait frame: the hand-phone is
+   anchored low + biased right so the hand/thumb bleed off the edges (never
+   the screen), and the caption rides the freed zone up top.
+
+   CRITICAL: the phone is sized by HEIGHT (svh), never width — so it fits the
+   available vertical space on any device and the WHOLE iPhone screen (status
+   bar through tab bar) stays visible and readable. Width-based sizing made the
+   height depend on viewport width, which bled the screen off the bottom on
+   real phones and exploded on iPad. svh also keeps Safari's address bar from
+   breaking the pin.
    ============================================================= */
-@media (max-width: 860px) {
+@media (max-width: 700px) {
+  /* Pull the hero up under the floating sticky header so scroll-0 matches the
+     pinned state (otherwise the header pushes the stage down 64px and bleeds
+     the tab bar off the bottom). The header floats over the empty top zone. */
+  .morph { margin-top: -64px; }
   .morph__stage { height: 100svh; }
 
   .morph__grid {
@@ -152,7 +162,7 @@
      reveal-on-scroll, which would otherwise reserve an empty void). */
   .morph__caption {
     position: absolute;
-    top: clamp(4.5rem, 10vh, 6rem); /* clear the sticky site-header */
+    top: clamp(4.75rem, 11vh, 6.5rem); /* clear the sticky site-header */
     left: var(--gutter);
     right: var(--gutter);
     max-width: none;
@@ -167,17 +177,18 @@
      paragraph would crowd it, so the caption is kicker + headline only. */
   .morph__body { display: none; }
 
-  /* Big phone, anchored just below the caption band and biased right.
-     Sized by WIDTH so the screen always lands below the headline; the
-     hand bleeds off the sides + bottom, the screen stays fully visible. */
+  /* Phone sized by HEIGHT so the full screen always fits the vertical space
+     below the caption, with the tab bar still on-screen. Biased right; the
+     hand/thumb bleed off the sides, the wrist off the bottom. Screen width
+     follows from the height (≈0.48 of the plate width). */
   .morph__phone {
     position: absolute;
-    top: 19vh;
+    top: 18svh;          /* below the caption band */
     bottom: auto;
     left: 50%;
     transform: translateX(-45%);
-    width: 145%;
-    height: auto;
+    height: 96svh;       /* screen ≈ 66svh tall → full screen + tab bar fit */
+    width: auto;
     justify-self: initial;
   }
 
