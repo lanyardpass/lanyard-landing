@@ -20,6 +20,11 @@ yarn-error.log
 # Netlify CLI (if we ever install it locally)
 .netlify/
 
+# Astro build output + cache
+dist/
+.output/
+.astro/
+
 # Unused local asset — 4MB source logo not referenced by any HTML
 # If you want this tracked, remove the line below
 logo.png

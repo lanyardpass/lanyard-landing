@@ -1,0 +1,41 @@
+---
+import { CAPABILITIES } from '@/data/act3';
+---
+<section id="everything" class="section cap">
+  <div class="container">
+    <header class="cap__head">
+      <p class="kicker">Everything it does</p>
+      <h2 class="display cap__title">One app for the whole passholder life.</h2>
+    </header>
+    <ul class="cap__grid" role="list">
+      {CAPABILITIES.map((c) => (
+        <li class="cap__card">
+          <span class="cap__icon" aria-hidden="true">{c.icon}</span>
+          <h3 class="cap__name">{c.title}</h3>
+          <p class="cap__body">{c.body}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .cap { background: var(--off-white); color: var(--ink); }
+  .cap__head { max-width: 22ch; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .cap__title { font-size: var(--fs-h2); margin-top: 0.6rem; }
+  .cap__grid {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  .cap__card {
+    background: #fff;
+    border: 1px solid rgba(20, 53, 42, 0.06);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+  }
+  .cap__icon { font-size: 1.6rem; line-height: 1; }
+  .cap__name { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin: 0.8rem 0 0.4rem; }
+  .cap__body { color: var(--muted); font-size: 0.97rem; margin: 0; }
+</style>

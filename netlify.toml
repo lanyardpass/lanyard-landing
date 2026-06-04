@@ -1,9 +1,20 @@
-# Static site at repo root + serverless functions for the beta form.
-# Previously this site had no build step; publish="." keeps it static and
-# just tells Netlify where the functions live.
+# Netlify config for lanyardpass.com (Astro static build + standalone functions).
+#
+# Redesign note: the site was previously hand-built static HTML (publish=".").
+# It is now an Astro project that builds to dist/. The beta form remains a
+# standalone Netlify Function (netlify/functions/beta.mjs) — independent of
+# Astro — so no SSR adapter is required.
+#
+# Branch deploys (e.g. the `redesign` branch) get their own live *.netlify.app
+# URL and are automatically served with X-Robots-Tag: noindex by Netlify, so
+# WIP is never indexed. Production (main) deploys to lanyardpass.com.
 
 [build]
-  publish = "."
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 [functions]
   directory = "netlify/functions"
@@ -15,3 +26,22 @@
   to = "/.netlify/functions/beta"
   status = 200
   force = true
+
+# Carried-over static pages live in public/ as .html — serve them at clean
+# URLs (Netlify does this by default, but make it explicit so dev and prod
+# behave the same and the contract is documented).
+[[redirects]]
+  from = "/beta"
+  to = "/beta.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+
+# Long-cache build-hashed assets.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

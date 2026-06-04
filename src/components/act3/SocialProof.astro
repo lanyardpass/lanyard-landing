@@ -1,0 +1,35 @@
+---
+import { QUOTES } from '@/data/act3';
+// NOTE: QUOTES are flagged placeholders. Real, attributed quotes must replace
+// them before launch — never ship fabricated testimonials (website_plan §4).
+---
+<section id="proof" class="section proof">
+  <div class="container">
+    <header class="proof__head">
+      <p class="kicker">What passholders are saying</p>
+      <h2 class="display proof__title">From the people who live the pass.</h2>
+    </header>
+    <div class="proof__wall">
+      {QUOTES.map((q) => (
+        <figure class={`quote${q.placeholder ? ' quote--placeholder' : ''}`}>
+          <blockquote>{q.text}</blockquote>
+          <figcaption>— {q.attribution}</figcaption>
+          {q.placeholder && <span class="quote__flag">Placeholder · replace before launch</span>}
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .proof { background: var(--off-white); color: var(--ink); }
+  .proof__head { text-align: center; max-width: 24ch; margin: 0 auto clamp(2rem, 5vw, 3rem); }
+  .proof__title { font-size: var(--fs-h2); margin-top: 0.6rem; }
+  .proof__wall { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); max-width: 860px; margin-inline: auto; }
+  .quote { background: #fff; border: 1px solid rgba(20, 53, 42, 0.08); border-radius: var(--radius); padding: 1.8rem; box-shadow: var(--shadow-card); margin: 0; }
+  .quote blockquote { font-size: 1.15rem; line-height: 1.5; margin: 0 0 1rem; }
+  .quote figcaption { color: var(--muted); font-weight: 600; }
+  .quote--placeholder { border-style: dashed; border-color: rgba(82, 183, 136, 0.5); }
+  .quote--placeholder blockquote { color: var(--muted); font-style: italic; }
+  .quote__flag { display: inline-block; margin-top: 0.8rem; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--green-primary); background: rgba(82, 183, 136, 0.12); padding: 0.25rem 0.6rem; border-radius: var(--pill); }
+</style>

@@ -1,0 +1,49 @@
+---
+import { SITE } from '@/data/site';
+const year = 2026;
+---
+<footer class="site-footer">
+  <div class="site-footer__inner container">
+    <div class="site-footer__brand">
+      <span class="wordmark">Lanyard</span>
+      <span class="site-footer__tagline">{SITE.tagline}</span>
+    </div>
+    <nav class="site-footer__links" aria-label="Footer">
+      <a href="/beta">Join the beta</a>
+      <a href="/privacy">Privacy</a>
+      <a href="mailto:dan@lanyardpass.com">Contact</a>
+    </nav>
+    <p class="site-footer__legal">
+      © {year} Lanyard · Built by an Orlando passholder. Not affiliated with any
+      theme park operator.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--green-dark);
+    color: var(--on-dark-muted);
+    padding-block: 3rem 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .site-footer__inner { display: flex; flex-direction: column; gap: 1.25rem; }
+  .site-footer__brand { display: flex; align-items: baseline; gap: 0.75rem; }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    font-size: 1.2rem;
+    color: var(--on-dark);
+  }
+  .site-footer__tagline { font-style: italic; font-size: 0.95rem; }
+  .site-footer__links { display: flex; flex-wrap: wrap; gap: 1.4rem; }
+  .site-footer__links a {
+    color: var(--on-dark-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .site-footer__links a:hover { color: var(--green-accent); }
+  .site-footer__legal { font-size: 0.82rem; color: rgba(207, 228, 216, 0.6); max-width: 60ch; }
+</style>

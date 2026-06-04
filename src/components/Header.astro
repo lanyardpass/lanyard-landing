@@ -1,0 +1,57 @@
+---
+import { NAV, CTA } from '@/data/site';
+---
+<header class="site-header">
+  <div class="site-header__inner container">
+    <a class="wordmark" href="/" aria-label="Lanyard home">Lanyard</a>
+    <nav class="site-nav" aria-label="Primary">
+      {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+    <a class="btn btn--primary site-header__cta" href={CTA.href}>{CTA.label}</a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--green-dark) 88%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 64px;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    font-size: 1.35rem;
+    color: var(--on-dark);
+    text-decoration: none;
+  }
+  .site-nav {
+    display: flex;
+    gap: 1.6rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+  }
+  .site-nav a {
+    color: var(--on-dark-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: color 0.15s ease;
+  }
+  .site-nav a:hover { color: var(--on-dark); }
+  .site-header__cta { padding: 0.55rem 1.2rem; font-size: 0.92rem; }
+
+  @media (max-width: 720px) {
+    .site-nav { display: none; }
+  }
+</style>

@@ -1,0 +1,169 @@
+/* =============================================================
+   Act 1 (hook) + Act 2 (pitch) — the C→A scroll-morph island.
+   Ports marketing/landing-prototype/flow.html into a React island.
+
+   Overlap-prevention: caption and phone live in separate grid tracks,
+   so the oversized C-state headline can never collide with the phone —
+   the grid gap is the safe-zone. The headline also scales down with the
+   morph (--p) and is width-capped within its column.
+   ============================================================= */
+
+.morph {
+  position: relative;
+  height: 400vh; /* scroll track — sticky stage pins for the inner 300vh */
+  background: var(--green-dark);
+}
+
+.morph__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--dark-gradient);
+  color: var(--on-dark);
+}
+
+.morph__grid {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+/* ---------- Caption (left track) ---------- */
+.morph__caption {
+  position: relative;
+  z-index: 3;
+  max-width: 17ch; /* safe-zone: headline wraps before the column edge */
+}
+.morph__caption .kicker { margin-bottom: 0.7rem; }
+.morph__headline {
+  /* C 100% -> A ~50% of the fluid hero size, driven by the morph progress */
+  font-size: calc(var(--fs-hero) * (1 - 0.5 * var(--p, 0)));
+  line-height: 0.96;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, calc(0.45 * (1 - var(--p, 0))));
+}
+.morph__body {
+  max-width: 34ch;
+  color: var(--on-dark-muted);
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+  margin-top: 1.4rem;
+  opacity: var(--p, 0);
+  transform: translateY(calc(10px * (1 - var(--p, 0))));
+}
+
+/* ---------- Phone (right track) — pinned, constant anchor ---------- */
+.morph__phone {
+  position: relative;
+  justify-self: end;
+  height: min(82vh, 860px);
+  aspect-ratio: var(--plate-aspect);
+  filter: drop-shadow(var(--shadow-phone));
+}
+.morph__phone::before {
+  content: '';
+  position: absolute;
+  inset: -14% -18%;
+  z-index: -1;
+  background: var(--accent-glow);
+  filter: blur(24px);
+}
+.morph__screen {
+  position: absolute;
+  left: var(--scr-left);
+  top: var(--scr-top);
+  width: var(--scr-w);
+  height: var(--scr-h);
+  overflow: hidden;
+  border-radius: 7% / 4.7%;
+  background: #000;
+}
+.morph__screen img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* screenshot is ~2% narrower than the hole — fill + crop */
+  object-position: center center;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+.morph__screen img.on { opacity: 1; }
+.morph__plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Scroll hint ---------- */
+.morph__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 2.2rem;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+  opacity: calc(1 - var(--p, 0));
+  pointer-events: none;
+}
+
+/* ---------- Narrow viewports: stack caption above phone ---------- */
+@media (max-width: 860px) {
+  .morph__grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    align-content: center;
+    gap: 1.5rem;
+    padding-top: 6vh;
+  }
+  .morph__caption { max-width: 20ch; }
+  .morph__phone { justify-self: center; height: min(58vh, 620px); }
+  .morph__body { max-width: 40ch; }
+}
+
+/* =============================================================
+   Reduced-motion / no-JS fallback — no pinning, no scroll-jack.
+   Each beat becomes a normal stacked two-column row.
+   ============================================================= */
+.morph--static {
+  background: var(--dark-gradient);
+  color: var(--on-dark);
+  padding-block: var(--space-section);
+}
+.morph__row {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4rem);
+}
+.morph__row + .morph__row { margin-top: clamp(3rem, 7vw, 6rem); }
+.morph__row:nth-child(even) { direction: rtl; }
+.morph__row:nth-child(even) > * { direction: ltr; }
+.morph__row .morph__headline { font-size: var(--fs-h2); margin-top: 0.6rem; }
+.morph__row .morph__body { opacity: 1; transform: none; margin-top: 1rem; }
+.morph__row .morph__phone {
+  position: relative;
+  height: auto;
+  width: min(78%, 340px);
+  justify-self: center;
+}
+@media (max-width: 760px) {
+  .morph__row, .morph__row:nth-child(even) { grid-template-columns: 1fr; direction: ltr; }
+  .morph__row .morph__phone { margin-top: 1.5rem; }
+}

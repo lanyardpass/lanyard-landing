@@ -1,0 +1,20 @@
+---
+import { CTA, SITE } from '@/data/site';
+---
+<section id="get" class="section section--dark final">
+  <div class="container final__inner">
+    <p class="kicker">{SITE.tagline}</p>
+    <h2 class="display final__title">See what your pass is really worth.</h2>
+    <p class="final__sub">Free for your first pass. No account. Join the beta and start tracking today.</p>
+    <a class="btn btn--primary final__cta" href={CTA.href}>{CTA.label}</a>
+    <p class="final__fine">Public TestFlight — one tap, no approval gate.</p>
+  </div>
+</section>
+
+<style>
+  .final__inner { text-align: center; max-width: 30ch; margin-inline: auto; }
+  .final__title { font-size: var(--fs-h2); margin-top: 0.6rem; }
+  .final__sub { color: var(--on-dark-muted); font-size: var(--fs-lead); margin: 1.2rem auto 0; max-width: 44ch; }
+  .final__cta { margin-top: 1.8rem; padding: 1rem 2rem; font-size: 1.05rem; }
+  .final__fine { color: rgba(207, 228, 216, 0.7); font-size: 0.85rem; margin-top: 1rem; }
+</style>

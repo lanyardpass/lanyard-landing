@@ -1,0 +1,22 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import ScrollMorph from '@/components/ScrollMorph.tsx';
+import Capabilities from '@/components/act3/Capabilities.astro';
+import Coverage from '@/components/act3/Coverage.astro';
+import Pricing from '@/components/act3/Pricing.astro';
+import Privacy from '@/components/act3/Privacy.astro';
+import SocialProof from '@/components/act3/SocialProof.astro';
+import FinalCTA from '@/components/act3/FinalCTA.astro';
+---
+<Layout>
+  {/* Acts 1–2 — the hook + pitch, as a single pinned scroll-morph island. */}
+  <ScrollMorph client:load />
+
+  {/* Act 3 — the rational closer, conventional stacked sections. */}
+  <Capabilities />
+  <Coverage />
+  <Pricing />
+  <Privacy />
+  <SocialProof />
+  <FinalCTA />
+</Layout>

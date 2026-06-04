@@ -1,0 +1,52 @@
+---
+import { PRICING } from '@/data/act3';
+const { free, pro, note } = PRICING;
+---
+<section id="pricing" class="section pricing">
+  <div class="container">
+    <header class="pricing__head">
+      <p class="kicker">Free for your first pass</p>
+      <h2 class="display pricing__title">No catch. The free tier is the trial.</h2>
+    </header>
+    <div class="pricing__grid">
+      <article class="plan">
+        <h3 class="plan__name">{free.name}</h3>
+        <p class="plan__price">{free.price}</p>
+        <p class="plan__tag">{free.tagline}</p>
+        <ul class="plan__points" role="list">
+          {free.points.map((p) => <li>{p}</li>)}
+        </ul>
+      </article>
+      <article class="plan plan--pro">
+        <h3 class="plan__name">{pro.name}</h3>
+        <p class="plan__price">{pro.price}</p>
+        <p class="plan__sub">{pro.sub}</p>
+        <p class="plan__tag">{pro.tagline}</p>
+        <ul class="plan__points" role="list">
+          {pro.points.map((p) => <li>{p}</li>)}
+        </ul>
+      </article>
+    </div>
+    <p class="pricing__note">{note}</p>
+  </div>
+</section>
+
+<style>
+  .pricing { background: var(--off-white); color: var(--ink); }
+  .pricing__head { text-align: center; max-width: 24ch; margin: 0 auto clamp(2rem, 5vw, 3rem); }
+  .pricing__title { font-size: var(--fs-h2); margin-top: 0.6rem; }
+  .pricing__grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); max-width: 720px; margin-inline: auto; }
+  .plan {
+    background: #fff; border: 1px solid rgba(20, 53, 42, 0.08);
+    border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-card);
+  }
+  .plan--pro { border-color: var(--green-accent); box-shadow: 0 14px 44px rgba(82, 183, 136, 0.22); }
+  .plan__name { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--green-primary); margin: 0; }
+  .plan__price { font-family: var(--font-display); font-weight: 900; font-size: 2.2rem; margin: 0.4rem 0 0; color: var(--ink); }
+  .plan__sub { color: var(--muted); font-size: 0.9rem; margin: 0.2rem 0 0; }
+  .plan__tag { color: var(--muted); margin: 0.8rem 0 1.2rem; }
+  .plan__points { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .plan__points li { padding-left: 1.5rem; position: relative; }
+  .plan__points li::before { content: '✓'; position: absolute; left: 0; color: var(--green-accent); font-weight: 800; }
+  .pricing__note { text-align: center; color: var(--muted); font-size: 0.92rem; margin-top: 1.6rem; }
+</style>
