@@ -169,13 +169,22 @@
     z-index: 3;
   }
   .morph__caption .kicker { margin-bottom: 0.5rem; }
+  /* Hero shrink: headline settles from ~2.3rem (C) to ~1.7rem (A) as you
+     scroll, mirroring desktop but scaled for the top band. */
   .morph__headline {
-    /* Compact so the 1–2 line headline clears the phone's top edge. */
-    font-size: clamp(1.7rem, 7vw, 2.2rem);
+    font-size: calc(1.7rem + 0.6rem * (1 - var(--p, 0)));
   }
-  /* On a phone the curated screen carries the detail — the body
-     paragraph would crowd it, so the caption is kicker + headline only. */
-  .morph__body { display: none; }
+  /* Body flows in as the headline shrinks. It reserves its space (opacity,
+     not display) so the pinned phone never reflows underneath it. */
+  .morph__body {
+    display: block;
+    opacity: var(--p, 0);
+    transform: translateY(calc(6px * (1 - var(--p, 0))));
+    font-size: 0.95rem;
+    line-height: 1.4;
+    max-width: 34ch;
+    margin-top: 0.7rem;
+  }
 
   /* Phone sized by HEIGHT so the full screen always fits the vertical space
      below the caption, with the tab bar still on-screen. Biased right; the
@@ -183,11 +192,11 @@
      follows from the height (≈0.48 of the plate width). */
   .morph__phone {
     position: absolute;
-    top: 18svh;          /* below the caption band */
+    top: 30svh;          /* below the caption band (headline + body) */
     bottom: auto;
     left: 50%;
     transform: translateX(-45%);
-    height: 96svh;       /* screen ≈ 66svh tall → full screen + tab bar fit */
+    height: 81svh;       /* screen fits below the body, tab bar still on-screen */
     width: auto;
     justify-self: initial;
   }
