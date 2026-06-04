@@ -20,7 +20,9 @@ const {
   noindex = import.meta.env.PUBLIC_NOINDEX === 'true',
 } = Astro.props;
 
-const ogImage = new URL('/og-image.png', Astro.site).href;
+// Single link-preview card sitewide for the beta phase (matches beta.html).
+// Swap back to /og-image.png at App Store launch.
+const ogImage = new URL('/og-image-beta.png?v=1', Astro.site).href;
 ---
 <!doctype html>
 <html lang="en">
