@@ -192,13 +192,20 @@
      follows from the height (≈0.48 of the plate width). */
   .morph__phone {
     position: absolute;
-    top: 30svh;          /* below the caption band (headline + body) */
-    bottom: auto;
     left: 50%;
     transform: translateX(-45%);
-    height: 81svh;       /* screen fits below the body, tab bar still on-screen */
+    bottom: auto;
     width: auto;
     justify-self: initial;
+    /* Fill the space between the caption band and a ~48px bottom margin so the
+       screen is as LARGE as possible on any viewport height (no fixed-svh
+       slack). The screen is ≈68.5% of the plate height, so:
+         screenHeight = 100svh − capReserve(262) − botMargin(48)
+         plateHeight  = screenHeight / 0.685  ≈ screenHeight × 1.46
+         plateTop     = capReserve − 0.1016 × plateHeight
+       The hand bleeds off the sides + bottom; the screen stays fully visible. */
+    height: calc((100svh - 318px) * 1.46);
+    top: calc(316px - 14.83svh);
   }
 
   .morph__hint { display: none; }
