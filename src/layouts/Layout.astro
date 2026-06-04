@@ -14,7 +14,10 @@ interface Props {
 const {
   title = `${SITE.name} — Watch your pass pay for itself`,
   description = SITE.description,
-  noindex = false,
+  // Non-production build contexts set PUBLIC_NOINDEX=true (see netlify.toml).
+  // The most-recent branch deploy is otherwise indexable by default, so this
+  // keeps WIP out of search engines while production stays indexable.
+  noindex = import.meta.env.PUBLIC_NOINDEX === 'true',
 } = Astro.props;
 
 const ogImage = new URL('/og-image.png', Astro.site).href;
