@@ -20,9 +20,11 @@ import { COVERAGE } from '@/data/act3';
 </section>
 
 <style>
-  .cov__head { max-width: 30ch; margin-bottom: clamp(2rem, 5vw, 3rem); }
-  .cov__title { font-size: var(--fs-h2); margin-top: 0.6rem; }
-  .cov__lead { color: var(--on-dark-muted); font-size: var(--fs-lead); margin-top: 1rem; max-width: 52ch; }
+  .cov__head { margin-bottom: clamp(2rem, 5vw, 3rem); }
+  /* Cap the measure on the title itself so `ch` scales with the big headline
+     font (≈2 lines), not the small body font. */
+  .cov__title { font-size: var(--fs-h2); margin-top: 0.6rem; max-width: 18ch; }
+  .cov__lead { color: var(--on-dark-muted); font-size: var(--fs-lead); margin-top: 1rem; max-width: 46ch; }
   .cov__grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
   .cov__card {
     background: rgba(255, 255, 255, 0.05);
