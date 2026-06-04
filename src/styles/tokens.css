@@ -32,8 +32,8 @@
   /* ---------- Dark-section treatment (from the C→A spike) ---------- */
   --dark-gradient: radial-gradient(130% 100% at 72% 32%,
                      #2a5b44 0%, var(--green-dark) 52%, #14352a 100%);
-  --accent-glow:   radial-gradient(50% 50% at 50% 46%,
-                     rgba(82, 183, 136, 0.30), rgba(82, 183, 136, 0) 70%);
+  /* The phone's accent bloom is defined inline in ScrollMorph.css (its
+     geometry/blur are specific to the pinned phone, not a reusable token). */
 
   /* ---------- Phone screen geometry (transparent hole as % of plate) ---------- */
   --scr-left: 24.61%;

@@ -70,10 +70,15 @@
 .morph__phone::before {
   content: '';
   position: absolute;
-  inset: -14% -18%;
+  inset: -38% -42%;
   z-index: -1;
-  background: var(--accent-glow);
-  filter: blur(24px);
+  /* Soft circular bloom that fades fully to transparent (closest-side, no hard
+     stop) and is heavily blurred — reads as ambient accent light rather than a
+     halo tracing the phone's rectangular silhouette. Biased slightly up/right
+     like a light source. */
+  background: radial-gradient(closest-side circle at 56% 36%,
+                rgba(82, 183, 136, 0.22), rgba(82, 183, 136, 0) 100%);
+  filter: blur(70px);
 }
 .morph__screen {
   position: absolute;
