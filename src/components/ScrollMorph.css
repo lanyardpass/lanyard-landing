@@ -169,21 +169,22 @@
     z-index: 3;
   }
   .morph__caption .kicker { margin-bottom: 0.5rem; }
-  /* Hero shrink: headline settles from ~2.3rem (C) to ~1.7rem (A) as you
-     scroll, mirroring desktop but scaled for the top band. */
+  /* Hero shrink: big at the top (~3rem) where the body is still hidden and
+     there's room, settling to ~1.65rem as you scroll so the body fits in. */
   .morph__headline {
-    font-size: calc(1.7rem + 0.6rem * (1 - var(--p, 0)));
+    font-size: calc(1.65rem + 1.35rem * (1 - var(--p, 0)));
   }
-  /* Body flows in as the headline shrinks. It reserves its space (opacity,
-     not display) so the pinned phone never reflows underneath it. */
+  /* Body flows in as the headline shrinks — there's room now that the phone
+     slid down. Reserves its space (opacity, not display) so the pinned phone
+     never reflows underneath it. */
   .morph__body {
     display: block;
     opacity: var(--p, 0);
     transform: translateY(calc(6px * (1 - var(--p, 0))));
-    font-size: 0.95rem;
-    line-height: 1.4;
-    max-width: 34ch;
-    margin-top: 0.7rem;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    max-width: 36ch;
+    margin-top: 0.6rem;
   }
 
   /* Phone sized by HEIGHT so the full screen always fits the vertical space
@@ -193,19 +194,16 @@
   .morph__phone {
     position: absolute;
     left: 50%;
-    transform: translateX(-45%);
     bottom: auto;
     width: auto;
     justify-self: initial;
-    /* Fill the space between the caption band and a ~48px bottom margin so the
-       screen is as LARGE as possible on any viewport height (no fixed-svh
-       slack). The screen is ≈68.5% of the plate height, so:
-         screenHeight = 100svh − capReserve(262) − botMargin(48)
-         plateHeight  = screenHeight / 0.685  ≈ screenHeight × 1.46
-         plateTop     = capReserve − 0.1016 × plateHeight
-       The hand bleeds off the sides + bottom; the screen stays fully visible. */
-    height: calc((100svh - 318px) * 1.46);
-    top: calc(316px - 14.83svh);
+    /* Size locked to a ~250px screen (≈58vw on a Pro Max). Then slid RIGHT
+       (thumb off the edge) and DOWN (the low-value bottom — tab bar — bleeds
+       off), which opens the whole top zone for the text. Screen height ≈68.5%
+       of plate height; the +60px on `top` is the downward slide. */
+    height: calc((100svh - 278px) * 1.46);
+    top: calc(331px - 14.83svh);
+    transform: translateX(-37%);
   }
 
   .morph__hint { display: none; }
