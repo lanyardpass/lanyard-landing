@@ -130,50 +130,70 @@
   pointer-events: none;
 }
 
-/* ---------- Narrow viewports: stack caption above phone ---------- */
-@media (max-width: 860px) {
-  .morph__grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    align-content: center;
-    gap: 1.5rem;
-    padding-top: 6vh;
-  }
-  .morph__caption { max-width: 20ch; }
-  .morph__phone { justify-self: center; height: min(58vh, 620px); }
-  .morph__body { max-width: 40ch; }
+/* =============================================================
+   Layout switch. The pinned morph is desktop-only. On phones / small
+   tablets (≤860px) OR for reduced-motion users (any width), show the
+   stacked layout instead. Both render in the DOM; CSS picks exactly one
+   (no JS detection → no hydration flash, correct on first paint).
+   ============================================================= */
+.morph--static { display: none; }
+
+@media (max-width: 860px), (prefers-reduced-motion: reduce) {
+  .morph { display: none; }
+  .morph--static { display: block; }
 }
 
 /* =============================================================
-   Reduced-motion / no-JS fallback — no pinning, no scroll-jack.
-   Each beat becomes a normal stacked two-column row.
+   Stacked beats — the MOBILE primary experience (and the
+   reduced-motion fallback at any width). Clean vertical scroll,
+   one beat at a time, no scroll-jack.
    ============================================================= */
 .morph--static {
   background: var(--dark-gradient);
   color: var(--on-dark);
-  padding-block: var(--space-section);
+  padding-block: clamp(3.5rem, 12vw, 6rem);
 }
+
+/* Mobile-first: each beat is a centered column — kicker, headline,
+   body, then the hand-phone. */
 .morph__row {
-  max-width: var(--maxw);
+  max-width: 30rem;
   margin-inline: auto;
   padding-inline: var(--gutter);
-  display: grid;
-  grid-template-columns: 1fr minmax(0, 0.85fr);
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: clamp(1.5rem, 5vw, 4rem);
+  text-align: center;
 }
-.morph__row + .morph__row { margin-top: clamp(3rem, 7vw, 6rem); }
-.morph__row:nth-child(even) { direction: rtl; }
-.morph__row:nth-child(even) > * { direction: ltr; }
-.morph__row .morph__headline { font-size: var(--fs-h2); margin-top: 0.6rem; }
-.morph__row .morph__body { opacity: 1; transform: none; margin-top: 1rem; }
+.morph__row + .morph__row { margin-top: clamp(3.5rem, 11vw, 6rem); }
+.morph__row .morph__caption { max-width: none; }
+.morph__row .morph__headline { font-size: var(--fs-h2); margin-top: 0.5rem; }
+.morph__row .morph__body {
+  opacity: 1;
+  transform: none;
+  margin: 0.9rem auto 0;
+  max-width: 34ch;
+}
 .morph__row .morph__phone {
   position: relative;
   height: auto;
-  width: min(78%, 340px);
-  justify-self: center;
+  width: min(74%, 290px);
+  margin-top: clamp(1.6rem, 6vw, 2.4rem);
 }
-@media (max-width: 760px) {
-  .morph__row, .morph__row:nth-child(even) { grid-template-columns: 1fr; direction: ltr; }
-  .morph__row .morph__phone { margin-top: 1.5rem; }
+.morph--static .morph__screen img { opacity: 1; }
+
+/* Reduced-motion on a WIDE screen (≥861px only — phones never hit this):
+   a roomier two-column, alternating layout. */
+@media (min-width: 861px) {
+  .morph__row {
+    max-width: var(--maxw);
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .morph__row > .morph__caption { flex: 1; }
+  .morph__row:nth-child(even) { flex-direction: row-reverse; }
+  .morph__row .morph__body { margin-inline: 0; }
+  .morph__row .morph__phone { flex: none; width: min(40%, 320px); margin-top: 0; }
 }
