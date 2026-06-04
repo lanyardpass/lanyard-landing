@@ -131,22 +131,76 @@
 }
 
 /* =============================================================
-   Layout switch. The pinned morph is desktop-only. On phones / small
-   tablets (≤860px) OR for reduced-motion users (any width), show the
-   stacked layout instead. Both render in the DOM; CSS picks exactly one
-   (no JS detection → no hydration flash, correct on first paint).
+   Mobile composition (≤860px). The SAME pinned morph, relocated for a
+   portrait frame: the hand-phone is big and anchored low + biased right
+   so the hand/thumb bleed off the edges (never the screen), and the
+   caption rides the freed zone up top. svh keeps iOS Safari's address
+   bar from breaking the pin.
+   ============================================================= */
+@media (max-width: 860px) {
+  .morph__stage { height: 100svh; }
+
+  .morph__grid {
+    display: block;
+    position: relative;
+    height: 100%;
+    padding: 0;
+    gap: 0;
+  }
+
+  /* Caption rides the freed top zone, always fully shown (no desktop
+     reveal-on-scroll, which would otherwise reserve an empty void). */
+  .morph__caption {
+    position: absolute;
+    top: clamp(4.5rem, 10vh, 6rem); /* clear the sticky site-header */
+    left: var(--gutter);
+    right: var(--gutter);
+    max-width: none;
+    z-index: 3;
+  }
+  .morph__caption .kicker { margin-bottom: 0.5rem; }
+  .morph__headline {
+    /* Compact so the 1–2 line headline clears the phone's top edge. */
+    font-size: clamp(1.7rem, 7vw, 2.2rem);
+  }
+  /* On a phone the curated screen carries the detail — the body
+     paragraph would crowd it, so the caption is kicker + headline only. */
+  .morph__body { display: none; }
+
+  /* Big phone, anchored just below the caption band and biased right.
+     Sized by WIDTH so the screen always lands below the headline; the
+     hand bleeds off the sides + bottom, the screen stays fully visible. */
+  .morph__phone {
+    position: absolute;
+    top: 19vh;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-45%);
+    width: 145%;
+    height: auto;
+    justify-self: initial;
+  }
+
+  .morph__hint { display: none; }
+}
+
+/* =============================================================
+   Layout switch. The pinned morph is THE experience at every width
+   (desktop and mobile — just composed differently per the media query
+   below). The stacked layout is now purely the reduced-motion fallback.
+   Both render in the DOM; CSS picks exactly one (no JS detection → no
+   hydration flash, correct on first paint).
    ============================================================= */
 .morph--static { display: none; }
 
-@media (max-width: 860px), (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .morph { display: none; }
   .morph--static { display: block; }
 }
 
 /* =============================================================
-   Stacked beats — the MOBILE primary experience (and the
-   reduced-motion fallback at any width). Clean vertical scroll,
-   one beat at a time, no scroll-jack.
+   Stacked beats — reduced-motion fallback only. Clean vertical
+   scroll, one beat at a time, no scroll-jack.
    ============================================================= */
 .morph--static {
   background: var(--dark-gradient);

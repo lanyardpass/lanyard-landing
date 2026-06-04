@@ -20,7 +20,6 @@ import './ScrollMorph.css';
  * The scroll listener only does work while the morph is the visible layout.
  */
 
-const NARROW = '(max-width: 860px)';
 const REDUCED = '(prefers-reduced-motion: reduce)';
 
 export default function ScrollMorph() {
@@ -30,14 +29,14 @@ export default function ScrollMorph() {
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    const mqNarrow = window.matchMedia(NARROW);
     const mqReduced = window.matchMedia(REDUCED);
 
     let ticking = false;
     const update = () => {
       ticking = false;
-      // Skip when the stacked layout is the visible one.
-      if (mqNarrow.matches || mqReduced.matches) return;
+      // The morph runs at every width now; only reduced-motion users get the
+      // stacked fallback (which doesn't need the scroll listener).
+      if (mqReduced.matches) return;
       const vh = window.innerHeight;
       const scrolled = Math.max(-track.getBoundingClientRect().top, 0);
       // Hero morph C→A across the first ~0.85 viewport.
