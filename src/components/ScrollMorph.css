@@ -40,7 +40,8 @@
 .morph__caption {
   position: relative;
   z-index: 3;
-  max-width: 17ch; /* safe-zone: headline wraps before the column edge */
+  /* No width cap needed: the grid's two tracks + gap are the safe-zone, so the
+     caption fills its column. (Mobile overrides this with absolute positioning.) */
 }
 .morph__caption .kicker { margin-bottom: 0.7rem; }
 .morph__headline {
