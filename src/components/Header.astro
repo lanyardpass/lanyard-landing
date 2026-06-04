@@ -1,9 +1,12 @@
 ---
 import { NAV, CTA } from '@/data/site';
+import LanyardLogo from '@/components/LanyardLogo.astro';
 ---
 <header class="site-header">
   <div class="site-header__inner container">
-    <a class="wordmark" href="/" aria-label="Lanyard home">Lanyard</a>
+    <a class="wordmark" href="/" aria-label="Lanyard home">
+      <LanyardLogo width={150} label="" />
+    </a>
     <nav class="site-nav" aria-label="Primary">
       {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
@@ -28,11 +31,9 @@ import { NAV, CTA } from '@/data/site';
     min-height: 64px;
   }
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    font-size: 1.35rem;
-    color: var(--on-dark);
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
     text-decoration: none;
   }
   .site-nav {

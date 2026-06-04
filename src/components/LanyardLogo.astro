@@ -1,0 +1,45 @@
+---
+// Lanyard wordmark — LAN + clipboard-badge(Y, tilted 12°) + ARD.
+// Canonical source: Lanyard/Lanyard/LanyardLogo.swift (mirrored by the
+// design-system LanyardLogo.jsx). Pure type + CSS so it stays crisp at any
+// size. Two variants: filled badge (header / app style) and outline (original
+// site style). Geometry is expressed as fractions of `width` so it scales.
+interface Props {
+  width?: number;
+  /** Color of the LAN / ARD wordmark. */
+  color?: string;
+  /** true = white badge with dark Y (original); false = dark badge, white Y (header). */
+  outlineBadge?: boolean;
+  /** Accessible label; set '' to mark decorative. */
+  label?: string;
+}
+const { width = 220, color = '#FFFFFF', outlineBadge = false, label = 'Lanyard' } = Astro.props;
+
+const s = width / 220;
+const badgeW = 29 * s, badgeH = 41 * s;
+const clipW = 17 * s, clipH = 5 * s;
+const slotW = 8 * s, slotH = 3 * s;
+const wordSize = 42 * s, ySize = 34 * s;
+
+const badgeFill = outlineBadge ? '#FFFFFF' : '#1B4332';
+const yColor = outlineBadge ? '#1B4332' : '#FFFFFF';
+
+const wordStyle = `font-family:var(--font-display);font-size:${wordSize}px;font-weight:900;color:${color};letter-spacing:-0.02em;line-height:1;`;
+---
+<span
+  class="lanyard-logo"
+  style={`display:inline-flex;align-items:center;width:${width}px;`}
+  role="img"
+  aria-label={label || undefined}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <span style={wordStyle}>LAN</span>
+  <span style={`position:relative;width:${badgeW}px;height:${badgeH}px;transform:rotate(12deg);margin-left:${2 * s}px;margin-right:${-2 * s}px;`}>
+    <span style={`position:absolute;inset:0;border-radius:${4 * s}px;background:${badgeFill};border:${1.5 * s}px solid #52B788;`}></span>
+    <span style={`position:absolute;top:${-clipH * 0.4}px;left:50%;transform:translateX(-50%);width:${clipW}px;height:${clipH}px;border-radius:${2 * s}px;background:${badgeFill};border:${1.5 * s}px solid #52B788;display:flex;align-items:center;justify-content:center;`}>
+      <span style={`width:${slotW}px;height:${slotH}px;background:#52B788;border-radius:999px;`}></span>
+    </span>
+    <span style={`position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:${ySize}px;font-weight:900;color:${yColor};padding-top:${4 * s}px;`}>Y</span>
+  </span>
+  <span style={wordStyle}>ARD</span>
+</span>
