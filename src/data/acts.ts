@@ -25,7 +25,7 @@ export const ACTS: Act[] = [
     headline: 'Watch your pass pay for itself.',
     body:
       'Every visit and perk adds up to a number you can actually see. The day it breaks even, you’ll know.',
-    screen: '/assets/screen-payback.jpg',
+    screen: '/assets/screen-payback.webp',
     screenAlt: 'Lanyard payback screen showing a pass that has paid back 105% of its cost.',
   },
   {
@@ -34,7 +34,7 @@ export const ACTS: Act[] = [
     headline: 'Your whole season on one timeline.',
     body:
       'Events, blockouts and park hours across all your passes — so you always know if today’s a good day to go.',
-    screen: '/assets/screen-calendar.jpg',
+    screen: '/assets/screen-calendar.webp',
     screenAlt: 'Lanyard calendar screen showing events, blockouts and hours on one timeline.',
   },
   {
@@ -43,7 +43,7 @@ export const ACTS: Act[] = [
     headline: 'Every perk. Every dollar back.',
     body:
       'Track the discounts, parking and freebies you actually use, and what they’ve saved you.',
-    screen: '/assets/screen-perks.jpg',
+    screen: '/assets/screen-perks.webp',
     screenAlt: 'Lanyard perks screen listing passholder discounts and the value each one has saved.',
   },
 ];
