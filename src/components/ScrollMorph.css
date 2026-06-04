@@ -145,19 +145,24 @@
    anchored low + biased right so the hand/thumb bleed off the edges (never
    the screen), and the caption rides the freed zone up top.
 
-   CRITICAL: the phone is sized by HEIGHT (svh), never width — so it fits the
+   CRITICAL: the phone is sized by HEIGHT (dvh), never width — so it fits the
    available vertical space on any device and the WHOLE iPhone screen (status
    bar through tab bar) stays visible and readable. Width-based sizing made the
    height depend on viewport width, which bled the screen off the bottom on
-   real phones and exploded on iPad. svh also keeps Safari's address bar from
-   breaking the pin.
+   real phones and exploded on iPad.
+
+   dvh (dynamic viewport height) tracks the ACTUALLY-visible area as Safari's
+   chrome expands/collapses, so the hero always fills the screen. svh was wrong
+   here: with the top address bar it came out smaller than the visible area,
+   leaving a tiny phone + a dark gap below. (Cost of dvh: a slight resize as the
+   bar collapses over the first ~100px of scroll, which is acceptable.)
    ============================================================= */
 @media (max-width: 1024px) {
   /* Pull the hero up under the floating sticky header so scroll-0 matches the
      pinned state (otherwise the header pushes the stage down 64px and bleeds
      the tab bar off the bottom). The header floats over the empty top zone. */
   .morph { margin-top: -64px; }
-  .morph__stage { height: 100svh; }
+  .morph__stage { height: 100dvh; }
 
   .morph__grid {
     display: block;
@@ -188,7 +193,11 @@
      never reflows underneath it. */
   .morph__body {
     display: block;
-    opacity: var(--p, 0);
+    /* Hold invisible until the headline has shrunk enough that the body has
+       risen clear of the phone (~p 0.45), THEN fade in. Otherwise it ghosts
+       over the screen during the morph — visible especially when Safari's
+       address bar collapses mid-scroll and shifts the viewport. */
+    opacity: clamp(0, (var(--p, 0) - 0.45) / 0.55, 1);
     transform: translateY(calc(6px * (1 - var(--p, 0))));
     font-size: 0.9rem;
     line-height: 1.35;
@@ -210,8 +219,8 @@
        (thumb off the edge) and DOWN (the low-value bottom — tab bar — bleeds
        off), which opens the whole top zone for the text. Screen height ≈68.5%
        of plate height; the +60px on `top` is the downward slide. */
-    height: calc((100svh - 278px) * 1.46);
-    top: calc(331px - 14.83svh);
+    height: calc((100dvh - 278px) * 1.46);
+    top: calc(331px - 14.83dvh);
     transform: translateX(-37%);
   }
 
