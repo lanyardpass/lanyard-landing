@@ -64,9 +64,17 @@
 .morph__phone {
   position: relative;
   justify-self: end;
-  height: min(82vh, 860px);
+  /* 56vw cap keeps the phone within its grid column on narrower desktop widths
+     (just above the 1024 tablet breakpoint) so it never overflows into the
+     caption. On real laptop/desktop widths 82vh governs, unchanged. */
+  height: min(82vh, 860px, 56vw);
   aspect-ratio: var(--plate-aspect);
   filter: drop-shadow(var(--shadow-phone));
+  /* Force a compositing layer from first paint. Without this the drop-shadow
+     (over the masked plate, inside a position:sticky stage) mis-composites as a
+     dark rectangle until the first scroll repaints it. Mobile already gets a
+     layer via its translateX, so this only matters on desktop. */
+  transform: translateZ(0);
 }
 .morph__phone::before {
   content: '';
@@ -144,7 +152,7 @@
    real phones and exploded on iPad. svh also keeps Safari's address bar from
    breaking the pin.
    ============================================================= */
-@media (max-width: 700px) {
+@media (max-width: 1024px) {
   /* Pull the hero up under the floating sticky header so scroll-0 matches the
      pinned state (otherwise the header pushes the stage down 64px and bleeds
      the tab bar off the bottom). The header floats over the empty top zone. */
