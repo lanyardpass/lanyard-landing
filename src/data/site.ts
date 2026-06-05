@@ -7,7 +7,7 @@ export const SITE = {
   tagline: 'You shall pass.',
   domain: 'lanyardpass.com',
   description:
-    'Lanyard tracks what your theme-park annual pass is really worth — visits, perks, blockouts and events — all on your phone. Built by an Orlando passholder.',
+    'Lanyard helps you get the most out of your theme-park annual pass: track visits, perks, blockouts and events, and watch it pay for itself. Built by an Orlando passholder.',
 };
 
 /** The single repeated call to action. Beta now → App Store at launch. */
