@@ -1,9 +1,8 @@
-# Netlify config for lanyardpass.com (Astro static build + standalone functions).
+# Netlify config for lanyardpass.com (Astro SSR via @astrojs/netlify).
 #
-# Redesign note: the site was previously hand-built static HTML (publish=".").
-# It is now an Astro project that builds to dist/. The beta form remains a
-# standalone Netlify Function (netlify/functions/beta.mjs) — independent of
-# Astro — so no SSR adapter is required.
+# The site is an Astro project building to dist/. SSR + the form/admin routes
+# (and Netlify Blobs storage) are handled by the adapter — no standalone
+# functions config needed; the adapter generates the serverless function.
 #
 # Branch deploys (e.g. the `redesign` branch) get their own live *.netlify.app
 # URL and are automatically served with X-Robots-Tag: noindex by Netlify, so
@@ -16,28 +15,11 @@
 [build.environment]
   NODE_VERSION = "20"
 
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-# Pretty endpoint for the beta form POST.
-[[redirects]]
-  from = "/api/beta"
-  to = "/.netlify/functions/beta"
-  status = 200
-  force = true
-
-# Carried-over static pages live in public/ as .html — serve them at clean
-# URLs (Netlify does this by default, but make it explicit so dev and prod
-# behave the same and the contract is documented).
+# /beta is still the carried-over static page (public/beta.html); serve it at a
+# clean URL. /privacy is now an Astro page, so it needs no redirect.
 [[redirects]]
   from = "/beta"
   to = "/beta.html"
-  status = 200
-
-[[redirects]]
-  from = "/privacy"
-  to = "/privacy.html"
   status = 200
 
 # Long-cache build-hashed assets.

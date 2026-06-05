@@ -1,5 +1,6 @@
 ---
 import { CTA, SITE } from '@/data/site';
+import WaitlistForm from '@/components/WaitlistForm.astro';
 ---
 <section id="get" class="section section--dark final">
   <div class="container final__inner">
@@ -8,6 +9,11 @@ import { CTA, SITE } from '@/data/site';
     <p class="final__sub">Free for your first pass. No account. Join the beta and start tracking today.</p>
     <a class="btn btn--primary final__cta" href={CTA.href}>{CTA.label}</a>
     <p class="final__fine">Public TestFlight — one tap, no approval gate.</p>
+
+    <div class="final__waitlist" id="waitlist">
+      <p class="final__waitlist-lead">Not ready to test? Get notified when it hits the App Store.</p>
+      <WaitlistForm />
+    </div>
   </div>
 </section>
 
@@ -17,4 +23,10 @@ import { CTA, SITE } from '@/data/site';
   .final__sub { color: var(--on-dark-muted); font-size: var(--fs-lead); margin: 1.2rem auto 0; max-width: 44ch; }
   .final__cta { margin-top: 1.8rem; padding: 1rem 2rem; font-size: 1.05rem; }
   .final__fine { color: rgba(207, 228, 216, 0.7); font-size: 0.85rem; margin-top: 1rem; }
+  .final__waitlist {
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .final__waitlist-lead { color: var(--on-dark-muted); font-size: 0.95rem; margin-bottom: 1rem; }
 </style>

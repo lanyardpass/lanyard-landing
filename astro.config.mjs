@@ -1,13 +1,18 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import netlify from '@astrojs/netlify';
 
 // Marketing site for lanyardpass.com.
-// Static output (best Lighthouse/SEO); the beta form runs as a standalone
-// Netlify Function (netlify/functions/beta.mjs), so no SSR adapter is needed.
-// React is loaded only as an island (the Act 2 scroll-morph).
+// SSR via the Netlify adapter so we can run server routes (signup capture,
+// admin, CSV export) with Netlify Blobs storage — all zero-config on Netlify.
+// The content pages (home, privacy) opt back into static with
+// `export const prerender = true`, so they stay as fast as before; only the
+// /api and /admin routes run server-side. The app's "no backend" rule is
+// app-only and doesn't apply to this marketing site.
 // https://astro.build/config
 export default defineConfig({
   site: 'https://lanyardpass.com',
-  output: 'static',
+  output: 'server',
+  adapter: netlify(),
   integrations: [react()],
 });

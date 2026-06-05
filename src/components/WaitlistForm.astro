@@ -1,0 +1,91 @@
+---
+// Compact waitlist capture. Posts JSON to /api/waitlist and swaps to a success
+// state. Carries ?src= through for channel attribution. Vanilla JS — no island.
+---
+<form class="wl" data-waitlist novalidate>
+  <div class="wl__row">
+    <input
+      type="email"
+      name="email"
+      required
+      placeholder="you@email.com"
+      aria-label="Email for launch notification"
+      class="wl__input"
+    />
+    <button type="submit" class="wl__btn">Notify me at launch</button>
+  </div>
+  {/* Honeypot — hidden from humans, bots fill it. */}
+  <input type="text" name="botField" tabindex="-1" autocomplete="off" class="wl__hp" aria-hidden="true" />
+  <p class="wl__msg" data-msg aria-live="polite"></p>
+</form>
+
+<script>
+  document.querySelectorAll('[data-waitlist]').forEach((form) => {
+    const f = form as HTMLFormElement;
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = f.querySelector('[data-msg]') as HTMLElement;
+      const email = (f.elements.namedItem('email') as HTMLInputElement).value.trim();
+      if (!/.+@.+\..+/.test(email)) { msg.textContent = 'Enter a valid email.'; return; }
+      const btn = f.querySelector('button') as HTMLButtonElement;
+      const src = new URLSearchParams(location.search).get('src') || '';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            botField: (f.elements.namedItem('botField') as HTMLInputElement).value,
+            source: src,
+          }),
+        });
+        if (res.ok) {
+          f.innerHTML = '<p class="wl__done">You’re on the list — we’ll email you once, at launch.</p>';
+        } else {
+          const d = await res.json().catch(() => ({}));
+          msg.textContent = d.error || 'Something went wrong. Please try again.';
+          btn.disabled = false;
+        }
+      } catch {
+        msg.textContent = 'Network error. Please try again.';
+        btn.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .wl { max-width: 30rem; margin-inline: auto; }
+  .wl__row { display: flex; gap: 0.5rem; }
+  .wl__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.8rem 1rem;
+    border-radius: var(--pill);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--on-dark);
+    font-size: 1rem;
+  }
+  .wl__input::placeholder { color: rgba(207, 228, 216, 0.6); }
+  .wl__input:focus { outline: none; border-color: var(--green-accent); }
+  .wl__btn {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 0.8rem 1.3rem;
+    border-radius: var(--pill);
+    border: 0;
+    background: var(--green-accent);
+    color: var(--green-dark);
+    cursor: pointer;
+  }
+  .wl__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .wl__msg:not(:empty) { color: #ffd9d2; font-size: 0.85rem; margin-top: 0.6rem; }
+  .wl__done { color: var(--green-accent); font-weight: 600; }
+  @media (max-width: 460px) {
+    .wl__row { flex-direction: column; }
+  }
+</style>

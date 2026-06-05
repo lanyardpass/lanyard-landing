@@ -10,7 +10,14 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
     <nav class="site-nav" aria-label="Primary">
       {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
-    <a class="btn btn--primary site-header__cta" href={CTA.href}>{CTA.label}</a>
+    <div class="site-header__actions">
+      <a class="site-header__waitlist" href="/#waitlist">
+        <span class="lbl-full">Join the waitlist</span><span class="lbl-short">Waitlist</span>
+      </a>
+      <a class="btn btn--primary site-header__cta" href={CTA.href}>
+        <span class="lbl-full">{CTA.label}</span><span class="lbl-short">Beta</span>
+      </a>
+    </div>
   </div>
 </header>
 
@@ -50,9 +57,40 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
     transition: color 0.15s ease;
   }
   .site-nav a:hover { color: var(--on-dark); }
-  .site-header__cta { padding: 0.55rem 1.2rem; font-size: 0.92rem; }
+
+  .site-header__actions { display: flex; align-items: center; gap: 0.6rem; }
+  .site-header__cta { padding: 0.55rem 1.2rem; font-size: 0.92rem; white-space: nowrap; }
+
+  /* Secondary "waitlist" — a ghost button that reads clearly on the dark header. */
+  .site-header__waitlist {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--on-dark);
+    text-decoration: none;
+    padding: 0.5rem 1.05rem;
+    border-radius: var(--pill);
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+    white-space: nowrap;
+    transition: border-color 0.15s ease;
+  }
+  .site-header__waitlist:hover { border-color: var(--green-accent); }
+
+  .lbl-short { display: none; }
 
   @media (max-width: 720px) {
     .site-nav { display: none; }
+  }
+  /* Phones: tighten the buttons and shorten BOTH labels ("Waitlist" / "Beta")
+     so the logo + both buttons fit comfortably on a narrow screen. */
+  @media (max-width: 480px) {
+    .site-header__inner { gap: 0.5rem; }
+    .site-header__actions { gap: 0.45rem; }
+    .site-header__waitlist,
+    .site-header__cta { padding: 0.45rem 0.9rem; font-size: 0.85rem; }
+    .site-header__waitlist .lbl-full,
+    .site-header__cta .lbl-full { display: none; }
+    .site-header__waitlist .lbl-short,
+    .site-header__cta .lbl-short { display: inline; }
   }
 </style>

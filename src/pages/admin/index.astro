@@ -1,0 +1,187 @@
+---
+import '@/styles/global.css';
+import { isAuthed, adminConfigured } from '@/lib/admin-auth';
+import { listSignups, getSettings, type Signup } from '@/lib/signups';
+
+export const prerender = false;
+
+const configured = adminConfigured();
+const authed = configured && isAuthed(Astro.cookies);
+const loginError = Astro.url.searchParams.get('error') === '1';
+
+let signups: Signup[] = [];
+let settings = { betaEmails: true, waitlistEmails: true };
+let betaCount = 0;
+let waitlistCount = 0;
+if (authed) {
+  signups = await listSignups();
+  settings = await getSettings();
+  betaCount = signups.filter((s) => s.type === 'beta').length;
+  waitlistCount = signups.filter((s) => s.type === 'waitlist').length;
+}
+
+const fmt = (ms: number) =>
+  new Date(ms).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Admin — Lanyard signups</title>
+  </head>
+  <body class="admin">
+    <header class="admin__bar">
+      <strong>Lanyard · Signups</strong>
+      {authed && (
+        <form method="POST" action="/api/admin/logout" class="admin__logout">
+          <button type="submit">Sign out</button>
+        </form>
+      )}
+    </header>
+
+    <main class="admin__main">
+      {!configured && (
+        <div class="admin__card admin__note">
+          <p><strong>Admin isn’t configured yet.</strong></p>
+          <p>Set <code>ADMIN_PASSWORD</code> and <code>SESSION_SECRET</code> in Netlify → Site configuration → Environment variables, then redeploy.</p>
+        </div>
+      )}
+
+      {configured && !authed && (
+        <form method="POST" action="/api/admin/login" class="admin__card admin__login">
+          <h1>Sign in</h1>
+          {loginError && <p class="admin__err">Wrong password.</p>}
+          <input type="password" name="password" placeholder="Admin password" autocomplete="current-password" required autofocus />
+          <button type="submit" class="admin__primary">Sign in</button>
+        </form>
+      )}
+
+      {authed && (
+        <>
+          <section class="admin__stats">
+            <div class="admin__card">
+              <div class="admin__num">{betaCount}</div>
+              <div class="admin__lbl">Beta applications</div>
+              <a href="/api/admin/export.csv?type=beta">Export CSV →</a>
+            </div>
+            <div class="admin__card">
+              <div class="admin__num">{waitlistCount}</div>
+              <div class="admin__lbl">Waitlist signups</div>
+              <a href="/api/admin/export.csv?type=waitlist">Export CSV →</a>
+            </div>
+            <div class="admin__card">
+              <div class="admin__num">{signups.length}</div>
+              <div class="admin__lbl">Total</div>
+              <a href="/api/admin/export.csv?type=all">Export all →</a>
+            </div>
+          </section>
+
+          <section class="admin__card admin__toggles">
+            <h2>Email notifications</h2>
+            <p class="admin__hint">Turn these off if signups spike and your inbox gets hammered. Submissions are still stored either way.</p>
+            <div class="admin__toggle-row">
+              <span>Email me on each <strong>beta</strong> application</span>
+              <form method="POST" action="/api/admin/settings">
+                <input type="hidden" name="field" value="betaEmails" />
+                <input type="hidden" name="value" value={settings.betaEmails ? 'off' : 'on'} />
+                <button type="submit" class={settings.betaEmails ? 'admin__on' : 'admin__off'}>
+                  {settings.betaEmails ? 'On' : 'Off'}
+                </button>
+              </form>
+            </div>
+            <div class="admin__toggle-row">
+              <span>Email me on each <strong>waitlist</strong> signup</span>
+              <form method="POST" action="/api/admin/settings">
+                <input type="hidden" name="field" value="waitlistEmails" />
+                <input type="hidden" name="value" value={settings.waitlistEmails ? 'off' : 'on'} />
+                <button type="submit" class={settings.waitlistEmails ? 'admin__on' : 'admin__off'}>
+                  {settings.waitlistEmails ? 'On' : 'Off'}
+                </button>
+              </form>
+            </div>
+          </section>
+
+          <section class="admin__card">
+            <h2>Recent signups</h2>
+            {signups.length === 0 ? (
+              <p class="admin__hint">No signups yet.</p>
+            ) : (
+              <table class="admin__table">
+                <thead>
+                  <tr><th>When</th><th>Type</th><th>Email</th><th>Detail</th></tr>
+                </thead>
+                <tbody>
+                  {signups.slice(0, 100).map((s) => (
+                    <tr>
+                      <td>{fmt(s.createdAt)}</td>
+                      <td><span class={`admin__tag admin__tag--${s.type}`}>{s.type}</span></td>
+                      <td>{s.email}</td>
+                      <td class="admin__detail">
+                        {s.type === 'beta'
+                          ? [s.name, (s.passes || []).map((p) => `${p.operatorName} ${p.tierName}`).join(', '), s.source]
+                              .filter(Boolean).join(' · ')
+                          : (s.source || '')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        </>
+      )}
+    </main>
+
+    <style is:global>
+      .admin {
+        background: var(--off-white);
+        color: var(--ink);
+        font-family: var(--font-body);
+        min-height: 100vh;
+      }
+      .admin__bar {
+        background: var(--green-dark);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+      }
+      .admin__logout button {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+      }
+      .admin__main { max-width: 980px; margin-inline: auto; padding: 1.5rem; display: grid; gap: 1.25rem; }
+      .admin__card { background: #fff; border: 1px solid rgba(20, 53, 42, 0.08); border-radius: 14px; padding: 1.5rem; box-shadow: var(--shadow-card); }
+      .admin__note code, .admin__detail code { background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; border-radius: 4px; }
+      .admin__login { max-width: 360px; margin: 4rem auto 0; display: grid; gap: 0.9rem; }
+      .admin__login h1 { font-family: var(--font-display); font-size: 1.4rem; }
+      .admin__login input { padding: 0.7rem 0.9rem; border: 1px solid rgba(20,53,42,0.2); border-radius: 10px; font-size: 1rem; }
+      .admin__err { color: #b00020; font-size: 0.9rem; }
+      .admin__primary, .admin__on, .admin__off { font-family: var(--font-display); font-weight: 800; border: 0; border-radius: 999px; padding: 0.6rem 1.2rem; cursor: pointer; }
+      .admin__primary { background: var(--green-accent); color: var(--green-dark); }
+      .admin__stats { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+      .admin__num { font-family: var(--font-display); font-weight: 900; font-size: 2.4rem; color: var(--green-primary); line-height: 1; }
+      .admin__lbl { color: var(--muted); margin: 0.3rem 0 0.8rem; font-size: 0.95rem; }
+      .admin__stats a { color: var(--green-primary); font-weight: 700; text-decoration: none; font-size: 0.9rem; }
+      .admin__toggles h2, .admin__card h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 0.4rem; }
+      .admin__hint { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+      .admin__toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-top: 1px solid rgba(20,53,42,0.06); }
+      .admin__on { background: var(--green-accent); color: var(--green-dark); min-width: 64px; }
+      .admin__off { background: #e6e9e7; color: var(--muted); min-width: 64px; }
+      .admin__table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+      .admin__table th { text-align: left; color: var(--muted); font-weight: 700; padding: 0.5rem; border-bottom: 2px solid rgba(20,53,42,0.1); }
+      .admin__table td { padding: 0.5rem; border-bottom: 1px solid rgba(20,53,42,0.06); vertical-align: top; }
+      .admin__detail { color: var(--muted); }
+      .admin__tag { font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+      .admin__tag--beta { background: rgba(82,183,136,0.18); color: var(--green-primary); }
+      .admin__tag--waitlist { background: rgba(45,106,79,0.12); color: var(--green-dark); }
+    </style>
+  </body>
+</html>
