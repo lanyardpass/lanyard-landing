@@ -24,5 +24,6 @@ export const CTA = {
 export const NAV = [
   { label: 'What it does', href: '/#everything' },
   { label: 'Your pass', href: '/#coverage' },
+  { label: 'Calculator', href: '/calculator' },
   { label: 'Pricing', href: '/#pricing' },
 ];
