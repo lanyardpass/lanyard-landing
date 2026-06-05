@@ -23,6 +23,14 @@ const {
 // Single link-preview card sitewide for the beta phase (matches beta.html).
 // Swap back to /og-image.png at App Store launch.
 const ogImage = new URL('/og-image-beta.png?v=1', Astro.site).href;
+
+// TelemetryDeck "Lanyard Web" app (privacy-first, cookieless, no IP storage).
+// Reuses the existing web app — same property, just redesigned. Flag signals
+// as TEST on non-production builds (branch/preview, where PUBLIC_NOINDEX is set)
+// so WIP traffic stays out of the live numbers. Localhost is auto-flagged by
+// the SDK. The appID is public by design (it ships in the client).
+const TD_APP_ID = '155A1765-42BE-4F22-B380-691BB80566D5';
+const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
 ---
 <!doctype html>
 <html lang="en">
@@ -44,6 +52,15 @@ const ogImage = new URL('/og-image-beta.png?v=1', Astro.site).href;
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    {/* Privacy-first web analytics. Fires one pageView per load; ?src=… rides
+        in the URL for channel attribution. Excluded from /admin (own layout). */}
+    <script
+      is:inline
+      src="https://cdn.telemetrydeck.com/websdk/telemetrydeck.min.js"
+      data-app-id={TD_APP_ID}
+      data-is-test-mode={tdTestMode ? 'true' : undefined}
+    ></script>
   </head>
   <body>
     <Header />
