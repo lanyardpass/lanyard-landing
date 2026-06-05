@@ -16,7 +16,9 @@ export const CAPABILITIES: Capability[] = [
   { icon: '🚫', title: 'Blockout dates', body: 'Per tier, per park — know before you drive whether today’s blocked out for your pass.' },
   { icon: '💸', title: 'Perks + value saved', body: 'Track the discounts, parking and freebies you use, and the running total they’ve saved you.' },
   { icon: '🗓️', title: 'Hours & events', body: 'Park hours and the season’s events on one timeline, across all your passes.' },
+  { icon: '🌤️', title: 'Weather for your parks', body: 'Live conditions and today’s forecast for the parks your passes cover, right on the home screen.' },
   { icon: '🔁', title: 'Renewal-save nudges', body: 'Quiet reminders when there’s a smarter way to renew or pay — advice, never pressure.' },
+  { icon: '📍', title: 'Arrival detection', body: 'Reach a park and Lanyard offers to log your visit. Opt-in, and all on your phone.' },
   { icon: '📓', title: 'Visit history', body: 'A clean record of every visit, so the cost-per-visit math is always honest.' },
   { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more — tracked alongside your everyday pass.', pro: true },
 ];
