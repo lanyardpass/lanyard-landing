@@ -24,6 +24,29 @@ const {
 // Swap back to /og-image.png at App Store launch.
 const ogImage = new URL('/og-image-beta.png?v=1', Astro.site).href;
 
+// Canonical URL for this page — strips query strings (e.g. ?src=reddit) so
+// channel-tagged inbound links consolidate to one URL instead of splitting
+// ranking signals. Drives both <link rel=canonical> and og:url.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// Structured data: tells search engines this site is an iOS app, not a blog.
+// Category is Travel (theme-park vertical — same neighborhood as the official
+// Disney/Universal apps + Touring Plans), with a free offer. NO aggregateRating
+// until there are real App Store ratings — faking review markup is a Google
+// penalty. Add the App Store URL + rating once the app ships.
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'TravelApplication',
+  name: SITE.name,
+  applicationCategory: 'TravelApplication',
+  operatingSystem: 'iOS',
+  description: SITE.description,
+  url: new URL('/', Astro.site).href,
+  image: ogImage,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  publisher: { '@type': 'Organization', name: SITE.name, url: new URL('/', Astro.site).href },
+};
+
 // TelemetryDeck "Lanyard Web" app (privacy-first, cookieless, no IP storage).
 // Reuses the existing web app — same property, just redesigned. Flag signals
 // as TEST on non-production builds (branch/preview, where PUBLIC_NOINDEX is set)
@@ -41,14 +64,22 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Lanyard — watch your pass pay for itself" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(appSchema)} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
