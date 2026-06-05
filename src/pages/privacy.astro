@@ -1,0 +1,79 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = true;
+---
+<Layout
+  title="Privacy Policy — Lanyard"
+  description="Lanyard privacy policy. Your pass data stays on your device. Anonymous, not-linked-to-you usage and crash data help us improve the app."
+>
+  <article class="legal">
+    <div class="legal__inner">
+      <p class="kicker legal__label">Legal</p>
+      <h1 class="display legal__title">Privacy Policy</h1>
+      <p class="legal__date">Effective May 28, 2026</p>
+
+      <h2>The short version</h2>
+      <p>Lanyard keeps your information on your phone. The passes, payments, visits, and perk logs you enter live on your device, tied to no account. To make the app better, we collect anonymous usage and crash data — which includes things like which perks pay off and how the savings add up, but never your name, your identity, or anything that ties it back to you. And if you joined the waitlist on lanyardpass.com, we use your email exactly once: to tell you the app has launched.</p>
+
+      <h2>Your data stays on your device</h2>
+      <p>Everything you enter in Lanyard — your passes, payment amounts, visit history, perk redemptions, and personal details — is stored locally on your device. Lanyard works without an account, so your entries never sync to us: we can't retrieve them, restore them, or tie them to your identity. It's yours. To improve the app we do collect some anonymous, not-linked-to-you data — the next two sections spell out exactly what.</p>
+
+      <h2>Anonymous usage analytics</h2>
+      <p>To understand which features deliver real value, the app sends anonymous usage events through <a href="https://telemetrydeck.com" target="_blank" rel="noopener">TelemetryDeck</a> — for example, that a visit was logged or a perk was redeemed. Each event includes the detail needed to answer that question: which operator and tier you hold, which perk you used, and the dollar value you saved. What it never includes is your name, email, location, or any identifier that ties an event to you. The signals use a device hash that resets daily, so even we can't follow your activity over time.</p>
+      <p>You're in control: usage analytics are on by default, and you can turn them off at any time in Settings → Privacy. When they're off, the app sends no usage signals at all.</p>
+
+      <h2>Crash diagnostics</h2>
+      <p>To find and fix bugs, the app reports crashes and errors through <a href="https://sentry.io" target="_blank" rel="noopener">Sentry</a>. A crash report describes what went wrong technically — it does not include your name, email, location, or the contents of your passes. We've disabled the parts of Sentry that would attach a personal identifier or your IP address, so crash reports are not linked to you. Crash reporting helps keep the app stable and is always on.</p>
+
+      <h2>What we never do</h2>
+      <p>We don't sell your data, and we don't share it with advertisers or data brokers. Lanyard shows no ads, requests no advertising identifier, and does nothing to track you across other apps or websites.</p>
+
+      <h2>The website waitlist</h2>
+      <p>When you submit the waitlist form on lanyardpass.com, we collect your email address — nothing else. No name, no location, no device information. It's used for a single purpose: to send you one notification when Lanyard is available on the App Store. No marketing emails, no newsletters, nothing beyond that launch announcement.</p>
+      <p>We don't sell, rent, or share your email with third parties. The waitlist form is processed by <a href="https://www.netlify.com" target="_blank" rel="noopener">Netlify</a>, whose privacy policy governs how submissions are handled on their platform. We keep your email until Lanyard launches and the announcement is sent, then waitlist data is deleted. Want out sooner? Email <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a> and we'll remove it promptly.</p>
+
+      <h2>The beta program</h2>
+      <p>If you apply to test Lanyard at lanyardpass.com/beta, we collect a little more — because we use it to actually run the beta. That's your name and email, which passes you hold (operator and tier), your iPhone model and iOS version, how often you visit the parks, and whatever you tell us about why you want to test. If the invite link you used carried a source tag (for example <code>?src=reddit</code>), we note which channel the application came from — so we know where to find good testers. We use all of it to choose testers, to send your TestFlight invite to the right device, and to make sense of your feedback in context.</p>
+      <p>Your application is delivered to us by email through <a href="https://resend.com" target="_blank" rel="noopener">Resend</a>, our email provider, and lands in our inbox — we don't build a profile on you or feed it to anything else. We keep applications for the duration of the beta, then delete them. We don't sell or share any of it. Want out, or want your application removed? Email <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a> and we'll take care of it.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about this policy? Email us at <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a>.</p>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .legal { background: var(--off-white); color: var(--ink); }
+  .legal__inner {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) clamp(4rem, 10vw, 7rem);
+  }
+  .legal__label { color: var(--green-primary); margin-bottom: 1rem; }
+  .legal__title { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; }
+  .legal__date { color: var(--muted); font-size: 0.9rem; margin-top: 0.6rem; margin-bottom: 2.5rem; }
+  .legal h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-top: 2.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .legal p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .legal a { color: var(--green-primary); text-decoration: underline; text-underline-offset: 2px; }
+  .legal a:hover { color: var(--green-accent); }
+  .legal code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: rgba(45, 106, 79, 0.08);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+</style>

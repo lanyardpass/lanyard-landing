@@ -16,9 +16,13 @@ export const CTA = {
   href: '/beta',
 };
 
+// Root-relative so they work from any page (e.g. /privacy), not just home —
+// they jump to the homepage and scroll to the section. "Privacy" is NOT here:
+// it would collide with the legal "Privacy Policy" link in the footer (two
+// different destinations, same word). The local-first section still lives in
+// the scroll; the footer owns the legal Privacy Policy link.
 export const NAV = [
-  { label: 'What it does', href: '#everything' },
-  { label: 'Your pass', href: '#coverage' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Privacy', href: '#privacy' },
+  { label: 'What it does', href: '/#everything' },
+  { label: 'Your pass', href: '/#coverage' },
+  { label: 'Pricing', href: '/#pricing' },
 ];
