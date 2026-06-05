@@ -1,11 +1,12 @@
 ---
 import { SITE } from '@/data/site';
+import LanyardLogo from '@/components/LanyardLogo.astro';
 const year = 2026;
 ---
 <footer class="site-footer">
   <div class="site-footer__inner container">
     <div class="site-footer__brand">
-      <span class="wordmark">Lanyard</span>
+      <LanyardLogo width={120} label="Lanyard" />
       <span class="site-footer__tagline">{SITE.tagline}</span>
     </div>
     <nav class="site-footer__links" aria-label="Footer">
@@ -28,14 +29,7 @@ const year = 2026;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
   .site-footer__inner { display: flex; flex-direction: column; gap: 1.25rem; }
-  .site-footer__brand { display: flex; align-items: baseline; gap: 0.75rem; }
-  .wordmark {
-    font-family: var(--font-display);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    font-size: 1.2rem;
-    color: var(--on-dark);
-  }
+  .site-footer__brand { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
   .site-footer__tagline { font-style: italic; font-size: 0.95rem; }
   .site-footer__links { display: flex; flex-wrap: wrap; gap: 1.4rem; }
   .site-footer__links a {
