@@ -8,16 +8,17 @@ export interface Capability {
   icon: string; // emoji stand-in; swap for SF-Symbol-style SVG at polish
   title: string;
   body: string;
+  pro?: boolean; // true = Pro-only feature; renders a "Pro" pill on the card
 }
 export const CAPABILITIES: Capability[] = [
-  { icon: '🎟️', title: 'Every pass in one vault', body: 'All your passes and add-ons across Universal, Disney and United Parks — held in one place.' },
+  { icon: '🎟️', title: 'Every pass in one vault', body: 'Your passes and add-ons across Universal, Disney and United Parks, held in one place.' },
   { icon: '📈', title: 'Payback tracking', body: 'See cost-per-visit and the day your pass breaks even, counting both visits and perk savings.' },
   { icon: '🚫', title: 'Blockout dates', body: 'Per tier, per park — know before you drive whether today’s blocked out for your pass.' },
   { icon: '💸', title: 'Perks + value saved', body: 'Track the discounts, parking and freebies you use, and the running total they’ve saved you.' },
   { icon: '🗓️', title: 'Hours & events', body: 'Park hours and the season’s events on one timeline, across all your passes.' },
   { icon: '🔁', title: 'Renewal-save nudges', body: 'Quiet reminders when there’s a smarter way to renew or pay — advice, never pressure.' },
   { icon: '📓', title: 'Visit history', body: 'A clean record of every visit, so the cost-per-visit math is always honest.' },
-  { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more — tracked alongside your everyday pass.' },
+  { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more — tracked alongside your everyday pass.', pro: true },
 ];
 
 // ---- 2. Works with your pass (coverage) ----

@@ -10,6 +10,7 @@ import { CAPABILITIES } from '@/data/act3';
     <ul class="cap__grid" role="list">
       {CAPABILITIES.map((c) => (
         <li class="cap__card">
+          {c.pro && <span class="cap__pro">Pro</span>}
           <span class="cap__icon" aria-hidden="true">{c.icon}</span>
           <h3 class="cap__name">{c.title}</h3>
           <p class="cap__body">{c.body}</p>
@@ -29,11 +30,27 @@ import { CAPABILITIES } from '@/data/act3';
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
   .cap__card {
+    position: relative;
     background: #fff;
     border: 1px solid rgba(20, 53, 42, 0.06);
     border-radius: var(--radius);
     padding: 1.5rem;
     box-shadow: var(--shadow-card);
+  }
+  .cap__pro {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--green-primary);
+    background: color-mix(in srgb, var(--green-accent) 18%, #fff);
+    border: 1px solid color-mix(in srgb, var(--green-accent) 45%, transparent);
+    padding: 0.18rem 0.5rem;
+    border-radius: var(--pill);
   }
   .cap__icon { font-size: 1.6rem; line-height: 1; }
   .cap__name { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin: 0.8rem 0 0.4rem; }
