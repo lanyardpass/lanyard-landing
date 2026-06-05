@@ -28,7 +28,7 @@ export interface Coverage {
 export const COVERAGE: Coverage[] = [
   { operator: 'Universal Orlando', detail: '2-park & 3-park passes, Florida-resident pricing, every tier from Power to Premier.' },
   { operator: 'Walt Disney World', detail: 'Every Annual Pass tier — Incredi-Pass down to Pixie Dust.' },
-  { operator: 'United Parks', detail: 'SeaWorld, Busch Gardens & Aquatica — Platinum and home-park passes.' },
+  { operator: 'United Parks (Florida)', detail: 'SeaWorld Orlando, Busch Gardens Tampa & Aquatica — Platinum and home-park passes.' },
 ];
 
 // ---- 3. Pricing (Free vs Pro) ----
@@ -37,7 +37,7 @@ export const PRICING = {
     name: 'Free',
     price: 'Free',
     tagline: 'Your first pass, full features.',
-    points: ['One active pass', 'Payback, perks, blockouts, events — all of it', 'No account, no sign-up'],
+    points: ['One active pass', 'Payback, perks, blockouts, events — all of it', 'No ads, anywhere', 'No account, no sign-up'],
   },
   pro: {
     name: 'Pro',
@@ -46,7 +46,7 @@ export const PRICING = {
     tagline: 'For multi-pass households and special events.',
     points: ['Unlimited passes', 'Special-event pass types (HHN, Howl-O-Scream…)', 'Everything in Free'],
   },
-  note: 'No trial gate — the free tier is the trial. Restore Purchases lives in Settings.',
+  note: 'Your first pass stays free for as long as you want it. No trial timer, no expiry.',
 };
 
 // ---- 4. Privacy (promise-based, per memory) ----
