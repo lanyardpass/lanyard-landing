@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { addSignup, getSettings } from '@/lib/signups';
 import { emailWaitlistSignup } from '@/lib/email';
+import { resolveSource } from '@/lib/source';
 
 export const prerender = false;
 
@@ -27,11 +28,11 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'A valid email is required.' }, 400);
   }
 
-  const source = String(body.source || '').trim();
+  const source = resolveSource(body.source, body.referrer);
   const signup = await addSignup({
     type: 'waitlist',
     email,
-    source: source || undefined,
+    source,
     createdAt: Date.now(),
   });
 

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { addSignup, getSettings, type PassEntry } from '@/lib/signups';
 import { emailBetaApplication } from '@/lib/email';
+import { resolveSource } from '@/lib/source';
 
 export const prerender = false;
 
@@ -34,8 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
       }))
     : [];
 
-  const source = String(body.source || '').trim();
-  const referrer = String(body.referrer || '').trim();
+  const source = resolveSource(body.source, body.referrer);
 
   const signup = await addSignup({
     type: 'beta',
@@ -47,7 +47,7 @@ export const POST: APIRoute = async ({ request }) => {
     cadence: String(body.cadence || '').trim() || undefined,
     testflight: String(body.testflight || '').trim() || undefined,
     why: String(body.why || '').trim() || undefined,
-    source: source || (referrer ? `(referrer) ${referrer}` : undefined),
+    source,
     createdAt: Date.now(),
   });
 

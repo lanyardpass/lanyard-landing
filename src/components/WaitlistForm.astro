@@ -28,7 +28,8 @@
       const email = (f.elements.namedItem('email') as HTMLInputElement).value.trim();
       if (!/.+@.+\..+/.test(email)) { msg.textContent = 'Enter a valid email.'; return; }
       const btn = f.querySelector('button') as HTMLButtonElement;
-      const src = new URLSearchParams(location.search).get('src') || '';
+      const qs = new URLSearchParams(location.search);
+      const src = qs.get('src') || qs.get('utm_source') || qs.get('ref') || '';
       btn.disabled = true;
       try {
         const res = await fetch('/api/waitlist', {
@@ -38,6 +39,7 @@
             email,
             botField: (f.elements.namedItem('botField') as HTMLInputElement).value,
             source: src,
+            referrer: document.referrer || '',
           }),
         });
         if (res.ok) {
