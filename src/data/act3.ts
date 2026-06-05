@@ -57,15 +57,21 @@ export const PRIVACY_POINTS = [
 ];
 
 // ---- 5. Social proof ----
-// PLACEHOLDER — do NOT ship fabricated testimonials (website_plan §4:
-// "seed it real, never fabricated"). Replace with real, attributed quotes
-// from the validated r/SeaWorld post and early beta testers before launch.
+// Real beta-tester quotes (verbatim, lightly punctuated for readability; "…"
+// marks omitted middle). Kept ANONYMOUS for now so they can go live without
+// waiting on permission — attach first names later if/when testers approve.
 export interface Quote {
   text: string;
   attribution: string;
   placeholder?: boolean;
 }
 export const QUOTES: Quote[] = [
-  { text: 'Real passholder quote goes here once the beta seeds it.', attribution: 'Beta tester', placeholder: true },
-  { text: 'A second real quote — value math or daily-utility moment.', attribution: 'r/SeaWorld', placeholder: true },
+  {
+    text: 'It’s such a W. It’s so clean and easy to navigate. You’re doing an amazing job on it!',
+    attribution: 'Beta tester',
+  },
+  {
+    text: 'First of all, this is incredible! … overall the app looks great.',
+    attribution: 'Beta tester',
+  },
 ];
