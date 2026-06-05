@@ -1,0 +1,354 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = true;
+---
+<Layout
+  title="You're invited to test Lanyard"
+  description="Apply to be an early tester for Lanyard — tell us which passes you hold and help shape the app."
+>
+  <section class="beta">
+    <div class="beta__inner">
+      <header class="beta__head">
+        <p class="kicker beta__kicker">You shall pass.</p>
+        <h1 class="display beta__title">You’re invited to test Lanyard.</h1>
+        <p class="beta__sub">A few questions first — partly to get you set up, partly because the best testers are the ones who’ll actually tell us what’s broken.</p>
+      </header>
+
+      <form id="betaForm" autocomplete="on">
+        {/* Honeypot */}
+        <div class="beta__hp" aria-hidden="true">
+          <label>Leave this empty<input type="text" name="botField" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        {/* Pass picker */}
+        <div class="beta__section">
+          <p class="beta__label">Your passes</p>
+          <p class="beta__hint">Build each pass the way you would in the app. Hold more than one? Add them all.</p>
+          <div class="pass-chips" id="passChips"></div>
+          <div class="builder" id="builder"></div>
+          <button type="button" class="add-another" id="addAnother" hidden>+ Add another pass</button>
+        </div>
+
+        {/* Applicant fields */}
+        <div class="beta__section">
+          <p class="beta__label">About you</p>
+          <div class="beta__field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" autocomplete="name" />
+          </div>
+          <div class="beta__field">
+            <label for="email">Email <span class="beta__muted">(where your TestFlight invite goes)</span></label>
+            <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@email.com" />
+          </div>
+          <div class="beta__two">
+            <div class="beta__field">
+              <label for="iphone">iPhone model</label>
+              <input type="text" id="iphone" name="iphone" placeholder="e.g. iPhone 15 Pro" />
+            </div>
+            <div class="beta__field">
+              <label for="ios">iOS version</label>
+              <input type="text" id="ios" name="ios" placeholder="e.g. 18.2" />
+            </div>
+          </div>
+          <div class="beta__field">
+            <label for="cadence">How often do you visit the parks?</label>
+            <select id="cadence" name="cadence">
+              <option value="">Choose one…</option>
+              <option>Weekly or more</option>
+              <option>A couple times a month</option>
+              <option>Monthly</option>
+              <option>A few times a year</option>
+              <option>Rarely — but I keep the pass</option>
+            </select>
+          </div>
+          <div class="beta__field">
+            <label for="testflight">Have you used TestFlight before?</label>
+            <select id="testflight" name="testflight">
+              <option value="">Choose one…</option>
+              <option>Yes — I’ve tested apps before</option>
+              <option>No — this would be my first time</option>
+              <option>Not sure what that is</option>
+            </select>
+          </div>
+          <div class="beta__field">
+            <label for="why">Why do you want to test Lanyard?</label>
+            <textarea id="why" name="why" placeholder="What would make this app genuinely useful to you?"></textarea>
+          </div>
+        </div>
+
+        <div class="beta__err" id="err"></div>
+
+        <div class="beta__submit-wrap">
+          <button type="submit" class="btn btn--primary beta__submit" id="submitBtn">Apply to test →</button>
+          <p class="beta__privacy">We use this only to run the beta. <a href="/privacy">How we handle it →</a></p>
+        </div>
+      </form>
+
+      <div class="beta__success" id="success">
+        <p class="beta__success-big">You’re in the queue. 🎢</p>
+        <p>Thanks — we read every application. If you’re a fit for this round, your TestFlight invite lands in your inbox. Keep an eye out.</p>
+      </div>
+
+      <p class="beta__waitlist-note">
+        Not ready to commit to testing? <a href="/#waitlist">Join the waitlist instead →</a>
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // Catalog (mirrors the app's Add-a-Pass flow). Hardcoded by design — this is
+  // a recruiting form, not the app's source of truth. Update if a tier renames.
+  const OPERATORS = [
+    { id: 'universal_orlando', name: 'Universal Orlando', universal: true,
+      tiers: [
+        { id: 'seasonal', name: 'Seasonal Pass' },
+        { id: 'power', name: 'Power Pass' },
+        { id: 'preferred', name: 'Preferred Pass' },
+        { id: 'premier', name: 'Premier Pass' },
+      ] },
+    { id: 'disney_world', name: 'Walt Disney World',
+      tiers: [
+        { id: 'pixie_dust', name: 'Pixie Dust Pass' },
+        { id: 'pirate', name: 'Pirate Pass' },
+        { id: 'sorcerer', name: 'Sorcerer Pass' },
+        { id: 'incredi_pass', name: 'Incredi-Pass' },
+      ] },
+    { id: 'united_parks', name: 'SeaWorld (United Parks)',
+      tiers: [
+        { id: 'bronze', name: 'Bronze Pass' },
+        { id: 'silver', name: 'Silver Pass' },
+        { id: 'gold', name: 'Gold Pass' },
+        { id: 'platinum', name: 'Platinum Pass' },
+      ] },
+  ];
+
+  type Draft = { operator: string | null; tier: string | null; parkCount: string | null };
+  const state: { passes: any[]; draft: Draft | null; step: string | null } = { passes: [], draft: null, step: null };
+
+  const builder = document.getElementById('builder')!;
+  const passChips = document.getElementById('passChips')!;
+  const addAnother = document.getElementById('addAnother') as HTMLButtonElement;
+  const errEl = document.getElementById('err')!;
+  const opById = (id: string | null) => OPERATORS.find((o) => o.id === id);
+
+  function startBuilder() {
+    state.draft = { operator: null, tier: null, parkCount: null };
+    state.step = 'operator';
+    addAnother.hidden = true;
+    render();
+  }
+
+  function stepsFor(draft: Draft) {
+    const op = opById(draft.operator);
+    return op && op.universal ? ['operator', 'tier', 'options'] : ['operator', 'tier'];
+  }
+
+  function pillsHTML() {
+    const steps = state.draft ? stepsFor(state.draft) : ['operator', 'tier'];
+    const idx = steps.indexOf(state.step!);
+    return '<div class="pills">' +
+      steps.map((_, i) => `<span class="pill ${i <= idx ? 'on' : ''}"></span>`).join('') +
+      '</div>';
+  }
+
+  function render() {
+    renderChips();
+    if (!state.draft) { builder.innerHTML = ''; return; }
+    let inner = pillsHTML();
+    const d = state.draft;
+
+    if (state.step === 'operator') {
+      inner += '<p class="builder-q">Which pass do you hold?</p><div class="choices">';
+      OPERATORS.forEach((o) => {
+        inner += `<button type="button" class="choice" data-act="pick-op" data-id="${o.id}">${o.name}<span class="arrow">→</span></button>`;
+      });
+      inner += '</div>';
+    } else if (state.step === 'tier') {
+      const op = opById(d.operator)!;
+      inner += `<p class="builder-q">${op.name} — which tier?</p><div class="choices">`;
+      op.tiers.forEach((t) => {
+        inner += `<button type="button" class="choice" data-act="pick-tier" data-id="${t.id}">${t.name}<span class="arrow">→</span></button>`;
+      });
+      inner += '</div><div class="builder-nav"><button type="button" class="beta-ghost" data-act="back">← Back</button></div>';
+    } else if (state.step === 'options') {
+      inner += '<p class="builder-q">How many parks on your pass?</p><div class="seg">';
+      ['2', '3'].forEach((n) => {
+        inner += `<button type="button" class="choice" data-act="parks-finish" data-id="${n}">${n} parks</button>`;
+      });
+      inner += '</div><div class="builder-nav"><button type="button" class="beta-ghost" data-act="back">← Back</button></div>';
+    }
+    builder.innerHTML = inner;
+  }
+
+  function renderChips() {
+    passChips.innerHTML = state.passes.map((p, i) => {
+      const sub = p.parkCount ? `<span> · ${p.parkCount}-park</span>` : '';
+      return `<div class="pass-chip"><div class="meta"><strong>${p.tierName}</strong>${p.operatorName}${sub}</div><button type="button" class="rm" data-act="remove" data-i="${i}" aria-label="Remove">×</button></div>`;
+    }).join('');
+  }
+
+  function finishPass() {
+    const d = state.draft!;
+    const op = opById(d.operator)!;
+    const tier = op.tiers.find((t) => t.id === d.tier)!;
+    state.passes.push({
+      operatorId: op.id, operatorName: op.name,
+      tierId: tier.id, tierName: tier.name,
+      parkCount: d.parkCount,
+    });
+    state.draft = null; state.step = null;
+    addAnother.hidden = false;
+    render();
+  }
+
+  builder.addEventListener('click', (e) => {
+    const t = (e.target as HTMLElement).closest('[data-act]') as HTMLElement | null;
+    if (!t) return;
+    const act = t.dataset.act;
+    const d = state.draft!;
+    if (act === 'pick-op') { d.operator = t.dataset.id!; d.tier = null; state.step = 'tier'; render(); }
+    else if (act === 'pick-tier') {
+      d.tier = t.dataset.id!;
+      if (opById(d.operator)!.universal) { state.step = 'options'; render(); }
+      else { finishPass(); }
+    }
+    else if (act === 'back') { state.step = state.step === 'options' ? 'tier' : 'operator'; render(); }
+    else if (act === 'parks-finish') { d.parkCount = t.dataset.id!; finishPass(); }
+  });
+
+  passChips.addEventListener('click', (e) => {
+    const t = (e.target as HTMLElement).closest('[data-act="remove"]') as HTMLElement | null;
+    if (!t) return;
+    state.passes.splice(Number(t.dataset.i), 1);
+    if (state.passes.length === 0 && !state.draft) startBuilder();
+    else render();
+  });
+
+  addAnother.addEventListener('click', startBuilder);
+  startBuilder();
+
+  // Submit
+  document.getElementById('betaForm')!.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errEl.textContent = '';
+    const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+    if (state.passes.length === 0) { errEl.textContent = 'Add at least one pass so we know what you hold.'; return; }
+    if (!/.+@.+\..+/.test(email)) { errEl.textContent = 'Enter a valid email — it’s where your invite goes.'; return; }
+
+    const qs = new URLSearchParams(location.search);
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement).value.trim();
+    const payload = {
+      name: val('name'),
+      email,
+      iphone: val('iphone'),
+      ios: val('ios'),
+      cadence: (document.getElementById('cadence') as HTMLSelectElement).value,
+      testflight: (document.getElementById('testflight') as HTMLSelectElement).value,
+      why: val('why'),
+      botField: (document.querySelector('[name=botField]') as HTMLInputElement).value,
+      passes: state.passes,
+      source: qs.get('src') || qs.get('utm_source') || qs.get('ref') || '',
+      referrer: document.referrer || '',
+    };
+
+    const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/beta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('bad status');
+      (document.getElementById('betaForm') as HTMLElement).style.display = 'none';
+      (document.getElementById('success') as HTMLElement).style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      errEl.textContent = 'Something went wrong sending that. Please try again.';
+      btn.disabled = false; btn.textContent = 'Apply to test →';
+    }
+  });
+</script>
+
+<style is:global>
+  /* Namespaced under .beta so these also style the builder's runtime-injected
+     markup (Astro scoped styles don't reach innerHTML), without leaking out. */
+  .beta { background: var(--off-white); color: var(--ink); }
+  .beta__inner { max-width: 36rem; margin-inline: auto; padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(4rem, 10vw, 6rem); }
+
+  .beta__head { text-align: center; margin-bottom: 2.5rem; }
+  .beta__kicker { color: var(--green-primary); }
+  .beta__title { font-size: clamp(1.9rem, 6vw, 2.7rem); margin-top: 0.6rem; }
+  .beta__sub { color: var(--muted); margin: 1rem auto 0; max-width: 28rem; }
+
+  .beta__section { margin-top: 2.5rem; }
+  .beta__label { font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-primary); margin-bottom: 0.3rem; }
+  .beta__hint { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.1rem; }
+  .beta__muted { color: var(--muted); font-weight: 400; }
+
+  /* Pass builder */
+  .beta .pills { display: flex; gap: 6px; margin-bottom: 1.1rem; }
+  .beta .pill { height: 5px; flex: 1; border-radius: 5px; background: rgba(45,106,79,0.15); transition: background 0.25s ease; }
+  .beta .pill.on { background: var(--green-accent); }
+  .beta .builder-q { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1rem; }
+  .beta .choices { display: grid; gap: 10px; }
+  .beta .choice {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; padding: 1rem 1.1rem;
+    background: #fff; border: 1.5px solid rgba(45,106,79,0.12); border-radius: 14px;
+    font-size: 1rem; font-weight: 600; color: var(--ink); font-family: inherit; cursor: pointer;
+    transition: border-color 0.15s, transform 0.08s, background 0.15s;
+  }
+  .beta .choice:hover { border-color: var(--green-accent); }
+  .beta .choice:active { transform: scale(0.99); }
+  .beta .choice .arrow { color: var(--green-accent); }
+  .beta .seg { display: flex; gap: 10px; margin-bottom: 1.4rem; }
+  .beta .seg .choice { justify-content: center; }
+  .beta .builder-nav { display: flex; gap: 10px; margin-top: 0.5rem; }
+  .beta .beta-ghost {
+    padding: 0.85rem 1.3rem; border-radius: var(--pill); border: 1.5px solid rgba(45,106,79,0.18);
+    background: transparent; color: var(--muted); font-weight: 700; font-size: 0.9rem;
+    font-family: var(--font-display); cursor: pointer;
+  }
+  .beta .beta-ghost:hover { border-color: var(--green-accent); color: var(--green-primary); }
+
+  /* Added pass chips */
+  .beta .pass-chips { display: grid; gap: 10px; margin-bottom: 0.9rem; }
+  .beta .pass-chip { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem; background: var(--green-primary); color: #fff; border-radius: 14px; }
+  .beta .pass-chip .meta { font-size: 0.95rem; }
+  .beta .pass-chip .meta strong { display: block; font-weight: 700; }
+  .beta .pass-chip .meta span { font-size: 0.82rem; opacity: 0.85; }
+  .beta .pass-chip .rm { background: rgba(255,255,255,0.18); border: 0; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1rem; line-height: 1; flex-shrink: 0; }
+  .beta .add-another { width: 100%; padding: 0.9rem; border-radius: 14px; border: 1.5px dashed rgba(45,106,79,0.3); background: transparent; color: var(--green-primary); font-weight: 700; font-size: 0.95rem; font-family: var(--font-display); cursor: pointer; }
+  .beta .add-another:hover { border-color: var(--green-accent); color: var(--green-accent); }
+
+  /* Plain fields */
+  .beta__field { margin-bottom: 1.1rem; }
+  .beta__field label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.45rem; }
+  .beta__field input, .beta__field textarea, .beta__field select {
+    width: 100%; padding: 0.85rem 1rem; border-radius: 12px;
+    border: 1.5px solid rgba(45,106,79,0.15); background: #fff;
+    font-size: 1rem; font-family: inherit; color: var(--ink); outline: none; transition: border-color 0.2s;
+  }
+  .beta__field input:focus, .beta__field textarea:focus, .beta__field select:focus { border-color: var(--green-accent); }
+  .beta__field textarea { min-height: 96px; resize: vertical; }
+  .beta__two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .beta__err { color: #B23A48; font-size: 0.9rem; margin-top: 0.6rem; min-height: 18px; }
+  .beta__hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+  .beta__submit-wrap { margin-top: 1.8rem; }
+  .beta__submit { width: 100%; padding: 1rem; font-size: 1.05rem; }
+  .beta__privacy { font-size: 0.78rem; color: var(--muted); text-align: center; margin-top: 0.9rem; }
+  .beta__privacy a { color: var(--green-primary); }
+
+  .beta__success { display: none; text-align: center; padding: 2.5rem 0; }
+  .beta__success-big { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; margin-bottom: 0.7rem; }
+  .beta__success p { color: var(--muted); max-width: 24rem; margin: 0 auto; }
+
+  .beta__waitlist-note { text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(45,106,79,0.1); }
+  .beta__waitlist-note a { color: var(--green-primary); font-weight: 600; }
+
+  @media (max-width: 420px) { .beta__two { grid-template-columns: 1fr; } }
+</style>

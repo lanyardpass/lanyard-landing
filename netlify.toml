@@ -15,12 +15,7 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# /beta is still the carried-over static page (public/beta.html); serve it at a
-# clean URL. /privacy is now an Astro page, so it needs no redirect.
-[[redirects]]
-  from = "/beta"
-  to = "/beta.html"
-  status = 200
+# /beta and /privacy are Astro pages now — no redirects needed.
 
 # Long-cache build-hashed assets.
 [[headers]]
