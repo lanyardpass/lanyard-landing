@@ -152,8 +152,10 @@ export default function CalculatorApp() {
         ))}
       </div>
 
-      {/* Live pass card — appears as soon as a tier is chosen and updates live. */}
-      {card && (
+      {/* Live pass card — appears as soon as a tier is chosen and updates live.
+          On the details step it moves into the left column (see below), so it's
+          only rendered here for the selection steps. */}
+      {card && step !== 'details' && (
         <div className="calc-card-wrap">
           <PassCardPreview {...card} />
         </div>
@@ -234,8 +236,16 @@ export default function CalculatorApp() {
 
       {/* ---- Step: details + result ---- */}
       {step === 'details' && op && tier && result && (
-        <div className="calc-step">
-          <div className="calc-fields">
+        <div className="calc-result">
+          <div className="calc-details">
+            {/* Column 1 — your pass + the inputs */}
+            <div className="calc-details__inputs">
+              {card && (
+                <div className="calc-card-wrap">
+                  <PassCardPreview {...card} />
+                </div>
+              )}
+              <div className="calc-fields">
             <div className="calc-field">
               <label htmlFor="calc-price">What you paid</label>
               <div className="calc-money-input">
@@ -316,27 +326,32 @@ export default function CalculatorApp() {
               </div>
             </div>
           </div>
-
-          <PaybackReceipt
-            operatorLabel={card!.operatorName}
-            tierLabel={tier.name}
-            accentColor={card!.accentColor}
-            result={result}
-            visits={visits}
-          />
-
-          {coach && (
-            <div className="calc-coach">
-              <p className="calc-coach__title">{coach.title}</p>
-              <p className="calc-coach__body">{coach.body}</p>
             </div>
-          )}
 
-          {/* Handoff — lead magnet → app */}
-          <div className="calc-cta">
-            <p className="calc-cta__lead">Want this tracked automatically, with your blockouts and perks logged for you?</p>
-            <a className="calc-cta__btn" href={betaHref}>Get Lanyard →</a>
-            <button type="button" className="calc-link calc-cta__edit" onClick={reset}>Start over with a different pass</button>
+            {/* Column 2 — the payback receipt + handoff */}
+            <div className="calc-details__result">
+              <PaybackReceipt
+                operatorLabel={card!.operatorName}
+                tierLabel={tier.name}
+                accentColor={card!.accentColor}
+                result={result}
+                visits={visits}
+              />
+
+              {coach && (
+                <div className="calc-coach">
+                  <p className="calc-coach__title">{coach.title}</p>
+                  <p className="calc-coach__body">{coach.body}</p>
+                </div>
+              )}
+
+              {/* Handoff — lead magnet → app */}
+              <div className="calc-cta">
+                <p className="calc-cta__lead">Want this tracked automatically, with your blockouts and perks logged for you?</p>
+                <a className="calc-cta__btn" href={betaHref}>Get Lanyard →</a>
+                <button type="button" className="calc-link calc-cta__edit" onClick={reset}>Start over with a different pass</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -64,9 +64,12 @@ const calcSchema = {
   .calc-hero__sub { color: var(--muted); margin: 1rem auto 0; max-width: 30rem; font-size: var(--fs-lead); }
 
   .calc {
-    max-width: 34rem; margin-inline: auto;
+    max-width: 56rem; margin-inline: auto;
     padding: clamp(1.6rem, 5vw, 2.4rem) var(--gutter) clamp(3rem, 8vw, 5rem);
   }
+  /* Selection steps + pills stay a comfortable single-column width and centered;
+     only the result step opens up to two columns (see .calc-details below). */
+  .calc-pills, .calc-step { max-width: 33rem; margin-inline: auto; }
 
   /* Progress pills */
   .calc-pills { display: flex; gap: 6px; margin-bottom: 1.4rem; }
@@ -107,6 +110,21 @@ const calcSchema = {
 
   /* ---------- Steps ---------- */
   .calc-step { margin-top: 0.4rem; }
+
+  /* Result step — single column on mobile, two columns on desktop:
+     left = your pass + the inputs, right = the payback receipt + handoff. */
+  .calc-result { margin-top: 0.4rem; }
+  .calc-details { display: grid; gap: 1.6rem; }
+  @media (min-width: 980px) {
+    .calc-details {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 2.8rem; align-items: start;
+    }
+    /* Receipt stays in view while you tweak the inputs on the left. */
+    .calc-details__result { position: sticky; top: 5.5rem; }
+    /* Card fills its column instead of the fixed narrow preview width. */
+    .calc-details__inputs .calc-card { max-width: 24rem; }
+  }
   .calc-q { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1rem; }
   .calc-q--mt { margin-top: 1.6rem; }
   .calc-choices { display: grid; gap: 10px; }
