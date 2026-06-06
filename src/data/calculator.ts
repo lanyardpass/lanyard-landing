@@ -120,7 +120,9 @@ const UNIVERSAL: Operator = {
 // Walt Disney World — single `new` price per tier. All tiers share Disney's gold
 // with near-black text. All AP tiers include free standard theme-park parking.
 // -----------------------------------------------------------------------------
-const DISNEY_PARKING: ParkingOption[] = [{ id: 'self', label: 'Free standard parking', value: 30 }];
+// WDW standard theme-park parking (car or motorcycle) is $35/day, included on
+// every AP tier — perks.json's disney_standard_theme_park_parking value.
+const DISNEY_PARKING: ParkingOption[] = [{ id: 'self', label: 'Free standard parking', value: 35 }];
 const DISNEY: Operator = {
   id: 'disney_world',
   name: 'Walt Disney World',
