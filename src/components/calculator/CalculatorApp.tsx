@@ -20,7 +20,7 @@ export default function CalculatorApp() {
   const [operatorId, setOperatorId] = useState<OperatorId | null>(null);
   const [tierId, setTierId] = useState<string | null>(null);
   const [residency, setResidency] = useState<Residency>('out_of_state');
-  const [parkCount, setParkCount] = useState<2 | 3>(3);
+  const [parkCount, setParkCount] = useState<2 | 3>(2);
   const [unitedHomePark, setUnitedHomePark] = useState<string | null>(null);
   const [step, setStep] = useState<Step>('operator');
 
@@ -63,7 +63,7 @@ export default function CalculatorApp() {
 
   function reset() {
     setOperatorId(null); setTierId(null); setUnitedHomePark(null);
-    setResidency('out_of_state'); setParkCount(3);
+    setResidency('out_of_state'); setParkCount(2);
     setPriceTouched(false); setPriceInput(''); setStep('operator');
     // Clear everything the user entered too — "start over" means a clean slate,
     // not the previous pass's visits/parking/savings carried onto a new one.
@@ -90,7 +90,8 @@ export default function CalculatorApp() {
       operatorName = op.unitedParks?.find((p) => p.id === unitedHomePark)?.name ?? op.name;
     }
     const isUni3 = op.flow === 'universal' && parkCount === 3;
-    const tierName = isUni3 ? `3-Park ${tier.name}` : tier.name;
+    // No "3-Park" name prefix — the vertical 3-PARK edge stripe already says it.
+    const tierName = tier.name;
     const accent = op.flow === 'universal'
       ? (parkCount === 3 ? tier.cardColor : tier.cardColorTwoPark!) : tier.cardColor;
     return {
