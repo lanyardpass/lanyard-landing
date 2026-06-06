@@ -61,7 +61,10 @@ export default function CalculatorApp() {
   // United non-Platinum (home park). Disney and UP Platinum skip straight to
   // details. Drives both the pills and the flow transitions.
   const steps: Step[] = useMemo(() => {
-    if (!op) return ['operator', 'tier'];
+    // Before an operator is picked, show the 3-step minimum (the shortest real
+    // flow is operator → tier → details). No flow is ever only 2 steps, so a
+    // "1 of 2" first screen would misrepresent the journey.
+    if (!op) return ['operator', 'tier', 'details'];
     const hasOptions = op.flow === 'universal' || (op.flow === 'united' && tierId !== 'platinum');
     return hasOptions ? ['operator', 'tier', 'options', 'details'] : ['operator', 'tier', 'details'];
   }, [op, tierId]);
