@@ -27,7 +27,13 @@ const ogImage = new URL('/og-image-beta.png?v=1', Astro.site).href;
 // Canonical URL for this page — strips query strings (e.g. ?src=reddit) so
 // channel-tagged inbound links consolidate to one URL instead of splitting
 // ranking signals. Drives both <link rel=canonical> and og:url.
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+//
+// Normalize the path to the slashless, extensionless canonical form: with
+// `build.format: 'file'` Astro.url.pathname comes through as `/beta.html`, and a
+// trailing slash can sneak in too — strip both so the canonical is always
+// `/beta` (never `/beta.html` or `/beta/`). Root stays `/`.
+const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/';
+const canonical = new URL(cleanPath, Astro.site).href;
 
 // Structured data: tells search engines this site is an iOS app, not a blog.
 // Category is Travel (theme-park vertical — same neighborhood as the official

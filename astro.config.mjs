@@ -15,6 +15,16 @@ export default defineConfig({
   site: 'https://lanyardpass.com',
   output: 'server',
   adapter: netlify(),
+  // Canonical URLs are slash-LESS (`/beta`, not `/beta/`) — the predominant
+  // modern convention (Next/Vercel/Jamstack), and Google only cares that we pick
+  // one and stay consistent. `trailingSlash: 'never'` aligns the dev server +
+  // Astro.url (so canonical tags + the sitemap emit the slashless form), and
+  // `build.format: 'file'` makes Astro emit `/beta.html` (served clean at `/beta`
+  // by Netlify, which 301s `/beta/` → `/beta`) instead of `/beta/index.html`.
+  // NOTE: Astro's trailingSlash only governs dev/routing; production redirect
+  // behavior is Netlify's — verify on the deploy.
+  trailingSlash: 'never',
+  build: { format: 'file' },
   integrations: [
     react(),
     // Generates /sitemap-index.xml from public pages. Excludes the admin
