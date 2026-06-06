@@ -1,25 +1,33 @@
 // =============================================================================
 // Calculator data + math — build-time snapshot of the app's operator pricing.
 //
-// This is a SNAPSHOT of the canonical operator JSON (data_schema/*.json) bundled
-// into the static site at build, NOT a live read of data.lanyardpass.com (which
-// is header-gated, and a static page ranks + loads faster — see
-// marketing/calculator_build_brief.md "Architectural decision"). When tier
-// prices change in the operator JSON, refresh the numbers below.
+// This is a SNAPSHOT of the canonical operator JSON (data_schema/*.json) +
+// parking perks (data_schema/perks.json) bundled into the static site at build,
+// NOT a live read of data.lanyardpass.com (which is header-gated, and a static
+// page ranks + loads faster — see marketing/calculator_build_brief.md). When
+// tier prices or parking values change in the JSON, refresh the numbers below.
 //
 // The math mirrors product/payback_math.md exactly so the web result equals what
 // the app computes for the same inputs. The one deliberate modelling choice: the
 // web tool takes a *count* of visits, so each visit is valued as a single-park
 // day at the operator's gate floor (`onePark`) — identical to how the app values
-// historical visits (payback_math.md §2.4, `historicalVisitCount × onePark`). The
-// per-day park-hopper increment (`additional_park`) only applies to same-day
-// multi-park entries the app knows about from logged visits; a visit count can't
-// express that, and single-park valuation is the conservative, honest default.
+// historical visits (payback_math.md §2.4, `historicalVisitCount × onePark`).
+//
+// Parking is the big tier differentiator and is modelled per tier, per option,
+// straight from perks.json (e.g. Universal Premier: free Regular $35 / Prime $50
+// / Valet $76; Power gets only half-price ~$18; Seasonal gets nothing).
 // =============================================================================
 
 export type OperatorId = 'universal_orlando' | 'disney_world' | 'united_parks';
 
 export type Residency = 'florida_resident' | 'out_of_state';
+
+/** A parking benefit the user can pick per visit. `value` = per-visit savings. */
+export interface ParkingOption {
+  id: string;
+  label: string;
+  value: number;
+}
 
 export interface Tier {
   id: string;
@@ -34,6 +42,8 @@ export interface Tier {
   cardTextColor?: string;
   /** Eligibility footnote shown under the tier (Disney FL-resident tiers). */
   eligibilityNote?: string;
+  /** Free/discounted parking options for this tier (perks.json). Empty = none. */
+  parking: ParkingOption[];
   /** Opaque pricing payload, resolved by resolvePrice(). */
   pricing: Record<string, unknown>;
 }
@@ -53,10 +63,6 @@ export interface Operator {
   onePark: number;
   /** gate_price_basis.additional_park (informational; see header note). */
   additionalPark: number | null;
-  /** Free self-parking value per visit (perk savings). */
-  parkingPerVisit: number;
-  /** UP Bronze gets no parking perk; gate the parking toggle. */
-  parkingTiers?: string[];
   watermark: 'universal' | 'disney' | 'seaworld';
   /** Which conditional question set this operator needs. */
   flow: 'universal' | 'disney' | 'united';
@@ -66,8 +72,9 @@ export interface Operator {
 }
 
 // -----------------------------------------------------------------------------
-// Universal Orlando — pricing by residency × park count. card colors carry a
-// lighter 2-park variant; 3-park gets the tier-name prefix + edge stripe.
+// Universal Orlando — pricing by residency × park count. Parking is the headline
+// tier differentiator: Seasonal none, Power half-price, Preferred free Regular,
+// Premier free Regular/Prime/Valet (perks.json).
 // -----------------------------------------------------------------------------
 const UNIVERSAL: Operator = {
   id: 'universal_orlando',
@@ -75,28 +82,35 @@ const UNIVERSAL: Operator = {
   pickerName: 'Universal Orlando',
   onePark: 119,
   additionalPark: 55,
-  parkingPerVisit: 30, // self_parking_value
   watermark: 'universal',
   flow: 'universal',
   tiers: [
     {
       id: 'seasonal', name: 'Seasonal Pass', rank: 1,
       cardColor: '#009A4E', cardColorTwoPark: '#72BF44',
+      parking: [],
       pricing: { out_of_state: { two: 424.99, three: 524.99 }, florida_resident: { two: 324.99, three: 424.99 } },
     },
     {
       id: 'power', name: 'Power Pass', rank: 2,
       cardColor: '#C63D95', cardColorTwoPark: '#87499C',
+      parking: [{ id: 'self', label: 'Half-price self-parking', value: 18 }],
       pricing: { out_of_state: { two: 474.99, three: 584.99 }, florida_resident: { two: 374.99, three: 484.99 } },
     },
     {
       id: 'preferred', name: 'Preferred Pass', rank: 3,
       cardColor: '#0463AE', cardColorTwoPark: '#1CA7C0',
+      parking: [{ id: 'self', label: 'Free self-parking', value: 35 }],
       pricing: { out_of_state: { two: 629.99, three: 739.99 }, florida_resident: { two: 529.99, three: 639.99 } },
     },
     {
       id: 'premier', name: 'Premier Pass', rank: 4,
       cardColor: '#F37021', cardColorTwoPark: '#FCAE17',
+      parking: [
+        { id: 'self', label: 'Self-parking', value: 35 },
+        { id: 'prime', label: 'Prime', value: 50 },
+        { id: 'valet', label: 'Valet', value: 76 },
+      ],
       pricing: { out_of_state: { two: 904.99, three: 1094.99 }, florida_resident: { two: 789.99, three: 979.99 } },
     },
   ],
@@ -104,39 +118,39 @@ const UNIVERSAL: Operator = {
 
 // -----------------------------------------------------------------------------
 // Walt Disney World — single `new` price per tier. All tiers share Disney's gold
-// with near-black text. Lower tiers are Florida-resident / DVC gated.
+// with near-black text. All AP tiers include free standard theme-park parking.
 // -----------------------------------------------------------------------------
+const DISNEY_PARKING: ParkingOption[] = [{ id: 'self', label: 'Free standard parking', value: 30 }];
 const DISNEY: Operator = {
   id: 'disney_world',
   name: 'Walt Disney World',
   pickerName: 'Walt Disney World',
   onePark: 119,
   additionalPark: 80,
-  parkingPerVisit: 30, // self_parking_value
   watermark: 'disney',
   flow: 'disney',
   tiers: [
     {
       id: 'pixie_dust', name: 'Pixie Dust Pass', rank: 1,
       cardColor: '#FFC123', cardTextColor: '#1A1A1A',
-      eligibilityNote: 'Florida residents only',
+      eligibilityNote: 'Florida residents only', parking: DISNEY_PARKING,
       pricing: { new: 489 },
     },
     {
       id: 'pirate', name: 'Pirate Pass', rank: 2,
       cardColor: '#FFC123', cardTextColor: '#1A1A1A',
-      eligibilityNote: 'Florida residents only',
+      eligibilityNote: 'Florida residents only', parking: DISNEY_PARKING,
       pricing: { new: 869 },
     },
     {
       id: 'sorcerer', name: 'Sorcerer Pass', rank: 3,
       cardColor: '#FFC123', cardTextColor: '#1A1A1A',
-      eligibilityNote: 'Florida residents & DVC members',
+      eligibilityNote: 'Florida residents & DVC members', parking: DISNEY_PARKING,
       pricing: { new: 1099 },
     },
     {
       id: 'incredi_pass', name: 'Incredi-Pass', rank: 4,
-      cardColor: '#FFC123', cardTextColor: '#1A1A1A',
+      cardColor: '#FFC123', cardTextColor: '#1A1A1A', parking: DISNEY_PARKING,
       pricing: { new: 1629 },
     },
   ],
@@ -144,8 +158,8 @@ const DISNEY: Operator = {
 
 // -----------------------------------------------------------------------------
 // United Parks (SeaWorld / Busch Gardens) — Bronze/Silver/Gold price by home
-// park; Platinum is region-wide (Florida MSRP). No multi-park same-day product
-// (additional_park: null). Bronze includes no parking.
+// park; Platinum is region-wide (Florida MSRP). Parking: Bronze none, Silver
+// free general ($25), Gold/Platinum free preferred ($35) (perks.json).
 // -----------------------------------------------------------------------------
 const UNITED: Operator = {
   id: 'united_parks',
@@ -153,8 +167,6 @@ const UNITED: Operator = {
   pickerName: 'SeaWorld / Busch Gardens',
   onePark: 89,
   additionalPark: null,
-  parkingPerVisit: 35, // self_parking_value
-  parkingTiers: ['silver', 'gold', 'platinum'], // Bronze: no parking perk
   watermark: 'seaworld',
   flow: 'united',
   unitedParks: [
@@ -165,19 +177,22 @@ const UNITED: Operator = {
   ],
   tiers: [
     {
-      id: 'bronze', name: 'Bronze Pass', rank: 1, cardColor: '#534125',
+      id: 'bronze', name: 'Bronze Pass', rank: 1, cardColor: '#534125', parking: [],
       pricing: { one_park: { swo: 198, bgt: 192, aq_orlando: 174, ai_tampa: 141 } },
     },
     {
       id: 'silver', name: 'Silver Pass', rank: 2, cardColor: '#808080',
+      parking: [{ id: 'general', label: 'Free general parking', value: 25 }],
       pricing: { one_park: { swo: 279, bgt: 279, aq_orlando: 234, ai_tampa: 195 } },
     },
     {
       id: 'gold', name: 'Gold Pass', rank: 3, cardColor: '#BB9A4A',
+      parking: [{ id: 'preferred', label: 'Free preferred parking', value: 35 }],
       pricing: { one_park: { swo: 315, bgt: 315, aq_orlando: 279, ai_tampa: 225 } },
     },
     {
       id: 'platinum', name: 'Platinum Pass', rank: 4, cardColor: '#5F7084',
+      parking: [{ id: 'preferred', label: 'Free preferred parking', value: 35 }],
       pricing: { by_region: { florida: 549 } },
     },
   ],
@@ -232,7 +247,7 @@ export interface PaybackInputs {
   totalPaid: number;
   visits: number;
   onePark: number;
-  /** Per-visit free-parking value, or 0 if the user doesn't park for free. */
+  /** Per-visit parking value from the selected option, or 0 if not used. */
   parkingPerVisit: number;
   /** Variable lump of other savings (dining, merch discounts, etc.). */
   otherSavings: number;

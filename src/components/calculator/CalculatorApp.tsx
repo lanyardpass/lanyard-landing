@@ -28,10 +28,18 @@ export default function CalculatorApp() {
   const [priceTouched, setPriceTouched] = useState(false);
   const [visits, setVisits] = useState(10);
   const [useParking, setUseParking] = useState(true);
+  const [parkingOptId, setParkingOptId] = useState<string | null>(null);
   const [otherSavings, setOtherSavings] = useState('');
 
   const op = operatorById(operatorId);
   const tier = op ? tierById(op, tierId) : undefined;
+
+  // Parking is tier- and option-specific (perks.json): e.g. Premier picks
+  // Regular/Prime/Valet, Power only gets half-price, Seasonal gets nothing.
+  const parkingOptions = tier?.parking ?? [];
+  const selectedParking = parkingOptions.find((o) => o.id === parkingOptId) ?? parkingOptions[0];
+  // Reset the chosen parking option whenever the tier changes.
+  useEffect(() => { setParkingOptId(tier?.parking[0]?.id ?? null); }, [tierId, operatorId]);
 
   const ctx: PriceContext = { residency, parkCount, unitedHomePark };
   const resolvedPrice = op && tier ? resolvePrice(op, tier, ctx) : null;
@@ -93,16 +101,13 @@ export default function CalculatorApp() {
 
   // ---- Math -----------------------------------------------------------------
   const totalPaid = Number(priceInput) || 0;
-  const parkingPerVisit = useParking && op && (!op.parkingTiers || (tier && op.parkingTiers.includes(tier.id)))
-    ? op.parkingPerVisit : 0;
+  const parkingPerVisit = useParking && selectedParking ? selectedParking.value : 0;
   const result = op && tier
     ? computePayback({
         totalPaid, visits, onePark: op.onePark, parkingPerVisit,
         otherSavings: Number(otherSavings) || 0,
       })
     : null;
-
-  const parkingAvailable = !!(op && tier && (!op.parkingTiers || op.parkingTiers.includes(tier.id)));
 
   // ---- Coach copy -----------------------------------------------------------
   const coach = (() => {
@@ -268,12 +273,37 @@ export default function CalculatorApp() {
             </div>
 
             <div className="calc-toggles">
-              {parkingAvailable && (
-                <label className="calc-toggle">
-                  <input type="checkbox" checked={useParking} onChange={(e) => setUseParking(e.target.checked)} />
-                  <span>I use my free parking ({money(op.parkingPerVisit)}/visit)</span>
-                </label>
+              {parkingOptions.length > 0 ? (
+                <div className="calc-parking">
+                  <label className="calc-toggle">
+                    <input type="checkbox" checked={useParking} onChange={(e) => setUseParking(e.target.checked)} />
+                    <span>
+                      {parkingOptions.length > 1
+                        ? 'I use my free parking each visit'
+                        : `I use my parking perk (${parkingOptions[0].label}, ${money(parkingOptions[0].value)}/visit)`}
+                    </span>
+                  </label>
+                  {parkingOptions.length > 1 && useParking && (
+                    <div className="calc-parking__opts">
+                      {parkingOptions.map((o) => (
+                        <button
+                          key={o.id} type="button"
+                          className={`calc-park-opt${selectedParking?.id === o.id ? ' sel' : ''}`}
+                          onClick={() => setParkingOptId(o.id)}
+                        >
+                          <span className="calc-park-opt__label">{o.label}</span>
+                          <span className="calc-park-opt__val">{money(o.value)}/visit</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="calc-hint calc-parking__none">
+                  {tier.name} doesn’t include free parking — that’s a perk of the higher tiers.
+                </p>
               )}
+
               <div className="calc-field calc-field--inline">
                 <label htmlFor="calc-other">Other savings (dining, merch, events)</label>
                 <div className="calc-money-input calc-money-input--sm">
