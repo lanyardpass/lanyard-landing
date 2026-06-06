@@ -35,6 +35,12 @@ export default function CalculatorApp() {
   const [otherSavings, setOtherSavings] = useState('');
   const scrollTopOnReset = useRef(false);
   const resultFired = useRef(false); // once-guard for the Calculator.Result signal
+  const viewFired = useRef(false);   // once-guard for the Calculator.View signal
+
+  // Top of the funnel: someone loaded the calculator. Fires once per mount.
+  useEffect(() => {
+    if (!viewFired.current) { viewFired.current = true; track('Calculator.View'); }
+  }, []);
 
   const op = operatorById(operatorId);
   const tier = op ? tierById(op, tierId) : undefined;

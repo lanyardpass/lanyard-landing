@@ -7,6 +7,7 @@
 // aggregate, never linked to a person. We capture what a pass is worth, not who.
 
 import TelemetryDeck from '@telemetrydeck/sdk';
+import { resolveSource } from './source';
 
 // Public by design (ships in the client) — same app id as the pageview websdk.
 const APP_ID = '155A1765-42BE-4F22-B380-691BB80566D5';
@@ -46,6 +47,19 @@ function client(): TelemetryDeck | null {
   return td;
 }
 
+// Channel attribution — the same resolution the signup forms use: an explicit
+// campaign tag (?src=/utm_source/ref) wins, else the referring host, else
+// "direct". Rides on every signal so the whole funnel is segmentable by source.
+function channel(): string {
+  try {
+    const qs = new URLSearchParams(window.location.search);
+    const raw = qs.get('src') || qs.get('utm_source') || qs.get('ref') || '';
+    return resolveSource(raw, document.referrer);
+  } catch {
+    return 'direct';
+  }
+}
+
 /**
  * Fire-and-forget custom signal. `value` becomes the single numeric floatValue
  * (TelemetryDeck allows exactly one per signal); everything in `dimensions` is a
@@ -55,7 +69,7 @@ function client(): TelemetryDeck | null {
 export function track(type: string, dimensions: Record<string, string> = {}, value?: number): void {
   const c = client();
   if (!c) return;
-  const payload: Record<string, unknown> = { ...dimensions };
+  const payload: Record<string, unknown> = { channel: channel(), ...dimensions };
   if (typeof value === 'number' && Number.isFinite(value)) payload.floatValue = value;
   try {
     void c.signal(type, payload).catch(() => {});
