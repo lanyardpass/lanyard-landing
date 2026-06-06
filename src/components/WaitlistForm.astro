@@ -20,6 +20,7 @@
 </form>
 
 <script>
+  import { track } from '@/lib/telemetry';
   document.querySelectorAll('[data-waitlist]').forEach((form) => {
     const f = form as HTMLFormElement;
     f.addEventListener('submit', async (e) => {
@@ -43,6 +44,7 @@
           }),
         });
         if (res.ok) {
+          track('Waitlist.Submitted');
           f.innerHTML = '<p class="wl__done">You’re on the list — we’ll email you once, at launch.</p>';
         } else {
           const d = await res.json().catch(() => ({}));

@@ -98,6 +98,8 @@ export const prerender = true;
 </Layout>
 
 <script>
+  import { track } from '@/lib/telemetry';
+
   // Catalog (mirrors the app's Add-a-Pass flow). Hardcoded by design — this is
   // a recruiting form, not the app's source of truth. Update if a tier renames.
   const OPERATORS = [
@@ -262,6 +264,7 @@ export const prerender = true;
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('bad status');
+      track('Beta.Submitted', { passCount: String(state.passes.length) });
       (document.getElementById('betaForm') as HTMLElement).style.display = 'none';
       (document.getElementById('success') as HTMLElement).style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
