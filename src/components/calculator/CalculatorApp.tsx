@@ -65,6 +65,9 @@ export default function CalculatorApp() {
     setOperatorId(null); setTierId(null); setUnitedHomePark(null);
     setResidency('out_of_state'); setParkCount(3);
     setPriceTouched(false); setPriceInput(''); setStep('operator');
+    // Clear everything the user entered too — "start over" means a clean slate,
+    // not the previous pass's visits/parking/savings carried onto a new one.
+    setVisits(0); setUseParking(true); setParkingOptId(null); setOtherSavings('');
   }
 
   function pickOperator(id: OperatorId) {
