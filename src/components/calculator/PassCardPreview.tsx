@@ -68,42 +68,58 @@ function MaterialSurface({ material, accent }: { material: Material; accent: str
   );
 }
 
-function WatermarkArt({ kind, color }: { kind: Watermark; color: string }) {
-  // Low-opacity operator silhouette bleeding off the bottom-right corner —
-  // same role as the app's potrace watermarks (UniversalOrlandoShape, etc.).
-  const common: React.CSSProperties = {
-    position: 'absolute',
-    right: -28,
-    bottom: -30,
-    width: 190,
-    height: 190,
-    opacity: 0.13,
-    pointerEvents: 'none',
-    color,
-  };
-  if (kind === 'universal') {
-    return (
-      <svg viewBox="0 0 100 100" style={common} fill="none" stroke="currentColor" strokeWidth={3} aria-hidden="true">
-        <circle cx="50" cy="50" r="26" />
-        <ellipse cx="50" cy="50" rx="26" ry="10" />
-        <ellipse cx="50" cy="50" rx="11" ry="26" />
-        <ellipse cx="50" cy="50" rx="44" ry="15" transform="rotate(-28 50 50)" strokeWidth={4} />
-      </svg>
-    );
-  }
-  if (kind === 'disney') {
-    return (
-      <svg viewBox="0 0 100 100" style={common} fill="currentColor" aria-hidden="true">
-        <path d="M48 14l3 9 3-9 3 13h-12l3-13zM30 44c0-7 4-11 4-18l4 6 4-10 4 10 4-6c0 7 4 11 4 18v40H30V44zM18 56c0-5 3-8 3-13l3 5 3-7v43H18V56zM76 56c0-5-3-8-3-13l-3 5-3-7v43h9V56z" />
-      </svg>
-    );
-  }
-  // seaworld — orca arcing over a wave
+// Per-operator placement of the watermark bleeding off the bottom-right corner,
+// matching the app's watermark conventions (CARD_IDENTITY.md). Sizes are in % of
+// the card width so the silhouette scales with the card.
+const WM_PLACEMENT: Record<Watermark, { size: number; right: number; bottom: number; rotate: number }> = {
+  universal: { size: 62, right: -12, bottom: -16, rotate: 0 },   // globe + orbital ring
+  disney:    { size: 58, right: -2, bottom: -8, rotate: 0 },     // castle + fireworks
+  seaworld:  { size: 64, right: -8, bottom: -12, rotate: -16 },  // orca + waves
+};
+
+/** App watermark opacity by material; bumped for dark text (reads softer). */
+function watermarkOpacity(material: Material, darkText: boolean): number {
+  const base = { matte: 0.08, brushed: 0.11, metallic: 0.15, glass: 0.24 }[material];
+  return base * (darkText ? 1.3 : 1);
+}
+
+function luminanceIsDark(hex: string): boolean {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16) / 255;
+  const g = parseInt(h.slice(2, 4), 16) / 255;
+  const b = parseInt(h.slice(4, 6), 16) / 255;
+  return 0.299 * r + 0.587 * g + 0.114 * b < 0.5;
+}
+
+function WatermarkArt({ kind, color, material }: { kind: Watermark; color: string; material: Material }) {
+  // The real app silhouette (potrace SVG in /watermarks) used as a tintable
+  // mask — `background: color` shows through only where the silhouette is, so
+  // the watermark travels with the card's text color (white, or Disney's dark).
+  const p = WM_PLACEMENT[kind];
+  const url = `url(/watermarks/${kind}.svg)`;
   return (
-    <svg viewBox="0 0 100 100" style={common} fill="currentColor" aria-hidden="true">
-      <path d="M14 70c10-34 34-52 60-52-6 6-9 12-10 19 8 2 14 7 18 15-12-6-22-5-30 1-9 7-14 17-16 28-8-3-15-9-22-18l-4 8-2-12 6 4-4-6z" />
-      <path d="M6 80c10 6 20 6 30 0 10 6 20 6 30 0 10 6 20 6 30 0v8c-10 6-20 6-30 0-10 6-20 6-30 0-10 6-20 6-30 0v-8z" opacity={0.7} />
-    </svg>
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        right: `${p.right}%`,
+        bottom: `${p.bottom}%`,
+        width: `${p.size}%`,
+        aspectRatio: '1 / 1',
+        background: color,
+        opacity: watermarkOpacity(material, luminanceIsDark(color)),
+        transform: p.rotate ? `rotate(${p.rotate}deg)` : undefined,
+        WebkitMaskImage: url,
+        maskImage: url,
+        WebkitMaskRepeat: 'no-repeat',
+        maskRepeat: 'no-repeat',
+        WebkitMaskSize: 'contain',
+        maskSize: 'contain',
+        WebkitMaskPosition: 'center',
+        maskPosition: 'center',
+        pointerEvents: 'none',
+      }}
+    />
   );
 }
 
@@ -122,7 +138,7 @@ export default function PassCardPreview({
       <div className="calc-card__shadow" />
       <div className="calc-card__chrome">
         <MaterialSurface material={material} accent={accentColor} />
-        <WatermarkArt kind={watermark} color={textColor} />
+        <WatermarkArt kind={watermark} color={textColor} material={material} />
 
         {showThreeParkStripe && (
           <span className="calc-card__stripe" style={{ color: textColor }}>3-PARK</span>
