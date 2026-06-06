@@ -23,9 +23,45 @@ const calcSchema = {
   isAccessibleForFree: true,
   publisher: { '@type': 'Organization', name: 'Lanyard', url: new URL('/', Astro.site).href },
 };
+
+// FAQ content — written in real query language; doubles as user-helpful copy and
+// FAQPage structured data (eligible for rich results, matches question searches).
+// Single source of truth: rendered as <dl> AND serialized to JSON-LD below.
+const faqs = [
+  {
+    q: 'How many visits does it take to break even on an annual pass?',
+    a: 'It depends on what you paid and the single-day ticket price, but for most Florida theme-park passes it lands in the low single digits — often four to seven visits. Enter your pass above to see your exact break-even visit.',
+  },
+  {
+    q: 'Is an annual pass worth it for Florida residents?',
+    a: 'Usually more so. Florida-resident pricing and payment plans lower the cost, and locals tend to visit more often, which drops cost per visit fast. The calculator includes Florida-resident pricing for Universal and Disney.',
+  },
+  {
+    q: 'Does the calculator include parking and perk savings?',
+    a: 'Yes. It factors in the parking benefit for your specific tier (free or discounted), and you can add dining and other savings. Parking alone often moves your break-even up by a visit or two.',
+  },
+  {
+    q: 'Will Epic Universe count toward my Universal Orlando annual pass?',
+    a: 'As of 2026, Epic Universe is not yet included on Universal Orlando annual passes — passholders buy a discounted day ticket to visit. The calculator lets you add that cost so your numbers stay honest.',
+  },
+  {
+    q: 'Is this the same as the Lanyard app?',
+    a: 'It is the web version of the same math. The Lanyard app tracks your visits, perks and blockout dates automatically all year and keeps this receipt updated — so you never have to do the math by hand again.',
+  },
+];
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
 ---
 <Layout title={title} description={description}>
   <script type="application/ld+json" set:html={JSON.stringify(calcSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
   <section class="calc-page">
     <header class="calc-hero">
@@ -35,6 +71,41 @@ const calcSchema = {
     </header>
 
     <CalculatorApp client:load />
+  </section>
+
+  <section class="calc-seo">
+    <div class="calc-seo__inner">
+      <h2>How to tell if your annual pass is worth it</h2>
+      <p>The honest answer is almost always "yes — <em>if you use it</em>." An annual pass pays for itself the moment the days you visit add up to more than you paid. This calculator does that math for you: it values each visit at a single-day gate ticket, adds the perks you actually use (free or discounted parking, dining savings), and gives you three numbers. The goal isn't to talk you out of a pass — it's to make sure the one you have pays off.</p>
+
+      <h3>Cost per visit</h3>
+      <p>What you paid for the pass divided by how many times you go. The more you visit, the lower it drops — and the better your pass looks next to a single-day ticket.</p>
+
+      <h3>Break-even</h3>
+      <p>The visit where your pass has officially paid for itself. Every trip after that is "free" in pass terms.</p>
+
+      <h3>Value recovered</h3>
+      <p>Everything your pass has given back — the value of your visits plus the perks you used — measured against what you paid. We call it your pass's <strong>worth</strong>.</p>
+
+      <h2>Is a Walt Disney World annual pass worth it?</h2>
+      <p>Disney World's annual passes — the Incredi-Pass, Sorcerer Pass, Pirate Pass and Pixie Dust Pass (the last three for Florida residents) — come down to one thing: how many days you'll actually spend in the parks. The 2025 price increases nudged the break-even up a few visits, which is exactly why it's worth tracking rather than guessing. Pick your tier above and enter your trips to see your number.</p>
+
+      <h2>Is a Universal Orlando annual pass worth it?</h2>
+      <p>Universal's Seasonal, Power, Preferred and Premier passes differ most on parking and blockout dates — and there's a current wrinkle worth knowing: Epic Universe isn't yet included on Universal Orlando annual passes, so passholders add a discounted day ticket to visit. The calculator lets you fold that Epic add-on into the math, so you can see whether your pass still pays off the way you actually visit.</p>
+
+      <h2>Is a SeaWorld or Busch Gardens annual pass worth it?</h2>
+      <p>The United Parks Florida passes — Bronze, Silver, Gold and Platinum — are among the best per-visit values in the state, and Platinum covers all four Florida parks (SeaWorld Orlando, Busch Gardens Tampa, Aquatica and Adventure Island) with free parking. Visit even a handful of times a year and the math tends to land in your favor fast. Check yours above.</p>
+
+      <h2>Frequently asked questions</h2>
+      <dl class="calc-faq">
+        {faqs.map((f) => (
+          <div class="calc-faq__item">
+            <dt>{f.q}</dt>
+            <dd>{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   </section>
 
   <section class="calc-wl-band">
@@ -245,6 +316,30 @@ const calcSchema = {
     font-weight: 800; font-size: 1.02rem; text-decoration: none;
   }
   .calc-cta__edit { display: block; margin: 1.1rem auto 0; }
+
+  /* ---------- SEO content (static prose Google can read + users who scroll) ---------- */
+  .calc-seo { background: var(--off-white); color: var(--ink); }
+  .calc-seo__inner {
+    max-width: 42rem; margin-inline: auto;
+    padding: clamp(1rem, 4vw, 2rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+  }
+  .calc-seo h2 {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.3rem, 4vw, 1.7rem); color: var(--green-primary);
+    margin: 2.4rem 0 0.7rem; line-height: 1.15;
+  }
+  .calc-seo h2:first-child { margin-top: 0; }
+  .calc-seo h3 {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.05rem;
+    color: var(--ink); margin: 1.4rem 0 0.3rem;
+  }
+  .calc-seo p { color: var(--muted); line-height: 1.7; margin: 0 0 0.9rem; }
+  .calc-seo strong { color: var(--ink); }
+
+  .calc-faq { margin: 0.6rem 0 0; }
+  .calc-faq__item { padding: 1.1rem 0; border-top: 1px solid rgba(45,106,79,0.12); }
+  .calc-faq dt { font-family: var(--font-display); font-weight: 700; color: var(--ink); margin-bottom: 0.4rem; }
+  .calc-faq dd { margin: 0; color: var(--muted); line-height: 1.7; }
 
   /* ---------- Waitlist band (dark, so WaitlistForm renders as designed) ---------- */
   .calc-wl-band { background: var(--dark-gradient); color: var(--on-dark); }
