@@ -6,7 +6,7 @@
 // visits. Coach voice throughout (product_decisions.md → "Brand voice"): the
 // result celebrates value earned, it never judges the purchase.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   OPERATORS, operatorById, tierById, resolvePrice, computePayback, money,
   type OperatorId, type Residency, type PriceContext,
@@ -32,6 +32,7 @@ export default function CalculatorApp() {
   const [useParking, setUseParking] = useState(true);
   const [parkingOptId, setParkingOptId] = useState<string | null>(null);
   const [otherSavings, setOtherSavings] = useState('');
+  const scrollTopOnReset = useRef(false);
 
   const op = operatorById(operatorId);
   const tier = op ? tierById(op, tierId) : undefined;
@@ -42,6 +43,16 @@ export default function CalculatorApp() {
   const selectedParking = parkingOptions.find((o) => o.id === parkingOptId) ?? parkingOptions[0];
   // Reset the chosen parking option whenever the tier changes.
   useEffect(() => { setParkingOptId(tier?.parking[0]?.id ?? null); }, [tierId, operatorId]);
+
+  // After a "Start over" reset commits the (short) operator step, scroll back to
+  // the top. Running here — after layout has settled — beats the scroll-anchoring
+  // that otherwise keeps the viewport pinned to the bottom of the page.
+  useEffect(() => {
+    if (scrollTopOnReset.current) {
+      scrollTopOnReset.current = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step]);
 
   const ctx: PriceContext = { residency, parkCount, unitedHomePark };
   const resolvedPrice = op && tier ? resolvePrice(op, tier, ctx) : null;
@@ -68,6 +79,10 @@ export default function CalculatorApp() {
     // Clear everything the user entered too — "start over" means a clean slate,
     // not the previous pass's visits/parking/savings carried onto a new one.
     setVisits(0); setUseParking(true); setParkingOptId(null); setOtherSavings('');
+    // "Start over" fires from the bottom of the result. Flag a scroll-to-top that
+    // the effect below runs AFTER the (much shorter) operator step has committed —
+    // doing it here races the layout shrink and scroll-anchoring strands the user.
+    scrollTopOnReset.current = true;
   }
 
   function pickOperator(id: OperatorId) {
