@@ -26,7 +26,9 @@ export default function CalculatorApp() {
 
   const [priceInput, setPriceInput] = useState('');
   const [priceTouched, setPriceTouched] = useState(false);
-  const [visits, setVisits] = useState(10);
+  // Start at zero visits on purpose — watching the rings fill as you add visits
+  // is half the fun, so let the user drive it from empty rather than pre-filling.
+  const [visits, setVisits] = useState(0);
   const [useParking, setUseParking] = useState(true);
   const [parkingOptId, setParkingOptId] = useState<string | null>(null);
   const [otherSavings, setOtherSavings] = useState('');
