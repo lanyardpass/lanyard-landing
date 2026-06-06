@@ -173,7 +173,11 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
     box-sizing: border-box;
   }
 
-  @media (max-width: 720px) {
+  /* Switch to the hamburger at ≤1024px. The inline nav (4 links + two full CTA
+     buttons + logo) only fits on one line above ~1024; below that it wraps ugly
+     ("What / it / does"), so every tablet-in-portrait — incl. the 12.9" iPad at
+     1024 — gets the clean menu instead. Verified empirically at 834/900/1024. */
+  @media (max-width: 1024px) {
     .site-nav { display: none; }
     .site-header__actions { display: none; }
     .site-header__burger { display: inline-flex; }
