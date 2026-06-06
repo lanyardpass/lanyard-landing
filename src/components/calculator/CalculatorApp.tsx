@@ -13,6 +13,7 @@ import {
 } from '@/data/calculator';
 import PassCardPreview, { materialForRank } from './PassCardPreview';
 import PaybackReceipt from './PaybackReceipt';
+import { track, priceBand, visitsBand, paybackBand } from '@/lib/telemetry';
 
 type Step = 'operator' | 'tier' | 'options' | 'details';
 
@@ -33,6 +34,7 @@ export default function CalculatorApp() {
   const [parkingOptId, setParkingOptId] = useState<string | null>(null);
   const [otherSavings, setOtherSavings] = useState('');
   const scrollTopOnReset = useRef(false);
+  const resultFired = useRef(false); // once-guard for the Calculator.Result signal
 
   const op = operatorById(operatorId);
   const tier = op ? tierById(op, tierId) : undefined;
@@ -89,6 +91,7 @@ export default function CalculatorApp() {
   }
 
   function pickOperator(id: OperatorId) {
+    track('Calculator.Start', { operator: id }); // engaged past the hero
     setOperatorId(id); setTierId(null); setUnitedHomePark(null); setStep('tier');
   }
 
@@ -132,6 +135,41 @@ export default function CalculatorApp() {
         otherSavings: Number(otherSavings) || 0,
       })
     : null;
+
+  // ---- Analytics (anonymous, aggregate — product_decisions.md privacy posture) --
+  // Categorical dimensions describing the pass the user built. Funnel signals
+  // attach these so we can segment by audience without identifying anyone.
+  function passDimensions(): Record<string, string> {
+    if (!op || !tier) return {};
+    return {
+      operator: op.id,
+      tier: tier.id,
+      parkCount: op.flow === 'universal' ? String(parkCount) : 'na',
+      residency: op.flow === 'universal' ? (residency === 'florida_resident' ? 'fl' : 'oos') : 'na',
+      homePark: unitedHomePark ?? 'na',
+      parking: !selectedParking ? 'none' : useParking ? selectedParking.id : 'off',
+    };
+  }
+
+  // Reset the once-per-pass guard whenever the pass identity changes.
+  useEffect(() => { resultFired.current = false; }, [operatorId, tierId]);
+
+  // Fire Calculator.Result once, when the user first reaches a real result
+  // (visits > 0). floatValue = price paid (the effective price, our #1 signal —
+  // averageable per operator/tier to learn what people actually pay vs. MSRP).
+  useEffect(() => {
+    if (step === 'details' && visits > 0 && op && tier && result && !resultFired.current) {
+      resultFired.current = true;
+      track('Calculator.Result', {
+        ...passDimensions(),
+        priceBand: priceBand(totalPaid),
+        visitsBand: visitsBand(visits),
+        paybackBand: paybackBand(result.valuePct),
+        priceEdited: String(priceTouched),
+      }, totalPaid);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, visits, operatorId, tierId]);
 
   // ---- Coach copy -----------------------------------------------------------
   const coach = (() => {
@@ -370,7 +408,16 @@ export default function CalculatorApp() {
               {/* Handoff — lead magnet → app */}
               <div className="calc-cta">
                 <p className="calc-cta__lead">Want this tracked automatically, with your blockouts and perks logged for you?</p>
-                <a className="calc-cta__btn" href={betaHref}>Get Lanyard →</a>
+                <a
+              className="calc-cta__btn"
+              href={betaHref}
+              onClick={() => track('Calculator.GetApp', {
+                ...passDimensions(),
+                priceBand: priceBand(totalPaid),
+                visitsBand: visitsBand(visits),
+                paybackBand: paybackBand(result.valuePct),
+              }, result.valuePct)}
+            >Get Lanyard →</a>
                 <button type="button" className="calc-link calc-cta__edit" onClick={reset}>Start over with a different pass</button>
               </div>
             </div>
