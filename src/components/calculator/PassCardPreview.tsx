@@ -18,11 +18,13 @@ export interface PassCardPreviewProps {
   showThreeParkStripe?: boolean;
 }
 
-/** Tier rank → material, matching CARD_IDENTITY's four-step progression. */
+/** Tier rank → material. The top tier renders flat on its true card color (the
+ * app's standard tier color) — the darkening "glass" treatment muddied the
+ * flagship hue (e.g. Premier's orange) and didn't read right, so it's dropped. */
 export function materialForRank(rank: number, total: number): Material {
-  if (total <= 1) return 'metallic';
+  if (total <= 1) return 'matte';
+  if (rank === total) return 'matte'; // flagship = true color, no shiny treatment
   const pos = (rank - 1) / (total - 1);
-  if (rank === total) return 'glass'; // flagship gets the bespoke-glass nod
   if (pos < 0.34) return 'matte';
   if (pos < 0.67) return 'brushed';
   return 'metallic';
