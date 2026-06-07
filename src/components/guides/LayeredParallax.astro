@@ -1,22 +1,26 @@
 ---
-// LayeredParallax — a 3-plane depth banner from a single photo. Each plane
-// drifts at its own rate as the reader scrolls, so near things move more than
-// far, giving real depth (vs. one flat plane sliding).
+// LayeredParallax — a depth banner from a single photo. The planes drift at
+// different rates as the reader scrolls, so the foreground recedes against the
+// sky, giving real depth (vs. one flat plane sliding).
 //
-// Built for Isle of Berk, with the planes pre-separated (see the asset pipeline):
-//   front  = the Viking statues (clean cutout)
-//   mid    = village + mountain, sky removed, statues painted out behind them
-//   back   = a smooth sky plane that fills everything behind
+// DEFAULT (clean, artifact-proof) = two planes:
+//   mid  = the whole foreground (subject + scene), sky removed, kept SHARP
+//   back = a sharp sky plane filling behind it
+// The foreground parallaxes against the sky. Nothing is duplicated or painted
+// out, so there is no ghost and no fill to uncover.
 //
-// Why it stays clean (the artifact rules learned the hard way):
-//   • No plane except `front` contains the statues, so there is no blurred-statue
-//     "ghost" trailing the sharp one.
+// OPTIONAL third near-plane (`front`): only pass it when a real, plausible
+// background exists behind the subject. If you cut a subject out and let it move
+// at a different rate than `mid`, the moving subject UNCOVERS whatever fills the
+// hole behind it. A single photo has no real "behind the subject," so an
+// auto-fill shows as radial "fan" smears. Don't pass `front` without a proper
+// (hand/AI inpainted) background. See docs/guide-image-pipeline.md.
+//
+// Shared artifact rules:
 //   • Motion is DOWNWARD only, so the gap a receding plane opens is always at the
 //     TOP — where the sky belongs — never a hole at the bottom.
 //   • At a plane's rest (entering the viewport) translate is 0, so the full,
 //     un-cropped image is what you first see.
-//   • `front` barely separates from `mid` (subtle statue pop); the real depth is
-//     the village receding against the near-static sky.
 //
 // Scroll-driven only (no gyroscope → no permission prompt). prefers-reduced-
 // motion: planes sit still and read as the original composite.
@@ -24,9 +28,11 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
-  back: ImageMetadata;  // sky plane
-  mid: ImageMetadata;   // village + mountain (sky removed, statues painted out)
-  front: ImageMetadata; // statues
+  back: ImageMetadata;   // sky plane (sharp)
+  mid: ImageMetadata;    // foreground: scene with the sky removed (statues + village + mountain)
+  front?: ImageMetadata; // OPTIONAL extra near-plane. Only safe if there is a real,
+                         // plausible background behind it — otherwise a moving front
+                         // uncovers the fill behind it (the "fan smear" failure mode).
   alt: string;
   caption?: string;
   wide?: boolean;
@@ -39,8 +45,10 @@ const widths = [640, 960, 1280, 1700, 2200];
 <figure class:list={['lparallax', { 'lparallax--wide': wide }]} data-reveal>
   <div class="lparallax__frame" style={`aspect-ratio: ${ratio};`} data-lparallax>
     <Image src={back} alt="" aria-hidden="true" widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer lparallax__layer--bg" data-depth="0.12" />
-    <Image src={mid} alt="" aria-hidden="true" widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="0.62" />
-    <Image src={front} alt={alt} widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="0.9" />
+    <Image src={mid} alt={front ? '' : alt} aria-hidden={front ? 'true' : undefined} widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="0.7" />
+    {front && (
+      <Image src={front} alt={alt} widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="0.9" />
+    )}
   </div>
   {caption && <figcaption class="lparallax__cap">{caption}</figcaption>}
 </figure>

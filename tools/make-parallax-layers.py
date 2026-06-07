@@ -2,34 +2,37 @@
 """
 make-parallax-layers.py — split one photo into depth planes for LayeredParallax.
 
-Produces three layers from a single source image:
-  front   = the salient subject (e.g. statues), crisp cutout with alpha matting
-  village = everything else, sky removed, subject painted out behind it
-  sky     = a SHARP sky plane that fills behind everything
+DEFAULT (robust, what we ship): TWO planes from a single photo —
+  foreground = the whole scene with the SKY removed (subject + everything), SHARP
+  sky        = a SHARP sky plane that fills behind it
+The foreground parallaxes against the sky. Nothing is duplicated or painted out,
+so there is no ghost and no fill that can be uncovered.
 
 Pipeline rules (see docs/guide-image-pipeline.md for the why):
   • Work at HIGH resolution; downscale ONCE at the very end (Lanczos).
-  • The cutout edge is gated by the model, not the pixel count (rembg/u2net work
-    at 320px internally). Crisp edges come from isnet-general-use + alpha matting,
-    not from feeding more pixels.
-  • The sky plane is what the reader actually SEES, so keep it SHARP (never blur).
-  • The sky mask must protect tall foreground (a mountain/spire): tight "clearly
-    blue" threshold, kept to blobs connected to the TOP edge, so it cannot bleed
-    into the hazy top of the subject.
-  • Subject is painted out of the background by a distance-transform fill (nearest
-    real pixel), so a moving plane never reveals a hole or a blurred-subject ghost.
+  • The sky plane is what the reader SEES, so keep it SHARP (never blur it).
+  • The sky mask must protect tall foreground (a mountain/spire, or even a blue
+    statue): a TIGHT "clearly blue" threshold, kept to blobs connected to the TOP
+    edge, so it cannot bleed into the subject.
   • Save LOSSLESS webp masters; astro:assets does the single delivery compression.
+
+Why no separate "subject" (front) plane by default:
+  Cutting the subject out and moving it at a different rate than the foreground
+  UNCOVERS whatever fills the hole behind it. A single photo has no real "behind
+  the subject", and an auto-fill (distance-transform / nearest-pixel) shows up as
+  radial "fan" smears the moment the planes separate. Only add a front plane when
+  you have a genuinely plausible background behind the subject (hand- or
+  AI-inpainted). Then pass it to LayeredParallax's optional `front` prop.
 
 Usage:
   python3 tools/make-parallax-layers.py <source.jpg> <out_dir> [--work 2600] [--master 2200]
 
-Deps (one-time):  pip3 install "rembg[cpu]" pymatting scipy pillow numpy
+Deps (one-time):  pip3 install scipy pillow numpy
 """
 import argparse, os
 import numpy as np
 from PIL import Image, ImageFilter
-from scipy.ndimage import label, binary_closing, binary_opening, binary_dilation, distance_transform_edt
-from rembg import remove, new_session
+from scipy.ndimage import label, binary_closing, binary_opening, distance_transform_edt
 
 
 def main():
@@ -39,27 +42,19 @@ def main():
     ap.add_argument("--work", type=int, default=2600, help="processing width (high)")
     ap.add_argument("--master", type=int, default=2200, help="final committed width")
     args = ap.parse_args()
-    os.makedirs(args.out_dir, exist_ok=True)
     out = args.out_dir.rstrip("/") + "/"
+    os.makedirs(out, exist_ok=True)
 
     # Load original, work at a high resolution (NOT a pre-shrunk copy).
     orig = Image.open(args.source).convert("RGB")
     h = round(orig.height * args.work / orig.width)
     work = orig.resize((args.work, h), Image.LANCZOS)
-
-    # FRONT — salient subject, crisp via isnet + alpha matting.
-    sess = new_session("isnet-general-use")
-    front = remove(
-        work, session=sess, alpha_matting=True,
-        alpha_matting_foreground_threshold=240,
-        alpha_matting_background_threshold=12,
-        alpha_matting_erode_size=8,
-    )
-
     a = np.asarray(work).astype(np.int16)
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
 
-    # SKY MASK — clearly-blue, connected to the top edge (protects tall subjects).
+    # SKY MASK — clearly-blue, connected to the top edge. Connectivity-from-top is
+    # what protects the rock spire AND the blue statues (they aren't connected to
+    # the top sky), so they stay in the foreground.
     sky = (B > 135) & (B > R + 18) & (B > G + 6)
     sky = binary_opening(sky, iterations=2)
     lab, _ = label(sky)
@@ -70,15 +65,11 @@ def main():
         Image.fromarray((sky * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.5))
     ).astype(np.float32) / 255.0
 
-    # Paint the subject OUT of the scene (nearest-real-pixel fill).
-    statue = binary_dilation(np.asarray(front.split()[3]) > 20, iterations=5)
-    idx = distance_transform_edt(statue, return_distances=False, return_indices=True)
-    scene = np.asarray(work)[idx[0], idx[1]]
+    # FOREGROUND: full scene, sky transparent. SHARP. (No cutout, no fill.)
+    fg = np.dstack([np.asarray(work), (1.0 - skyA) * 255]).astype(np.uint8)
 
-    # VILLAGE (mid): scene with subject painted out, sky transparent. SHARP.
-    village = np.dstack([scene, (1.0 - skyA) * 255]).astype(np.uint8)
-
-    # SKY plane (back): real sky, non-sky filled by nearest sky. SHARP, no blur.
+    # SKY plane: real sky, with non-sky filled by nearest sky (only ever revealed
+    # at the top, where it's real sky). SHARP, no blur.
     sidx = distance_transform_edt(~(skyA > 0.5), return_distances=False, return_indices=True)
     skyplane = np.asarray(work)[sidx[0], sidx[1]]
 
@@ -88,9 +79,8 @@ def main():
         return im.resize((mw, round(im.height * mw / im.width)), Image.LANCZOS)
 
     down(Image.fromarray(skyplane)).save(out + "sky.webp", lossless=True, method=6)
-    down(Image.fromarray(village)).save(out + "village.webp", lossless=True, method=6)
-    down(front).save(out + "front.webp", lossless=True, method=6)
-    for f in ("sky.webp", "village.webp", "front.webp"):
+    down(Image.fromarray(fg)).save(out + "foreground.webp", lossless=True, method=6)
+    for f in ("sky.webp", "foreground.webp"):
         print(f, round(os.path.getsize(out + f) / 1024), "KB")
 
 
