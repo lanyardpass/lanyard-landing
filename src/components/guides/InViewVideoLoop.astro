@@ -67,11 +67,11 @@ const { src, poster, label, caption, wide = false } = Astro.props;
     margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
     line-height: 1.5; text-align: center;
   }
-  .vloop--wide {
-    width: min(100vw, var(--maxw));
-    margin-inline: calc(50% - min(50vw, var(--maxw) / 2));
-  }
-  @media (max-width: 600px) {
+  /* Full-bleed on mobile only. On desktop a full-viewport breakout would slide
+     under the sticky TOC rail (it overlaps the rail's column), so the banner
+     stays within the article column there. */
+  @media (max-width: 959px) {
+    .vloop--wide { width: 100vw; margin-inline: calc(50% - 50vw); }
     .vloop--wide .vloop__frame { border-radius: 0; }
   }
 

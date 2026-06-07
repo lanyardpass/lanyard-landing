@@ -1,0 +1,108 @@
+---
+// LayeredParallax — a 3-plane depth banner. Each layer is a cutout that drifts
+// at its own rate as the reader scrolls, so near things (front) move more than
+// far things (back), giving real depth (vs. a single plane sliding). Built for
+// Isle of Berk: front = Viking statues, mid = village + mountain (sky removed,
+// statue holes cut), back = the full image blurred (depth-of-field "world" that
+// fills every gap, so a moving cutout never reveals a hole or a hard ghost).
+//
+// Scroll-driven only (no gyroscope → no permission prompt). Honors
+// prefers-reduced-motion: layers sit still and read as the original composite.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  back: ImageMetadata;
+  mid: ImageMetadata;
+  front: ImageMetadata;
+  alt: string;
+  caption?: string;
+  /** Break out to a full-width banner (mobile only — see CSS note). */
+  wide?: boolean;
+  ratio?: string;
+}
+const { back, mid, front, alt, caption, wide = false, ratio = '16 / 9' } = Astro.props;
+const sizes = wide ? '100vw' : '(min-width: 960px) 700px, 100vw';
+const widths = [600, 900, 1200, 1700];
+---
+<figure class:list={['lparallax', { 'lparallax--wide': wide }]} data-reveal>
+  <div class="lparallax__frame" style={`aspect-ratio: ${ratio};`} data-lparallax>
+    <Image src={back} alt="" aria-hidden="true" widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="0.2" />
+    <Image src={mid} alt="" aria-hidden="true" widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="0.6" />
+    <Image src={front} alt={alt} widths={widths} sizes={sizes} loading="lazy" class="lparallax__layer" data-depth="1" />
+  </div>
+  {caption && <figcaption class="lparallax__cap">{caption}</figcaption>}
+</figure>
+
+<script>
+  // One rAF loop drives every [data-lparallax]. Each layer's translateY tracks
+  // the frame's progress through the viewport, scaled by its data-depth, so the
+  // planes separate. Skipped under reduced-motion (CSS leaves them static).
+  const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-lparallax]'));
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (frames.length && !reduce) {
+    const items = frames.map((frame) => ({
+      frame,
+      layers: Array.from(frame.querySelectorAll<HTMLElement>('.lparallax__layer')).map((el) => ({
+        el,
+        depth: parseFloat(el.dataset.depth || '0'),
+      })),
+    }));
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      for (const it of items) {
+        const r = it.frame.getBoundingClientRect();
+        if (r.bottom < -50 || r.top > vh + 50) continue;
+        // -1 (entering, bottom) → +1 (exiting, top); 0 when centered.
+        const p = 1 - 2 * ((r.top + r.height / 2) / vh);
+        const range = r.height * 0.16; // travel of the nearest plane (depth feel)
+        for (const { el, depth } of it.layers) {
+          el.style.transform = `translate3d(0, ${(-p * range * depth).toFixed(1)}px, 0)`;
+        }
+      }
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+</script>
+
+<style>
+  .lparallax { margin: 2.2rem 0; }
+  .lparallax__frame {
+    position: relative; overflow: hidden;
+    border-radius: var(--radius); box-shadow: var(--shadow-card);
+    background: var(--green-dark);
+  }
+  .lparallax__layer {
+    position: absolute; left: 0; width: 100%;
+    /* Overscan top + bottom so the planes can drift without exposing an edge.
+       The back layer (full, blurred) always covers, so cutout gaps are safe. */
+    top: -8%; height: 116%;
+    object-fit: cover; display: block; will-change: transform;
+  }
+  .lparallax__cap {
+    margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+
+  /* Wide banner: full-bleed on mobile only (on desktop a full-viewport breakout
+     would slide under the sticky TOC rail — see GuideLayout). */
+  @media (max-width: 959px) {
+    .lparallax--wide {
+      width: 100vw;
+      margin-inline: calc(50% - 50vw);
+    }
+    .lparallax--wide .lparallax__frame { border-radius: 0; }
+  }
+
+  .lparallax[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .lparallax[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .lparallax[data-reveal] { opacity: 1; transform: none; transition: none; }
+    .lparallax__layer { transform: none !important; }
+  }
+</style>

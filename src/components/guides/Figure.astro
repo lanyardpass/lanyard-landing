@@ -108,12 +108,11 @@ const widths = [480, 800, 1200, 1600, 2000];
     }
   }
 
-  /* Wide banner: break out of the article measure toward the viewport edges. */
-  .guide-figure--wide {
-    width: min(100vw, var(--maxw));
-    margin-inline: calc(50% - min(50vw, var(--maxw) / 2));
-  }
-  @media (max-width: 600px) {
+  /* Wide banner: full-bleed on mobile only. On desktop a full-viewport breakout
+     would slide under the sticky TOC rail, so the banner stays within the
+     article column there (still a large 16:9 banner). */
+  @media (max-width: 959px) {
+    .guide-figure--wide { width: 100vw; margin-inline: calc(50% - 50vw); }
     .guide-figure--wide .guide-figure__frame { border-radius: 0; }
   }
 
