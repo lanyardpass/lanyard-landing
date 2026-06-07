@@ -40,8 +40,8 @@
 /* Reading sizes. --measure caps the running text to a comfortable line length
    (~66–70 chars); --fs-prose is the body size. Both are one-line dials. */
 .guide-prose {
-  --measure: 34rem;
-  --fs-prose: 1.125rem;
+  --measure: 40rem;
+  --fs-prose: 1.25rem;
   font-size: var(--fs-prose); line-height: 1.65; color: var(--ink);
 }
 
@@ -71,7 +71,7 @@
   margin-top: 2.6em; scroll-margin-top: 5.5rem;
 }
 .guide-prose > h3 {
-  font-family: var(--font-display); font-weight: 800; font-size: 1.25rem;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.45rem;
   color: var(--ink); margin-top: 1.9em; scroll-margin-top: 5.5rem;
 }
 .guide-prose > p { color: var(--ink); }
