@@ -34,7 +34,7 @@ interface Props {
 }
 const { back, mid, front, alt, caption, wide = false, ratio = '16 / 9' } = Astro.props;
 const sizes = wide ? '100vw' : '(min-width: 960px) 700px, 100vw';
-const widths = [600, 900, 1200, 1700];
+const widths = [640, 960, 1280, 1700, 2200];
 ---
 <figure class:list={['lparallax', { 'lparallax--wide': wide }]} data-reveal>
   <div class="lparallax__frame" style={`aspect-ratio: ${ratio};`} data-lparallax>
