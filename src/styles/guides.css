@@ -7,7 +7,10 @@
    calculator.astro pattern.
    ============================================================= */
 
-.guide-page { background: var(--off-white); color: var(--ink); }
+/* overflow-x: clip contains the full-bleed wide breakout (which can overshoot the
+   viewport by a few px) without a horizontal scrollbar. `clip` (not hidden) does
+   NOT create a scroll container, so the sticky TOC keeps sticking to the viewport. */
+.guide-page { background: var(--off-white); color: var(--ink); overflow-x: clip; }
 
 /* ---------- Two-column shell: sticky TOC + article ---------- */
 .guide-shell {

@@ -183,9 +183,16 @@ const { src, depth, alt, caption, wide = false, ratio = '16 / 9' } = Astro.props
     line-height: 1.5; text-align: center;
   }
 
-  /* Full-bleed on mobile only (clears the sticky TOC on desktop — see GuideLayout). */
-  @media (max-width: 959px) {
-    .dparallax--wide { width: 100vw; margin-inline: calc(50% - 50vw); }
+  /* Wide banner: break out to a full-width banner (capped at --maxw so it never
+     causes a scrollbar), sitting ABOVE the sticky TOC (z-index:1) so the TOC
+     flows behind it while on screen. */
+  .dparallax--wide {
+    position: relative;
+    z-index: 2;
+    width: min(100vw, var(--maxw));
+    margin-inline: calc(50% - min(50vw, var(--maxw) / 2));
+  }
+  @media (max-width: 600px) {
     .dparallax--wide .dparallax__frame { border-radius: 0; }
   }
 

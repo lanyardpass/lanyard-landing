@@ -146,7 +146,9 @@ const faqSchema = faq.length
      (whose containing block would be this short rail, leaving no room to move). */
   .guide-shell__rail { min-width: 0; }
   @media (min-width: 960px) {
-    .guide-shell__rail { position: sticky; top: 5.5rem; align-self: start; }
+    /* z-index below the full-bleed wide media (z-index:2 in guides.css), so a
+       full-width banner flows OVER the TOC while it's on screen. */
+    .guide-shell__rail { position: sticky; top: 5.5rem; align-self: start; z-index: 1; }
   }
   .guide-cta-wrap { max-width: var(--maxw); margin-inline: auto; padding: 0 var(--gutter) clamp(3rem, 7vw, 5rem); }
 </style>

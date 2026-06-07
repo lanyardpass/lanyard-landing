@@ -108,11 +108,15 @@ const widths = [480, 800, 1200, 1600, 2000];
     }
   }
 
-  /* Wide banner: full-bleed on mobile only. On desktop a full-viewport breakout
-     would slide under the sticky TOC rail, so the banner stays within the
-     article column there (still a large 16:9 banner). */
-  @media (max-width: 959px) {
-    .guide-figure--wide { width: 100vw; margin-inline: calc(50% - 50vw); }
+  /* Wide banner: full-width (capped at --maxw, no scrollbar), sitting ABOVE the
+     sticky TOC (z-index:1) so the TOC flows behind it while on screen. */
+  .guide-figure--wide {
+    position: relative;
+    z-index: 2;
+    width: min(100vw, var(--maxw));
+    margin-inline: calc(50% - min(50vw, var(--maxw) / 2));
+  }
+  @media (max-width: 600px) {
     .guide-figure--wide .guide-figure__frame { border-radius: 0; }
   }
 
