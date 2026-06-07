@@ -49,7 +49,7 @@ def main():
     dimg = Image.fromarray((d * 255).astype(np.uint8))
     dw = args.depth
     dimg = dimg.resize((dw, round(dimg.height * dw / dimg.width)), Image.LANCZOS)
-    dimg = dimg.filter(ImageFilter.GaussianBlur(1))  # soften so displacement reads smooth
+    dimg = dimg.filter(ImageFilter.GaussianBlur(5))  # soften depth cliffs so the shader warps gradually instead of tearing at edges
     dimg.save(out + "depth.png")
 
     for f in ("scene.jpg", "depth.png"):

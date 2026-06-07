@@ -90,7 +90,7 @@ const { src, depth, alt, caption, wide = false, ratio = '16 / 9' } = Astro.props
 
     const uOffset = gl.getUniformLocation(prog, 'uOffset');
     const uZoom = gl.getUniformLocation(prog, 'uZoom');
-    gl.uniform1f(uZoom, 1.08);
+    gl.uniform1f(uZoom, 1.12); // margin so displacement near the frame edge doesn't hit the clamp
 
     let scene: WebGLTexture, dmap: WebGLTexture;
     try {
@@ -127,8 +127,10 @@ const { src, depth, alt, caption, wide = false, ratio = '16 / 9' } = Astro.props
     function frameLoop() {
       const r = frame.getBoundingClientRect();
       const scroll = 1 - 2 * ((r.top + r.height / 2) / window.innerHeight); // -1..1
-      tx = ptrX * 0.018;
-      ty = scroll * 0.028 + ptrY * 0.012;
+      // Horizontal pointer is the smallest: it tears vertical depth edges most
+      // (e.g. the right edge of a statue against the sky). Scroll stays the lead.
+      tx = ptrX * 0.010;
+      ty = scroll * 0.028 + ptrY * 0.008;
       cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
       gl!.uniform2f(uOffset, cx, cy);
       gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
