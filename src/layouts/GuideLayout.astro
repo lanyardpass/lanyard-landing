@@ -140,8 +140,13 @@ const faqSchema = faq.length
     padding: 0 var(--gutter); margin-top: clamp(1.2rem, 3vw, 1.8rem);
   }
   /* On mobile the rail stacks above the article as an inline TOC card (the
-     TableOfContents component styles itself for that); on desktop it becomes the
-     sticky 15rem rail beside the article. */
+     TableOfContents component styles itself for that); on desktop the rail
+     itself is sticky so the TOC tracks the reader. Sticky must live on the grid
+     ITEM (its containing block is the tall .guide-shell), not on the inner TOC
+     (whose containing block would be this short rail, leaving no room to move). */
   .guide-shell__rail { min-width: 0; }
+  @media (min-width: 960px) {
+    .guide-shell__rail { position: sticky; top: 5.5rem; align-self: start; }
+  }
   .guide-cta-wrap { max-width: var(--maxw); margin-inline: auto; padding: 0 var(--gutter) clamp(3rem, 7vw, 5rem); }
 </style>

@@ -46,13 +46,16 @@ const sizes = '(min-width: 960px) 700px, 100vw';
       const vh = window.innerHeight;
       for (const it of items) {
         const r = it.el.getBoundingClientRect();
-        // Map the element's center crossing the viewport (from 80% down to 20%)
-        // onto 0..1. Clamp outside that band.
         const center = r.top + r.height / 2;
-        const start = vh * 0.85;
-        const end = vh * 0.2;
+        // Keep the dissolve in a TIGHT band around the viewport center: pure day
+        // while the frame settles into view, a quick morph as its center crosses
+        // the middle, then pure night while it's still on screen and exiting.
+        // (A wide band leaves it ghosted the whole time it's visible.)
+        const start = vh * 0.60; // center here → still fully day
+        const end = vh * 0.42;   // center here → fully night
         let p = (start - center) / (start - end);
         p = Math.max(0, Math.min(1, p));
+        p = p * p * (3 - 2 * p); // smoothstep — eases the ends, snappy middle
         if (it.night) it.night.style.opacity = String(p);
         if (it.phase) it.phase.textContent = p > 0.5 ? 'Night' : 'Day';
       }

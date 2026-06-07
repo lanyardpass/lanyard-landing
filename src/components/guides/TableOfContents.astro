@@ -76,9 +76,10 @@ const items = headings.filter((h) => h.depth === 2);
     border-left-color: var(--green-accent);
   }
 
-  /* Sticky rail on desktop; an inline list on mobile (above the article). */
+  /* The rail (.guide-shell__rail) owns the sticky positioning; here we only cap
+     a very long TOC so it scrolls within the sticky rail instead of overflowing. */
   @media (min-width: 960px) {
-    .guide-toc { position: sticky; top: 5.5rem; max-height: calc(100vh - 7rem); overflow-y: auto; }
+    .guide-toc { max-height: calc(100vh - 7rem); overflow-y: auto; }
   }
   @media (max-width: 959px) {
     .guide-toc {

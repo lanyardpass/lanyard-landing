@@ -1,8 +1,10 @@
 ---
 // TierTable — a generic, responsive comparison table. Data comes in as props
 // from the content file (so it stays editable as content), keeping the component
-// reusable for any future tier/feature matrix. The first column is treated as
-// the row header. On narrow screens it scrolls horizontally with an affordance.
+// reusable for any future tier/feature matrix. The first column is the row
+// header. Desktop: fixed, even columns with wrapping headers (no horizontal
+// scroll). Mobile: collapses to one card per row with label/value pairs (each
+// <td data-label> supplies its own label), so a small table never side-scrolls.
 interface Props {
   columns: string[];
   rows: string[][];
@@ -11,42 +13,76 @@ interface Props {
 const { columns, rows, caption } = Astro.props;
 ---
 <figure class="tier-table">
-  <div class="tier-table__scroll" role="region" aria-label={caption ?? 'Comparison table'} tabindex="0">
-    <table>
-      <thead>
-        <tr>{columns.map((c, i) => <th scope="col" class:list={{ 'tier-table__rowhead': i === 0 }}>{c}</th>)}</tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr>
-            {row.map((cell, i) =>
-              i === 0
-                ? <th scope="row" class="tier-table__rowhead">{cell}</th>
-                : <td>{cell}</td>
-            )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
+  <table>
+    <thead>
+      <tr>{columns.map((c, i) => <th scope="col" class:list={{ 'tier-table__rowhead': i === 0 }}>{c}</th>)}</tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          {row.map((cell, i) =>
+            i === 0
+              ? <th scope="row" class="tier-table__rowhead">{cell}</th>
+              : <td data-label={columns[i]}>{cell}</td>
+          )}
+        </tr>
+      ))}
+    </tbody>
+  </table>
   {caption && <figcaption class="tier-table__cap">{caption}</figcaption>}
 </figure>
 
 <style>
   .tier-table { margin: 2rem 0; }
-  .tier-table__scroll { overflow-x: auto; border-radius: var(--radius); border: 1px solid rgba(45, 106, 79, 0.14); -webkit-overflow-scrolling: touch; }
-  table { border-collapse: collapse; width: 100%; min-width: 38rem; font-size: 0.92rem; background: #fff; }
+  table {
+    border-collapse: collapse; width: 100%; table-layout: fixed;
+    font-size: 0.9rem; background: #fff;
+    border: 1px solid rgba(45, 106, 79, 0.14); border-radius: var(--radius);
+    overflow: hidden;
+  }
+  /* First column (tier) a touch narrower than the four data columns. */
+  thead th:first-child { width: 17%; }
   thead th {
     background: var(--green-dark); color: var(--on-dark);
-    font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
-    text-align: left; padding: 0.75rem 0.85rem; white-space: nowrap;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
+    text-align: left; padding: 0.7rem 0.8rem; vertical-align: bottom; line-height: 1.25;
   }
   tbody td, tbody th {
-    padding: 0.7rem 0.85rem; border-top: 1px solid rgba(45, 106, 79, 0.10);
-    text-align: left; vertical-align: top; color: var(--ink); line-height: 1.4;
+    padding: 0.7rem 0.8rem; border-top: 1px solid rgba(45, 106, 79, 0.10);
+    text-align: left; vertical-align: top; color: var(--ink); line-height: 1.35;
+    word-break: break-word;
   }
-  tbody tr:nth-child(even) td, tbody tr:nth-child(even) th.tier-table__rowhead { background: rgba(82, 183, 136, 0.05); }
-  .tier-table__rowhead { font-weight: 800; color: var(--green-primary); white-space: nowrap; }
+  tbody tr:nth-child(even) td,
+  tbody tr:nth-child(even) th.tier-table__rowhead { background: rgba(82, 183, 136, 0.05); }
+  .tier-table__rowhead { font-weight: 800; color: var(--green-primary); }
   thead .tier-table__rowhead { color: var(--on-dark); }
   .tier-table__cap { margin-top: 0.7rem; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+  /* ---- Mobile: collapse to one card per tier (no horizontal scroll) ---- */
+  @media (max-width: 640px) {
+    table { display: block; border: 0; background: transparent; border-radius: 0; }
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } /* sr-only */
+    tbody { display: block; }
+    tbody tr {
+      display: block; background: #fff;
+      border: 1px solid rgba(45, 106, 79, 0.14); border-radius: var(--radius);
+      overflow: hidden; margin-bottom: 0.8rem;
+    }
+    tbody tr:nth-child(even) td { background: #fff; }
+    /* Override the desktop even-row stripe (higher specificity) so every card
+       header stays solid dark green, not the faint stripe tint. */
+    tbody tr:nth-child(even) th.tier-table__rowhead { background: var(--green-dark); }
+    .tier-table__rowhead {
+      display: block; background: var(--green-dark); color: var(--on-dark) !important;
+      font-size: 1rem; padding: 0.6rem 0.9rem;
+    }
+    tbody td {
+      display: flex; justify-content: space-between; gap: 1rem; text-align: right;
+      padding: 0.6rem 0.9rem; border-top: 1px solid rgba(45, 106, 79, 0.08);
+    }
+    tbody td::before {
+      content: attr(data-label); text-align: left; flex: 0 0 48%;
+      font-weight: 700; color: var(--muted);
+    }
+  }
 </style>

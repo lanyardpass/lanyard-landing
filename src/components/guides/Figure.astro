@@ -1,8 +1,11 @@
 ---
 // Figure — a section still with optional caption. astro:assets gives responsive
 // WebP/AVIF; the image fades up on scroll (data-reveal, observed by GuideLayout)
-// and honors reduced-motion. `wide` breaks it out to a full-width banner (used
-// for the 16:9 Isle of Berk panorama); `kenBurns` adds a slow drift.
+// and honors reduced-motion. Options:
+//   wide      — break out to a full-width banner (the 16:9 Isle of Berk panorama)
+//   kenBurns  — slow zoom drift
+//   parallax  — image drifts slower than the scroll (needs a fixed `ratio` so the
+//               frame can crop the overscan; reduced-motion → static cover)
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import KenBurnsImage from './KenBurnsImage.astro';
@@ -11,38 +14,80 @@ interface Props {
   src: ImageMetadata;
   alt: string;
   caption?: string;
-  /** Break out wider than the text measure. */
   wide?: boolean;
   kenBurns?: boolean;
-  /** CSS aspect-ratio for the frame, e.g. "16 / 9". Default lets the image decide. */
+  parallax?: boolean;
+  /** CSS aspect-ratio for the frame, e.g. "16 / 9". Required for parallax. */
   ratio?: string;
 }
-const { src, alt, caption, wide = false, kenBurns = false, ratio } = Astro.props;
-const frameStyle = ratio ? `aspect-ratio: ${ratio};` : '';
+const { src, alt, caption, wide = false, kenBurns = false, parallax = false, ratio } = Astro.props;
+// Parallax needs a defined frame height to crop the overscan; default to 16:9.
+const effectiveRatio = ratio ?? (parallax ? '16 / 9' : undefined);
+const frameStyle = effectiveRatio ? `aspect-ratio: ${effectiveRatio};` : '';
+const sizes = wide ? '100vw' : '(min-width: 960px) 700px, 100vw';
+const widths = [480, 800, 1200, 1600, 2000];
 ---
-<figure class:list={['guide-figure', { 'guide-figure--wide': wide }]} data-reveal>
+<figure
+  class:list={['guide-figure', { 'guide-figure--wide': wide, 'guide-figure--parallax': parallax }]}
+  data-reveal
+>
   <div class="guide-figure__frame" style={frameStyle}>
-    {kenBurns ? (
-      <KenBurnsImage src={src} alt={alt} sizes={wide ? '100vw' : '(min-width: 960px) 700px, 100vw'} />
-    ) : (
+    {parallax ? (
       <Image
         src={src}
         alt={alt}
-        widths={[480, 800, 1200, 1600, 2000]}
-        sizes={wide ? '100vw' : '(min-width: 960px) 700px, 100vw'}
+        widths={widths}
+        sizes={sizes}
         loading="lazy"
-        class="guide-figure__img"
+        class="guide-figure__img guide-figure__img--parallax"
+        data-parallax
       />
+    ) : kenBurns ? (
+      <KenBurnsImage src={src} alt={alt} sizes={sizes} />
+    ) : (
+      <Image src={src} alt={alt} widths={widths} sizes={sizes} loading="lazy" class="guide-figure__img" />
     )}
   </div>
   {caption && <figcaption class="guide-figure__cap">{caption}</figcaption>}
 </figure>
+
+{parallax && (
+  <script>
+    // Drift each [data-parallax] image slower than the scroll. One rAF loop for
+    // all instances. The image overscans the frame (height > 100%); we translate
+    // it within that overscan so it always covers. Skipped under reduced-motion
+    // (CSS resets it to a static cover image).
+    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('[data-parallax]'));
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (imgs.length && !reduce) {
+      const items = imgs.map((img) => ({ img, frame: img.parentElement as HTMLElement }));
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const vh = window.innerHeight;
+        for (const { img, frame } of items) {
+          const r = frame.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > vh) continue;
+          const extra = img.offsetHeight - frame.offsetHeight; // overscan to play with
+          // 0 as the frame enters from the bottom → 1 as it exits the top.
+          const prog = (vh - r.top) / (vh + r.height);
+          img.style.transform = `translate3d(0, ${(-extra * prog).toFixed(1)}px, 0)`;
+        }
+      };
+      const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      update();
+    }
+  </script>
+)}
 
 <style>
   .guide-figure { margin: 2rem 0; }
   .guide-figure__frame {
     overflow: hidden; border-radius: var(--radius);
     box-shadow: var(--shadow-card); background: rgba(45, 106, 79, 0.06);
+    position: relative;
   }
   .guide-figure__frame :global(.guide-figure__img),
   .guide-figure__frame :global(.kb) { width: 100%; height: 100%; display: block; }
@@ -50,6 +95,17 @@ const frameStyle = ratio ? `aspect-ratio: ${ratio};` : '';
   .guide-figure__cap {
     margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
     line-height: 1.5; text-align: center;
+  }
+
+  /* Parallax: the image overscans the frame and is translated by the script. */
+  .guide-figure--parallax .guide-figure__frame :global(.guide-figure__img--parallax) {
+    position: absolute; left: 0; top: 0; width: 100%; height: 124%;
+    object-fit: cover; will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .guide-figure--parallax .guide-figure__frame :global(.guide-figure__img--parallax) {
+      position: absolute; height: 100%; transform: none !important;
+    }
   }
 
   /* Wide banner: break out of the article measure toward the viewport edges. */
