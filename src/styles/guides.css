@@ -37,19 +37,44 @@
    into the components (e.g. dark --ink text on the LocalAside's dark gradient,
    or an underline on the calculator's CTA button). Components own their own
    internal typography. */
-.guide-prose { font-size: var(--fs-body); line-height: 1.75; color: var(--ink); }
-.guide-prose > * + * { margin-top: 1.15rem; }
+/* Reading sizes. --measure caps the running text to a comfortable line length
+   (~66–70 chars); --fs-prose is the body size. Both are one-line dials. */
+.guide-prose {
+  --measure: 34rem;
+  --fs-prose: 1.125rem;
+  font-size: var(--fs-prose); line-height: 1.65; color: var(--ink);
+}
+
+/* Reset default block margins, then ONE vertical rhythm. This is also the fix
+   for the old paragraph-spacing bug: a per-element `> p { margin: 0 }` used to
+   out-specify the rhythm rule, so paragraphs ended up with no gap at all. */
+.guide-prose > * { margin: 0; }
+.guide-prose > * + * { margin-top: 1.3em; }
+
+/* Keep the RUNNING TEXT to the measure, centered in the article. Figures, the
+   table, and the calculator are NOT listed here, so they stay full article
+   width (text narrows; media stays wide). */
+.guide-prose > p,
+.guide-prose > h2,
+.guide-prose > h3,
+.guide-prose > ul,
+.guide-prose > ol,
+.guide-prose > blockquote {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
 .guide-prose > h2 {
   font-family: var(--font-display); font-weight: 800;
   font-size: clamp(1.4rem, 4vw, 1.9rem); color: var(--green-primary);
   line-height: 1.15; letter-spacing: -0.01em;
-  margin-top: 2.8rem; scroll-margin-top: 5.5rem;
+  margin-top: 2.6em; scroll-margin-top: 5.5rem;
 }
 .guide-prose > h3 {
-  font-family: var(--font-display); font-weight: 800; font-size: 1.15rem;
-  color: var(--ink); margin-top: 2rem; scroll-margin-top: 5.5rem;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.25rem;
+  color: var(--ink); margin-top: 1.9em; scroll-margin-top: 5.5rem;
 }
-.guide-prose > p { margin: 0; color: var(--ink); }
+.guide-prose > p { color: var(--ink); }
 .guide-prose > p a,
 .guide-prose > ul a,
 .guide-prose > ol a {
@@ -63,16 +88,16 @@
 .guide-prose > ul strong,
 .guide-prose > ol strong { color: var(--ink); font-weight: 700; }
 .guide-prose > p em { font-style: italic; }
-.guide-prose > ul, .guide-prose > ol { margin: 0; padding-left: 1.3rem; color: var(--ink); }
+.guide-prose > ul, .guide-prose > ol { padding-left: 1.3rem; color: var(--ink); }
 .guide-prose > ul li, .guide-prose > ol li { margin-top: 0.5rem; }
 .guide-prose > ul li::marker, .guide-prose > ol li::marker { color: var(--green-accent); }
 .guide-prose > blockquote {
-  margin: 1.6rem 0; padding: 0.6rem 0 0.6rem 1.2rem;
+  padding: 0.6rem 0 0.6rem 1.2rem;
   border-left: 3px solid var(--green-accent);
   color: var(--muted); font-style: italic;
 }
 .guide-prose > hr {
-  border: 0; height: 1px; background: rgba(45, 106, 79, 0.14); margin: 2.4rem 0;
+  border: 0; height: 1px; background: rgba(45, 106, 79, 0.14); margin-block: 2.4rem;
 }
 
 /* ---------- Breadcrumb ---------- */
