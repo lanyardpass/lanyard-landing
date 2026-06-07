@@ -1,0 +1,65 @@
+---
+// CalculatorEmbed — drops the real calculator island into a guide (the "whoa,
+// it's the app" continuity). Reuses CalculatorApp as-is (NOT forked); the
+// `placement` prop tags its TelemetryDeck signals so guide-driven calculator
+// usage is attributable. `?src=` persists through the island's own beta link.
+// Always reminds the reader: this is the BASE-pass payback — it does not model
+// Epic (the guide's prose makes the Epic-day call).
+import CalculatorApp from '@/components/calculator/CalculatorApp.tsx';
+// The island's own styles must ship wherever it's embedded (this guide page does
+// NOT import calculator.astro's CSS), so pull the shared stylesheet in here.
+import '@/styles/calculator.css';
+
+interface Props {
+  placement?: string;
+  title?: string;
+  intro?: string;
+}
+const {
+  placement = 'epic-guide',
+  title = 'See what your base pass is worth',
+  intro = 'Plug in what you paid and how often you go — see your real cost per visit and when the pass pays for itself. This is your base Universal pass; Epic is a separate call we help you make below.',
+} = Astro.props;
+---
+<section class="calc-embed" aria-label="Pass payback calculator">
+  <div class="calc-embed__head">
+    <p class="calc-embed__kicker">Free calculator</p>
+    <h2 class="calc-embed__title">{title}</h2>
+    <p class="calc-embed__intro">{intro}</p>
+  </div>
+  <div class="calc-embed__app">
+    <CalculatorApp client:visible placement={placement} />
+  </div>
+  <p class="calc-embed__note">
+    Heads up: this figures your <strong>base pass</strong> (Universal Studios Florida + Islands of
+    Adventure). It doesn’t include Epic Universe — that’s a separate ticket, and the section above
+    walks through when it’s worth adding.
+  </p>
+</section>
+
+<style>
+  .calc-embed {
+    margin: 2.6rem 0; padding: clamp(1.4rem, 4vw, 2rem) 0;
+    border-top: 1px solid rgba(45, 106, 79, 0.12);
+    border-bottom: 1px solid rgba(45, 106, 79, 0.12);
+  }
+  .calc-embed__head { text-align: center; max-width: 34rem; margin: 0 auto 0.5rem; }
+  .calc-embed__kicker {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--green-accent); margin: 0;
+  }
+  .calc-embed__title {
+    font-family: var(--font-display); font-weight: 800; color: var(--green-primary);
+    font-size: clamp(1.3rem, 4vw, 1.7rem); margin: 0.4rem 0 0; line-height: 1.15;
+  }
+  .calc-embed__intro { color: var(--muted); margin: 0.7rem 0 0; line-height: 1.6; }
+  /* The island ships its own .calc styles (from calculator.astro's global block
+     — also loaded here since this guide imports nothing that strips them). The
+     embed only needs to host it; widths are handled by .calc internally. */
+  .calc-embed__app { margin-top: 0.5rem; }
+  .calc-embed__note {
+    font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+    max-width: 36rem; margin: 0.6rem auto 0; text-align: center;
+  }
+  .calc-embed__note strong { color: var(--ink); }
+</style>

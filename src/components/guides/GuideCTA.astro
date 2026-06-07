@@ -1,0 +1,63 @@
+---
+// GuideCTA — the coach-voice handoff at the foot of a guide: try the app/beta,
+// plus a nudge back to the calculator. Carries ?src= through to /beta and
+// /calculator (a tiny inline script appends the current source param), so a
+// guide-driven signup stays attributable.
+import { CTA } from '@/data/site';
+
+interface Props {
+  heading?: string;
+  body?: string;
+}
+const {
+  heading = 'Make your pass pay for itself.',
+  body = 'Your first pass is always free. Lanyard logs your visits, perks and blockouts for you, keeps your payback live all year, and is honest with you when a pass isn’t pulling its weight.',
+} = Astro.props;
+---
+<section class="guide-cta section--dark">
+  <div class="guide-cta__inner">
+    <p class="guide-cta__kicker">You shall pass.</p>
+    <h2 class="guide-cta__title">{heading}</h2>
+    <p class="guide-cta__body">{body}</p>
+    <div class="guide-cta__actions">
+      <a class="btn btn--primary" href={CTA.href} data-src-link>{CTA.label}</a>
+      <a class="btn btn--ghost" href="/calculator" data-src-link>Run the calculator</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Persist channel attribution: copy the current ?src= (or utm_source / ref)
+  // onto the CTA links so a guide-driven click lands tagged at /beta.
+  const qs = new URLSearchParams(window.location.search);
+  const src = qs.get('src') || qs.get('utm_source') || qs.get('ref');
+  if (src) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-src-link]').forEach((a) => {
+      try {
+        const u = new URL(a.href, window.location.origin);
+        u.searchParams.set('src', src);
+        a.href = u.pathname + u.search;
+      } catch { /* ignore */ }
+    });
+  }
+</script>
+
+<style>
+  .guide-cta { margin-top: 3.5rem; border-radius: var(--radius-lg); overflow: hidden; }
+  .guide-cta__inner {
+    text-align: center; max-width: 34rem; margin-inline: auto;
+    padding: clamp(2.4rem, 6vw, 3.6rem) var(--gutter);
+  }
+  .guide-cta__kicker {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.78rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--green-accent); margin: 0;
+  }
+  .guide-cta__title {
+    font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em;
+    font-size: var(--fs-h2); color: var(--on-dark); margin: 0.6rem auto 0; max-width: 18ch;
+  }
+  .guide-cta__body { color: var(--on-dark-muted); margin: 1.1rem auto 0; max-width: 42ch; line-height: 1.6; }
+  .guide-cta__actions {
+    display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin-top: 1.8rem;
+  }
+</style>

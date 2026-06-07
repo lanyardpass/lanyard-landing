@@ -1,0 +1,43 @@
+---
+// Per-guide page. Static-prerendered (getStaticPaths), slashless URL handled by
+// the global trailingSlash/build.format config. The MDX body imports its own
+// components + images at the top, then renders as prose; GuideLayout wraps it
+// with the hero, TOC, FAQ, CTA and schema.
+import { getCollection, render } from 'astro:content';
+import GuideLayout from '@/layouts/GuideLayout.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const guides = await getCollection('guides', ({ data }) => !data.draft);
+  return guides.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+// Reading time from the raw body (~200 wpm); good enough for a "5 min read".
+const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.round(words / 200));
+
+const d = entry.data;
+---
+<GuideLayout
+  title={d.title}
+  seoTitle={d.seoTitle}
+  description={d.description}
+  dek={d.dek}
+  answer={d.answer}
+  byline={d.byline}
+  lastVerified={d.lastVerified}
+  published={d.published}
+  hero={d.hero}
+  heroAlt={d.heroAlt}
+  ogImage={d.ogImage}
+  faq={d.faq}
+  headings={headings}
+  readingTime={readingTime}
+  related={[]}
+>
+  <Content />
+</GuideLayout>

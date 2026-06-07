@@ -1,0 +1,97 @@
+---
+// ChronosDissolve — the guide's signature motion moment. The day Chronos portal
+// cross-dissolves into the same portal at night as the reader scrolls past it:
+// one landmark, transforming. Scroll-driven opacity, rAF-throttled.
+// Reduced-motion: the night layer never fades in — a clean static day frame.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  day: ImageMetadata;
+  dayAlt: string;
+  night: ImageMetadata;
+  nightAlt: string;
+  caption?: string;
+}
+const { day, dayAlt, night, nightAlt, caption } = Astro.props;
+const widths = [480, 800, 1200, 1600];
+const sizes = '(min-width: 960px) 700px, 100vw';
+---
+<figure class="chronos" data-chronos>
+  <div class="chronos__frame">
+    <Image src={day} alt={dayAlt} widths={widths} sizes={sizes} loading="lazy" class="chronos__img chronos__img--day" />
+    <Image src={night} alt={nightAlt} widths={widths} sizes={sizes} loading="lazy" class="chronos__img chronos__img--night" data-chronos-night aria-hidden="true" />
+    <span class="chronos__phase" data-chronos-phase aria-hidden="true">Day</span>
+  </div>
+  {caption && <figcaption class="chronos__cap">{caption}</figcaption>}
+</figure>
+
+<script>
+  // Crossfade each ChronosDissolve based on how far it has traveled through the
+  // viewport. Progress 0 (entering, bottom) → 1 (leaving, top); the night layer's
+  // opacity tracks it. One rAF loop drives all instances on the page.
+  const blocks = Array.from(document.querySelectorAll<HTMLElement>('[data-chronos]'));
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (blocks.length && !reduce) {
+    const items = blocks.map((el) => ({
+      el,
+      night: el.querySelector<HTMLElement>('[data-chronos-night]'),
+      phase: el.querySelector<HTMLElement>('[data-chronos-phase]'),
+    }));
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      for (const it of items) {
+        const r = it.el.getBoundingClientRect();
+        // Map the element's center crossing the viewport (from 80% down to 20%)
+        // onto 0..1. Clamp outside that band.
+        const center = r.top + r.height / 2;
+        const start = vh * 0.85;
+        const end = vh * 0.2;
+        let p = (start - center) / (start - end);
+        p = Math.max(0, Math.min(1, p));
+        if (it.night) it.night.style.opacity = String(p);
+        if (it.phase) it.phase.textContent = p > 0.5 ? 'Night' : 'Day';
+      }
+    };
+    const onScroll = () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+</script>
+
+<style>
+  .chronos { margin: 2.4rem 0; }
+  .chronos__frame {
+    position: relative; overflow: hidden;
+    border-radius: var(--radius); box-shadow: var(--shadow-card);
+    aspect-ratio: 4 / 5; background: var(--green-dark);
+    max-width: 30rem; margin-inline: auto;
+  }
+  .chronos__img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  /* Night starts hidden; JS (or, in reduced-motion, nothing) reveals it. */
+  .chronos__img--night { opacity: 0; will-change: opacity; }
+  .chronos__phase {
+    position: absolute; left: 0.8rem; bottom: 0.8rem; z-index: 2;
+    font-family: var(--font-display); font-weight: 800; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #fff;
+    background: rgba(20, 53, 42, 0.55); backdrop-filter: blur(4px);
+    padding: 0.3rem 0.6rem; border-radius: var(--pill);
+  }
+  .chronos__cap {
+    margin-top: 0.7rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+  @media (max-width: 600px) {
+    .chronos__frame { aspect-ratio: 3 / 4; }
+  }
+</style>

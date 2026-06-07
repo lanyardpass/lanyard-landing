@@ -1,0 +1,96 @@
+/* =============================================================
+   Lanyard — Guides section styles
+   Layout + article-prose typography for /guides. Tokens only
+   (greens, off-white, Montserrat, radii) — no hardcoded colors.
+   Namespaced under .guide / .guide-* so they reach MDX-rendered
+   markup (which Astro scoped styles can't touch), matching the
+   calculator.astro pattern.
+   ============================================================= */
+
+.guide-page { background: var(--off-white); color: var(--ink); }
+
+/* ---------- Two-column shell: sticky TOC + article ---------- */
+.guide-shell {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+@media (min-width: 960px) {
+  .guide-shell {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* The article column caps at a readable measure even in the wide grid cell. */
+.guide-article { min-width: 0; max-width: 44rem; }
+
+/* ---------- Article prose (raw MDX output) ----------
+   IMPORTANT: every embedded component (LocalAside, TierTable, CalculatorEmbed,
+   …) renders INSIDE .guide-prose, so these element rules are scoped to DIRECT
+   children (`> p`, `> h2`, `> ul`) — otherwise prose colors/decoration pierce
+   into the components (e.g. dark --ink text on the LocalAside's dark gradient,
+   or an underline on the calculator's CTA button). Components own their own
+   internal typography. */
+.guide-prose { font-size: var(--fs-body); line-height: 1.75; color: var(--ink); }
+.guide-prose > * + * { margin-top: 1.15rem; }
+.guide-prose > h2 {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(1.4rem, 4vw, 1.9rem); color: var(--green-primary);
+  line-height: 1.15; letter-spacing: -0.01em;
+  margin-top: 2.8rem; scroll-margin-top: 5.5rem;
+}
+.guide-prose > h3 {
+  font-family: var(--font-display); font-weight: 800; font-size: 1.15rem;
+  color: var(--ink); margin-top: 2rem; scroll-margin-top: 5.5rem;
+}
+.guide-prose > p { margin: 0; color: var(--ink); }
+.guide-prose > p a,
+.guide-prose > ul a,
+.guide-prose > ol a {
+  color: var(--green-primary); text-decoration: underline;
+  text-underline-offset: 2px; font-weight: 600;
+}
+.guide-prose > p a:hover,
+.guide-prose > ul a:hover,
+.guide-prose > ol a:hover { color: var(--green-dark); }
+.guide-prose > p strong,
+.guide-prose > ul strong,
+.guide-prose > ol strong { color: var(--ink); font-weight: 700; }
+.guide-prose > p em { font-style: italic; }
+.guide-prose > ul, .guide-prose > ol { margin: 0; padding-left: 1.3rem; color: var(--ink); }
+.guide-prose > ul li, .guide-prose > ol li { margin-top: 0.5rem; }
+.guide-prose > ul li::marker, .guide-prose > ol li::marker { color: var(--green-accent); }
+.guide-prose > blockquote {
+  margin: 1.6rem 0; padding: 0.6rem 0 0.6rem 1.2rem;
+  border-left: 3px solid var(--green-accent);
+  color: var(--muted); font-style: italic;
+}
+.guide-prose > hr {
+  border: 0; height: 1px; background: rgba(45, 106, 79, 0.14); margin: 2.4rem 0;
+}
+
+/* ---------- Breadcrumb ---------- */
+.guide-crumbs {
+  font-size: 0.85rem; color: var(--muted); font-weight: 600;
+  display: flex; gap: 0.45rem; flex-wrap: wrap; align-items: center;
+}
+.guide-crumbs a { color: var(--green-primary); text-decoration: none; }
+.guide-crumbs a:hover { text-decoration: underline; }
+.guide-crumbs__sep { opacity: 0.5; }
+
+/* ---------- Last-verified badge ---------- */
+.guide-verified {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.02em; color: var(--green-primary);
+  background: rgba(82, 183, 136, 0.14);
+  border: 1px solid rgba(82, 183, 136, 0.30);
+  padding: 0.35rem 0.7rem; border-radius: var(--pill);
+}
+.guide-verified__dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green-accent);
+  flex-shrink: 0;
+}

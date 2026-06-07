@@ -1,0 +1,54 @@
+---
+// FAQAccordion — renders the frontmatter `faq` array as native <details>
+// expand/collapse (no JS, works without hydration). The SAME array also feeds
+// the FAQPage JSON-LD in GuideLayout, so the answer text never drifts between
+// what users read and what Google indexes.
+interface FaqItem { question: string; answer: string; }
+interface Props { faq: FaqItem[]; }
+const { faq } = Astro.props;
+---
+{faq.length > 0 && (
+  <section class="guide-faq" aria-label="Frequently asked questions">
+    <h2 id="faq" class="guide-faq__title">Frequently asked questions</h2>
+    <div class="guide-faq__list">
+      {faq.map((item, i) => (
+        <details class="guide-faq__item" open={i === 0}>
+          <summary class="guide-faq__q">
+            <span>{item.question}</span>
+            <span class="guide-faq__chev" aria-hidden="true"></span>
+          </summary>
+          <div class="guide-faq__a"><p>{item.answer}</p></div>
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .guide-faq { margin-top: 3rem; }
+  .guide-faq__title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.4rem, 4vw, 1.9rem); color: var(--green-primary);
+    margin: 0 0 1rem; scroll-margin-top: 5.5rem;
+  }
+  .guide-faq__list { display: grid; gap: 0.6rem; }
+  .guide-faq__item {
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.14);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .guide-faq__q {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1rem 1.2rem; cursor: pointer; list-style: none;
+    font-family: var(--font-display); font-weight: 700; color: var(--ink); line-height: 1.4;
+  }
+  .guide-faq__q::-webkit-details-marker { display: none; }
+  .guide-faq__chev {
+    flex-shrink: 0; width: 10px; height: 10px; border-right: 2px solid var(--green-accent);
+    border-bottom: 2px solid var(--green-accent); transform: rotate(45deg);
+    transition: transform 0.2s ease; margin-top: -4px;
+  }
+  .guide-faq__item[open] .guide-faq__chev { transform: rotate(-135deg); margin-top: 2px; }
+  .guide-faq__a { padding: 0 1.2rem 1.1rem; }
+  .guide-faq__a p { margin: 0; color: var(--ink); line-height: 1.7; }
+  @media (prefers-reduced-motion: reduce) { .guide-faq__chev { transition: none; } }
+</style>

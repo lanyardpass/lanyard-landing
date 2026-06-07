@@ -1,0 +1,24 @@
+---
+// LastVerifiedBadge — the freshness signal that makes a guide feel maintained,
+// not abandoned. Driven by the content's `lastVerified` frontmatter.
+interface Props {
+  date: Date;
+  /** "verified" (default) on the guide, "checked" reads better on an index card. */
+  label?: string;
+  class?: string;
+}
+const { date, label = 'Last verified', class: className } = Astro.props;
+// Format in UTC so a date-only frontmatter value (parsed as UTC midnight)
+// doesn't slip back a day in a behind-UTC timezone.
+const formatted = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const iso = date.toISOString().slice(0, 10);
+---
+<span class:list={['guide-verified', className]}>
+  <span class="guide-verified__dot" aria-hidden="true"></span>
+  {label} <time datetime={iso}>{formatted}</time>
+</span>

@@ -11,6 +11,7 @@
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.14",
     "@astrojs/netlify": "^6.0.0",
     "@astrojs/react": "^4.1.0",
     "@astrojs/sitemap": "^3.7.3",

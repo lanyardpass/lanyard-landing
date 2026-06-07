@@ -1,0 +1,196 @@
+/* =============================================================
+   Lanyard — Calculator island styles
+   Shared by the standalone /calculator page AND any embed of the
+   CalculatorApp island (e.g. a guide's CalculatorEmbed), so the
+   island looks identical wherever it lives. Namespaced under
+   .calc / .calc-* so it reaches the React island's markup (Astro
+   scoped styles can't). Tokens only — no hardcoded colors.
+   ============================================================= */
+
+.calc {
+  max-width: 56rem; margin-inline: auto;
+  padding: clamp(1.6rem, 5vw, 2.4rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+}
+/* Selection steps + pills stay a comfortable single-column width and centered;
+   only the result step opens up to two columns (see .calc-details below). */
+.calc-pills, .calc-step { max-width: 33rem; margin-inline: auto; }
+
+/* Progress pills */
+.calc-pills { display: flex; gap: 6px; margin-bottom: 1.4rem; }
+.calc-pill { height: 5px; flex: 1; border-radius: 5px; background: rgba(45,106,79,0.15); transition: background 0.25s ease; }
+.calc-pill.on { background: var(--green-accent); }
+
+/* ---------- Live pass card ---------- */
+.calc-card-wrap { margin: 0 auto 1.8rem; }
+.calc-card {
+  position: relative; width: 100%; max-width: 22rem; margin-inline: auto;
+  aspect-ratio: 1.65 / 1; font-family: var(--font-display);
+}
+.calc-card__shadow {
+  position: absolute; inset: 0; border-radius: 12px;
+  background: rgba(0,0,0,0.22); transform: translate(4px, 5px);
+}
+.calc-card__chrome { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; }
+.calc-card__content {
+  position: absolute; inset: 0; z-index: 2; padding: 16px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.calc-card__operator {
+  font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+  opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.calc-card__tier {
+  font-size: clamp(20px, 6vw, 26px); font-weight: 700; line-height: 1.05; margin-top: 4px;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.calc-card__foot { align-self: flex-end; text-align: right; }
+.calc-card__foot-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; opacity: 0.5;
+}
+.calc-card__stripe {
+  position: absolute; top: 12px; right: 8px; z-index: 3;
+  writing-mode: vertical-rl; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; opacity: 0.9;
+}
+
+/* ---------- Steps ---------- */
+.calc-step { margin-top: 0.4rem; }
+
+/* Result step — single column on mobile, two columns on desktop:
+   left = your pass + the inputs, right = the payback receipt + handoff. */
+.calc-result { margin-top: 0.4rem; }
+.calc-details { display: grid; gap: 1.6rem; }
+@media (min-width: 980px) {
+  .calc-details {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.8rem; align-items: start;
+  }
+  /* Receipt stays in view while you tweak the inputs on the left. */
+  .calc-details__result { position: sticky; top: 5.5rem; }
+  /* Card fills its column instead of the fixed narrow preview width. */
+  .calc-details__inputs .calc-card { max-width: 24rem; }
+}
+.calc-q { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1rem; }
+.calc-q--mt { margin-top: 1.6rem; }
+.calc-choices { display: grid; gap: 10px; }
+.calc-choice {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  width: 100%; text-align: left; padding: 1rem 1.1rem;
+  background: #fff; border: 1.5px solid rgba(45,106,79,0.12); border-radius: 14px;
+  font-size: 1rem; font-weight: 600; color: var(--ink); font-family: inherit; cursor: pointer;
+  transition: border-color 0.15s, transform 0.08s, background 0.15s;
+}
+.calc-choice:hover { border-color: var(--green-accent); }
+.calc-choice:active { transform: scale(0.99); }
+.calc-choice__note { display: block; font-size: 0.8rem; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.calc-arrow { color: var(--green-accent); flex-shrink: 0; }
+.calc-seg { display: flex; gap: 10px; }
+.calc-seg__btn { justify-content: center; }
+.calc-seg__btn.sel { border-color: var(--green-accent); background: rgba(82,183,136,0.12); }
+.calc-nav { display: flex; gap: 10px; margin-top: 1.4rem; align-items: center; }
+.calc-nav .calc-continue { margin-left: auto; }
+.calc-ghost {
+  padding: 0.85rem 1.3rem; border-radius: var(--pill); border: 1.5px solid rgba(45,106,79,0.18);
+  background: transparent; color: var(--muted); font-weight: 700; font-size: 0.9rem;
+  font-family: var(--font-display); cursor: pointer;
+}
+.calc-ghost:hover { border-color: var(--green-accent); color: var(--green-primary); }
+.calc-continue {
+  padding: 0.85rem 1.4rem; border-radius: var(--pill); border: 0;
+  background: var(--green-accent); color: var(--green-dark); font-weight: 800; font-size: 0.95rem;
+  font-family: var(--font-display); cursor: pointer;
+}
+
+/* ---------- Detail fields ---------- */
+.calc-fields { display: grid; gap: 1.3rem; margin-bottom: 1.8rem; }
+.calc-field label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
+.calc-money-input, .calc-visits {
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.calc-money-input {
+  border: 1.5px solid rgba(45,106,79,0.15); border-radius: 12px; background: #fff;
+  padding: 0 0.9rem;
+}
+.calc-money-input:focus-within { border-color: var(--green-accent); }
+.calc-money-input > span { color: var(--muted); font-weight: 600; }
+.calc-money-input input {
+  flex: 1; min-width: 0; padding: 0.85rem 0.2rem; border: 0; background: transparent;
+  font-size: 1.1rem; font-family: inherit; color: var(--ink); outline: none; font-weight: 600;
+}
+.calc-money-input--sm { max-width: 9rem; }
+.calc-money-input--sm input { font-size: 1rem; padding: 0.7rem 0.2rem; }
+.calc-hint { font-size: 0.82rem; color: var(--muted); margin-top: 0.45rem; }
+.calc-link {
+  background: none; border: 0; padding: 0; color: var(--green-primary); font: inherit;
+  font-size: 0.82rem; font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.calc-visits__num {
+  width: 4.2rem; padding: 0.6rem 0.5rem; border: 1.5px solid rgba(45,106,79,0.15);
+  border-radius: 10px; background: #fff; font-size: 1rem; font-weight: 700; color: var(--ink);
+  text-align: center; font-family: inherit; outline: none;
+}
+.calc-visits input[type=range] { flex: 1; accent-color: var(--green-accent); }
+.calc-toggles { display: grid; gap: 1rem; }
+.calc-toggle { display: flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; font-weight: 500; cursor: pointer; }
+.calc-toggle input { width: 1.1rem; height: 1.1rem; accent-color: var(--green-accent); flex-shrink: 0; }
+
+/* Tier parking-option picker (e.g. Premier: Regular / Prime / Valet) */
+.calc-parking__opts { display: flex; gap: 8px; margin-top: 0.7rem; }
+.calc-park-opt {
+  flex: 1; display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+  padding: 0.6rem 0.7rem; background: #fff; border: 1.5px solid rgba(45,106,79,0.14);
+  border-radius: 12px; cursor: pointer; font-family: inherit; text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+.calc-park-opt:hover { border-color: var(--green-accent); }
+.calc-park-opt.sel { border-color: var(--green-accent); background: rgba(82,183,136,0.12); }
+.calc-park-opt__label { font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+.calc-park-opt__val { font-size: 0.78rem; font-weight: 600; color: var(--green-primary); font-variant-numeric: tabular-nums; }
+.calc-parking__none { margin-top: 0; }
+.calc-field--inline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.calc-field--inline label { margin-bottom: 0; }
+
+/* ---------- Payback receipt ---------- */
+.calc-receipt {
+  max-width: 25rem; margin: 0 auto; background: #FBFAF4; border-radius: 8px; overflow: hidden;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 6px 16px rgba(0,0,0,0.06);
+}
+.calc-receipt__stripe { height: 6px; width: 100%; }
+.calc-receipt__body { padding: 22px; }
+.calc-receipt__header {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
+  color: rgba(20,53,42,0.6); line-height: 1.4;
+}
+.calc-receipt__sub {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.6px; color: rgba(20,53,42,0.6); margin-top: 4px;
+}
+.calc-receipt__main { display: flex; align-items: center; gap: 22px; margin-top: 18px; }
+.calc-ring { flex-shrink: 0; }
+.calc-ring__arc { transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1); }
+.calc-receipt__stats { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; min-height: 116px; }
+.calc-stat__row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.calc-stat__label { font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(20,53,42,0.6); }
+.calc-stat__value {
+  font-size: 14px; font-weight: 700; color: var(--ink);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.calc-stat--big .calc-stat__value { font-size: 28px; font-weight: 800; }
+.calc-stat__rule { height: 1px; background: rgba(0,0,0,0.16); margin-top: 4px; }
+
+/* ---------- Coach + CTA ---------- */
+.calc-coach { text-align: center; margin-top: 1.8rem; }
+.calc-coach__title { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; color: var(--green-primary); }
+.calc-coach__body { color: var(--muted); max-width: 26rem; margin: 0.4rem auto 0; }
+
+.calc-cta { text-align: center; margin-top: 2.2rem; padding-top: 1.8rem; border-top: 1px solid rgba(45,106,79,0.12); }
+.calc-cta__lead { color: var(--ink); font-weight: 600; max-width: 24rem; margin: 0 auto 1rem; }
+.calc-cta__btn {
+  display: inline-block; padding: 0.95rem 1.8rem; border-radius: var(--pill);
+  background: var(--green-accent); color: var(--green-dark); font-family: var(--font-display);
+  font-weight: 800; font-size: 1.02rem; text-decoration: none;
+}
+.calc-cta__edit { display: block; margin: 1.1rem auto 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .calc-ring__arc { transition: none; }
+  .calc-choice { transition: none; }
+}

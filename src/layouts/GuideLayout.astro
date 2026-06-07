@@ -1,0 +1,147 @@
+---
+// GuideLayout — the shell every guide composes into: SEO head (canonical via
+// Layout, Article + FAQPage JSON-LD here), hero, answer box, sticky TOC +
+// article body (passed in as the default slot), FAQ accordion, CTA, related.
+// Content stays in the MDX; this is pure assembly + structure.
+import type { MarkdownHeading, ImageMetadata } from 'astro';
+import Layout from '@/layouts/Layout.astro';
+import GuideHero from '@/components/guides/GuideHero.astro';
+import AnswerBox from '@/components/guides/AnswerBox.astro';
+import TableOfContents from '@/components/guides/TableOfContents.astro';
+import FAQAccordion from '@/components/guides/FAQAccordion.astro';
+import GuideCTA from '@/components/guides/GuideCTA.astro';
+import RelatedGuides from '@/components/guides/RelatedGuides.astro';
+import { SITE } from '@/data/site';
+import '@/styles/guides.css';
+
+interface FaqItem { question: string; answer: string; }
+interface RelatedItem { title: string; href: string; dek?: string; }
+
+interface Props {
+  title: string;
+  seoTitle?: string;
+  description: string;
+  dek: string;
+  answer: string;
+  byline: string;
+  lastVerified: Date;
+  published?: Date;
+  hero: ImageMetadata;
+  heroAlt: string;
+  ogImage?: ImageMetadata;
+  faq: FaqItem[];
+  headings: MarkdownHeading[];
+  readingTime: number;
+  related?: RelatedItem[];
+}
+
+const {
+  title, seoTitle, description, dek, answer, byline,
+  lastVerified, published, hero, heroAlt, ogImage,
+  faq, headings, readingTime, related = [],
+} = Astro.props;
+
+const pageTitle = seoTitle ?? `${title} | ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/', Astro.site).href;
+const ogAbs = new URL((ogImage ?? hero).src, Astro.site).href;
+
+// Article schema — dates drive "freshness" signals; author + publisher named.
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  image: ogAbs,
+  datePublished: (published ?? lastVerified).toISOString(),
+  dateModified: lastVerified.toISOString(),
+  author: { '@type': 'Person', name: 'Dan Seals' },
+  publisher: { '@type': 'Organization', name: SITE.name, url: new URL('/', Astro.site).href },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+};
+
+// FAQPage schema — same array the accordion renders, so they never drift.
+const faqSchema = faq.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    }
+  : null;
+---
+<Layout title={pageTitle} description={description} ogImage={ogAbs}>
+  <Fragment slot="head">
+    <meta property="og:type" content="article" />
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+  </Fragment>
+
+  <article class="guide-page">
+    <GuideHero
+      title={title}
+      dek={dek}
+      byline={byline}
+      readingTime={readingTime}
+      lastVerified={lastVerified}
+      hero={hero}
+      heroAlt={heroAlt}
+    />
+
+    <div class="guide-answer-wrap">
+      <AnswerBox text={answer} />
+    </div>
+
+    <div class="guide-shell">
+      <aside class="guide-shell__rail">
+        <TableOfContents headings={headings} />
+      </aside>
+
+      <div class="guide-article">
+        <div class="guide-prose">
+          <slot />
+        </div>
+
+        <FAQAccordion faq={faq} />
+        <RelatedGuides items={related} />
+      </div>
+    </div>
+
+    <div class="guide-cta-wrap">
+      <GuideCTA />
+    </div>
+  </article>
+
+  <script>
+    // Reveal-on-scroll for every [data-reveal] block (Figure, ScrollReveal,
+    // InViewVideoLoop). One observer, added once per page. Reduced-motion users
+    // get everything shown immediately (handled in each component's CSS), so we
+    // still mark them in-view here as a belt-and-braces.
+    const reveals = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    if (reveals.length) {
+      const io = new IntersectionObserver(
+        (entries, obs) => {
+          for (const e of entries) {
+            if (e.isIntersecting) { e.target.classList.add('is-in'); obs.unobserve(e.target); }
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px', threshold: 0.1 }
+      );
+      reveals.forEach((el) => io.observe(el));
+    }
+  </script>
+</Layout>
+
+<style>
+  .guide-answer-wrap {
+    max-width: 44rem; margin-inline: auto;
+    padding: 0 var(--gutter); margin-top: clamp(1.2rem, 3vw, 1.8rem);
+  }
+  /* On mobile the rail stacks above the article as an inline TOC card (the
+     TableOfContents component styles itself for that); on desktop it becomes the
+     sticky 15rem rail beside the article. */
+  .guide-shell__rail { min-width: 0; }
+  .guide-cta-wrap { max-width: var(--maxw); margin-inline: auto; padding: 0 var(--gutter) clamp(3rem, 7vw, 5rem); }
+</style>

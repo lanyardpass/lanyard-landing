@@ -1,0 +1,87 @@
+---
+// GuideHero — H1, dek, byline, reading time, LastVerifiedBadge, breadcrumb, and
+// a still hero image (Ken-Burns drift). The hero is always a still — video and
+// the scroll-dissolve live below the fold so they never hurt LCP.
+import type { ImageMetadata } from 'astro';
+import KenBurnsImage from './KenBurnsImage.astro';
+import LastVerifiedBadge from './LastVerifiedBadge.astro';
+
+interface Props {
+  title: string;
+  dek: string;
+  byline: string;
+  readingTime: number;
+  lastVerified: Date;
+  hero: ImageMetadata;
+  heroAlt: string;
+}
+const { title, dek, byline, readingTime, lastVerified, hero, heroAlt } = Astro.props;
+---
+<header class="guide-hero">
+  <div class="guide-hero__inner">
+    <nav class="guide-crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="guide-crumbs__sep" aria-hidden="true">/</span>
+      <a href="/guides">Guides</a>
+    </nav>
+
+    <h1 class="guide-hero__title">{title}</h1>
+    <p class="guide-hero__dek">{dek}</p>
+
+    <div class="guide-hero__meta">
+      <span class="guide-hero__byline">{byline}</span>
+      <span class="guide-hero__dot" aria-hidden="true">·</span>
+      <span class="guide-hero__read">{readingTime} min read</span>
+      <LastVerifiedBadge date={lastVerified} class="guide-hero__badge" />
+    </div>
+  </div>
+
+  <div class="guide-hero__media">
+    <KenBurnsImage
+      src={hero}
+      alt={heroAlt}
+      loading="eager"
+      fetchpriority="high"
+      sizes="100vw"
+      widths={[640, 960, 1280, 1600, 2000, 2400]}
+    />
+  </div>
+</header>
+
+<style>
+  .guide-hero { background: var(--off-white); }
+  .guide-hero__inner {
+    max-width: 44rem; margin-inline: auto;
+    padding: clamp(1.5rem, 5vw, 2.8rem) var(--gutter) clamp(1.2rem, 3vw, 1.8rem);
+  }
+  .guide-hero__title {
+    font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em;
+    font-size: clamp(2rem, 5.5vw, 3.1rem); line-height: 1.06;
+    color: var(--ink); margin: 0.9rem 0 0;
+  }
+  .guide-hero__dek {
+    font-size: var(--fs-lead); color: var(--muted); line-height: 1.5;
+    margin: 1rem 0 0; max-width: 38rem;
+  }
+  .guide-hero__meta {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem;
+    margin-top: 1.3rem; font-size: 0.9rem; color: var(--muted);
+  }
+  .guide-hero__byline { font-weight: 700; color: var(--ink); }
+  .guide-hero__dot { opacity: 0.5; }
+  .guide-hero__badge { margin-left: 0.2rem; }
+
+  .guide-hero__media {
+    max-width: var(--maxw); margin: clamp(0.6rem, 2vw, 1.2rem) auto 0;
+    padding-inline: var(--gutter);
+  }
+  .guide-hero__media :global(.kb) {
+    border-radius: var(--radius);
+    aspect-ratio: 16 / 9;
+    box-shadow: var(--shadow-card);
+  }
+  @media (max-width: 600px) {
+    .guide-hero__media { padding-inline: 0; }
+    .guide-hero__media :global(.kb) { border-radius: 0; aspect-ratio: 4 / 3; }
+  }
+</style>

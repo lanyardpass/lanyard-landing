@@ -1,0 +1,117 @@
+---
+// The Guides index — the section's front door. Lists every published guide as a
+// card (hero thumb + dek + last-verified). Reusable: every future guide (and the
+// blog later) shows up here automatically from the collection.
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Layout from '@/layouts/Layout.astro';
+import LastVerifiedBadge from '@/components/guides/LastVerifiedBadge.astro';
+import { SITE } from '@/data/site';
+
+export const prerender = true;
+
+const guides = (await getCollection('guides', ({ data }) => !data.draft)).sort(
+  (a, b) =>
+    (b.data.published ?? b.data.lastVerified).valueOf() -
+    (a.data.published ?? a.data.lastVerified).valueOf()
+);
+
+const title = `Guides — Make your theme-park pass worth it | ${SITE.name}`;
+const description =
+  'Honest, up-to-date guides for theme-park annual passholders — what your pass really gets you, what it costs, and how to make it pay off. Written by an Orlando passholder.';
+
+// CollectionPage schema for the index.
+const listSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Lanyard Guides',
+  description,
+  url: new URL('/guides', Astro.site).href,
+  hasPart: guides.map((g) => ({
+    '@type': 'Article',
+    headline: g.data.title,
+    url: new URL(`/guides/${g.id}`, Astro.site).href,
+  })),
+};
+---
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(listSchema)} />
+  </Fragment>
+
+  <section class="guides-index">
+    <header class="guides-index__head">
+      <p class="kicker">Guides</p>
+      <h1 class="display guides-index__title">Make your pass worth it.</h1>
+      <p class="guides-index__sub">
+        Honest, current guides for annual passholders — what your pass really gets you, what it
+        costs, and how to make it pay off. Written by an Orlando passholder and kept verified.
+      </p>
+    </header>
+
+    {guides.length === 0 ? (
+      <p class="guides-index__empty">New guides are on the way.</p>
+    ) : (
+      <ul class="guides-index__grid">
+        {guides.map((g) => (
+          <li class="guide-card">
+            <a href={`/guides/${g.id}`} class="guide-card__link">
+              <div class="guide-card__media">
+                <Image
+                  src={g.data.hero}
+                  alt={g.data.heroAlt}
+                  widths={[320, 480, 720, 960]}
+                  sizes="(min-width: 720px) 360px, 100vw"
+                  loading="lazy"
+                  class="guide-card__img"
+                />
+              </div>
+              <div class="guide-card__body">
+                <h2 class="guide-card__title">{g.data.title}</h2>
+                <p class="guide-card__dek">{g.data.dek}</p>
+                <div class="guide-card__meta">
+                  <LastVerifiedBadge date={g.data.lastVerified} />
+                </div>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .guides-index {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .guides-index__head { max-width: 40rem; }
+  .guides-index__head .kicker { color: var(--green-primary); }
+  .guides-index__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
+  .guides-index__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+  .guides-index__empty { color: var(--muted); margin-top: 2rem; }
+
+  .guides-index__grid {
+    list-style: none; margin: clamp(2rem, 5vw, 3rem) 0 0; padding: 0;
+    display: grid; gap: 1.4rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .guide-card {
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+    border-radius: var(--radius); overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .guide-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
+  .guide-card__link { display: block; text-decoration: none; color: inherit; }
+  .guide-card__media { aspect-ratio: 16 / 9; overflow: hidden; background: rgba(45, 106, 79, 0.06); }
+  .guide-card__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .guide-card__body { padding: 1.1rem 1.2rem 1.3rem; }
+  .guide-card__title {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.15rem;
+    color: var(--green-primary); line-height: 1.2; margin: 0;
+  }
+  .guide-card__dek { color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; font-size: 0.95rem; }
+  .guide-card__meta { margin-top: 0.9rem; }
+</style>

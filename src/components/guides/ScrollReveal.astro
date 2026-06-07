@@ -1,0 +1,34 @@
+---
+// ScrollReveal — wraps arbitrary content (a section, the table, the CTA) and
+// fades it up when it scrolls into view. The IntersectionObserver lives in
+// GuideLayout and targets every [data-reveal] node, so this is just markup.
+// Reduced-motion: content is shown immediately, no transform.
+interface Props {
+  /** Stagger child blocks in, instead of revealing as one unit. */
+  stagger?: boolean;
+  class?: string;
+}
+const { stagger = false, class: className } = Astro.props;
+---
+<div class:list={['scroll-reveal', { 'scroll-reveal--stagger': stagger }, className]} data-reveal>
+  <slot />
+</div>
+
+<style>
+  .scroll-reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .scroll-reveal.is-in { opacity: 1; transform: none; }
+
+  .scroll-reveal--stagger > :global(*) {
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .scroll-reveal--stagger.is-in > :global(*) { opacity: 1; transform: none; }
+  .scroll-reveal--stagger.is-in > :global(* ){ transition-delay: 0s; }
+  .scroll-reveal--stagger.is-in > :global(*:nth-child(2)) { transition-delay: 0.08s; }
+  .scroll-reveal--stagger.is-in > :global(*:nth-child(3)) { transition-delay: 0.16s; }
+  .scroll-reveal--stagger.is-in > :global(*:nth-child(4)) { transition-delay: 0.24s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-reveal, .scroll-reveal--stagger > :global(*) { opacity: 1; transform: none; transition: none; }
+  }
+</style>

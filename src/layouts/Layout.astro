@@ -9,11 +9,14 @@ interface Props {
   description?: string;
   /** WIP branch deploys are auto-noindexed by Netlify; this is an extra belt. */
   noindex?: boolean;
+  /** Absolute URL to override the sitewide social card (e.g. a guide's hero). */
+  ogImage?: string;
 }
 
 const {
   title = `${SITE.name} — Watch your pass pay for itself`,
   description = SITE.description,
+  ogImage: ogImageOverride,
   // Non-production build contexts set PUBLIC_NOINDEX=true (see netlify.toml).
   // The most-recent branch deploy is otherwise indexable by default, so this
   // keeps WIP out of search engines while production stays indexable.
@@ -21,8 +24,9 @@ const {
 } = Astro.props;
 
 // Single link-preview card sitewide for the beta phase (matches beta.html).
-// Swap back to /og-image.png at App Store launch.
-const ogImage = new URL('/og-image-beta.png?v=1', Astro.site).href;
+// Swap back to /og-image.png at App Store launch. A page can override it (a
+// guide passes its hero) via the `ogImage` prop.
+const ogImage = ogImageOverride ?? new URL('/og-image-beta.png?v=1', Astro.site).href;
 
 // Canonical URL for this page — strips query strings (e.g. ?src=reddit) so
 // channel-tagged inbound links consolidate to one URL instead of splitting
@@ -98,6 +102,9 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
       data-app-id={TD_APP_ID}
       data-is-test-mode={tdTestMode ? 'true' : undefined}
     ></script>
+
+    {/* Per-page <head> extras (e.g. a guide's Article + FAQPage JSON-LD). */}
+    <slot name="head" />
   </head>
   <body>
     <Header />

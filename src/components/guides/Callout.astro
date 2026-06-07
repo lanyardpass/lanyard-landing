@@ -1,0 +1,49 @@
+---
+// Callout — an inline highlighted note for "what your pass DOES get you,"
+// ticket-price ranges, freshness asides. Slot-based so prose lives in the MDX.
+// Variants tint the accent; all stay on-brand (green family only).
+interface Props {
+  variant?: 'info' | 'tip' | 'note';
+  title?: string;
+  /** Emoji or short glyph; purely decorative. */
+  icon?: string;
+}
+const { variant = 'info', title, icon } = Astro.props;
+---
+<aside class:list={['callout', `callout--${variant}`]}>
+  {(title || icon) && (
+    <p class="callout__head">
+      {icon && <span class="callout__icon" aria-hidden="true">{icon}</span>}
+      {title && <span class="callout__title">{title}</span>}
+    </p>
+  )}
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    border-radius: var(--radius);
+    padding: clamp(1rem, 3vw, 1.3rem) clamp(1.1rem, 3vw, 1.4rem);
+    border: 1px solid rgba(45, 106, 79, 0.16);
+    background: rgba(82, 183, 136, 0.07);
+    margin: 1.8rem 0;
+  }
+  .callout--tip { background: rgba(82, 183, 136, 0.12); border-color: rgba(82, 183, 136, 0.30); }
+  .callout--note { background: #fff; border-color: rgba(45, 106, 79, 0.14); }
+  .callout__head {
+    display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.5rem;
+    font-family: var(--font-display); font-weight: 800; font-size: 0.95rem;
+    color: var(--green-primary);
+  }
+  .callout__icon { font-size: 1.1rem; line-height: 1; }
+  .callout__body { color: var(--ink); line-height: 1.65; }
+  .callout__body :global(> * + *) { margin-top: 0.7rem; }
+  .callout__body :global(p) { margin: 0; }
+  .callout__body :global(strong) { color: var(--ink); font-weight: 700; }
+  .callout__body :global(em) { font-style: italic; color: var(--muted); }
+  .callout__body :global(ul) { margin: 0; padding-left: 1.2rem; }
+  .callout__body :global(li) { margin-top: 0.4rem; }
+  .callout__body :global(li::marker) { color: var(--green-accent); }
+</style>

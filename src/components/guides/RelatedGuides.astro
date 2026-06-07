@@ -1,0 +1,39 @@
+---
+// RelatedGuides — footer links to other guides. Thin while the section is new
+// (it can render nothing), and grows into a real grid as guides are added.
+interface RelatedItem { title: string; href: string; dek?: string; }
+interface Props { items: RelatedItem[]; }
+const { items } = Astro.props;
+---
+{items.length > 0 && (
+  <section class="related" aria-label="More guides">
+    <h2 class="related__title">More guides</h2>
+    <ul class="related__list">
+      {items.map((g) => (
+        <li class="related__item">
+          <a href={g.href}>
+            <span class="related__name">{g.title}</span>
+            {g.dek && <span class="related__dek">{g.dek}</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .related { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(45, 106, 79, 0.12); }
+  .related__title {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
+    color: var(--ink); margin: 0 0 1rem;
+  }
+  .related__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+  .related__item a {
+    display: block; padding: 1rem 1.2rem; border-radius: var(--radius);
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.14);
+    text-decoration: none; transition: border-color 0.15s ease;
+  }
+  .related__item a:hover { border-color: var(--green-accent); }
+  .related__name { display: block; font-family: var(--font-display); font-weight: 700; color: var(--green-primary); }
+  .related__dek { display: block; margin-top: 0.25rem; font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
+</style>

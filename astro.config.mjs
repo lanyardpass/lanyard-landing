@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
+import mdx from '@astrojs/mdx';
 
 // Marketing site for lanyardpass.com.
 // SSR via the Netlify adapter so we can run server routes (signup capture,
@@ -27,6 +28,9 @@ export default defineConfig({
   build: { format: 'file' },
   integrations: [
     react(),
+    // Guides (and the future blog) author prose in MDX so content + components
+    // coexist — Dan edits copy without touching components, per the build brief.
+    mdx(),
     // Generates /sitemap-index.xml from public pages. Excludes the admin
     // dashboard + API routes (never indexable). Submit the sitemap URL in
     // Google Search Console — the robots.txt is Cloudflare-managed, so we

@@ -1,0 +1,52 @@
+---
+// TierTable — a generic, responsive comparison table. Data comes in as props
+// from the content file (so it stays editable as content), keeping the component
+// reusable for any future tier/feature matrix. The first column is treated as
+// the row header. On narrow screens it scrolls horizontally with an affordance.
+interface Props {
+  columns: string[];
+  rows: string[][];
+  caption?: string;
+}
+const { columns, rows, caption } = Astro.props;
+---
+<figure class="tier-table">
+  <div class="tier-table__scroll" role="region" aria-label={caption ?? 'Comparison table'} tabindex="0">
+    <table>
+      <thead>
+        <tr>{columns.map((c, i) => <th scope="col" class:list={{ 'tier-table__rowhead': i === 0 }}>{c}</th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr>
+            {row.map((cell, i) =>
+              i === 0
+                ? <th scope="row" class="tier-table__rowhead">{cell}</th>
+                : <td>{cell}</td>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  {caption && <figcaption class="tier-table__cap">{caption}</figcaption>}
+</figure>
+
+<style>
+  .tier-table { margin: 2rem 0; }
+  .tier-table__scroll { overflow-x: auto; border-radius: var(--radius); border: 1px solid rgba(45, 106, 79, 0.14); -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; min-width: 38rem; font-size: 0.92rem; background: #fff; }
+  thead th {
+    background: var(--green-dark); color: var(--on-dark);
+    font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+    text-align: left; padding: 0.75rem 0.85rem; white-space: nowrap;
+  }
+  tbody td, tbody th {
+    padding: 0.7rem 0.85rem; border-top: 1px solid rgba(45, 106, 79, 0.10);
+    text-align: left; vertical-align: top; color: var(--ink); line-height: 1.4;
+  }
+  tbody tr:nth-child(even) td, tbody tr:nth-child(even) th.tier-table__rowhead { background: rgba(82, 183, 136, 0.05); }
+  .tier-table__rowhead { font-weight: 800; color: var(--green-primary); white-space: nowrap; }
+  thead .tier-table__rowhead { color: var(--on-dark); }
+  .tier-table__cap { margin-top: 0.7rem; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+</style>

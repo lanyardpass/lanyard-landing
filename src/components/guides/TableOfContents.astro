@@ -1,0 +1,89 @@
+---
+// TableOfContents — sticky on desktop, jump links to the section anchors. The
+// single biggest "this is a real, maintained guide" signal. Built from the
+// headings Astro extracts from the rendered MDX (h2 only — h3s would make it
+// noisy). The active section highlights as you scroll (IntersectionObserver).
+import type { MarkdownHeading } from 'astro';
+interface Props {
+  headings: MarkdownHeading[];
+}
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.depth === 2);
+---
+{items.length > 0 && (
+  <nav class="guide-toc" aria-label="On this page">
+    <p class="guide-toc__title">On this page</p>
+    <ul class="guide-toc__list">
+      {items.map((h) => (
+        <li>
+          <a href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<script>
+  // Highlight the section currently in view. Observes each h2 target and marks
+  // the matching TOC link. Cheap, dependency-free, and reduced-motion-safe (it
+  // toggles a class; no animation involved).
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+  if (links.length) {
+    const bySlug = new Map(links.map((l) => [l.dataset.tocLink!, l]));
+    const targets = links
+      .map((l) => document.getElementById(l.dataset.tocLink!))
+      .filter((el): el is HTMLElement => !!el);
+
+    let current: HTMLAnchorElement | null = null;
+    const setActive = (slug: string) => {
+      const link = bySlug.get(slug);
+      if (!link || link === current) return;
+      current?.classList.remove('is-active');
+      link.classList.add('is-active');
+      current = link;
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        // Pick the topmost heading that's currently intersecting the band.
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '-15% 0px -70% 0px', threshold: 0 }
+    );
+    targets.forEach((t) => io.observe(t));
+  }
+</script>
+
+<style>
+  .guide-toc { font-size: 0.9rem; }
+  .guide-toc__title {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 0.7rem;
+  }
+  .guide-toc__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.1rem; }
+  .guide-toc a {
+    display: block; padding: 0.4rem 0.65rem; border-radius: var(--radius-sm);
+    color: var(--muted); text-decoration: none; font-weight: 600; line-height: 1.35;
+    border-left: 2px solid transparent; transition: color 0.15s, background 0.15s;
+  }
+  .guide-toc a:hover { color: var(--green-primary); background: rgba(82, 183, 136, 0.08); }
+  .guide-toc a.is-active {
+    color: var(--green-primary); background: rgba(82, 183, 136, 0.12);
+    border-left-color: var(--green-accent);
+  }
+
+  /* Sticky rail on desktop; an inline list on mobile (above the article). */
+  @media (min-width: 960px) {
+    .guide-toc { position: sticky; top: 5.5rem; max-height: calc(100vh - 7rem); overflow-y: auto; }
+  }
+  @media (max-width: 959px) {
+    .guide-toc {
+      background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+      border-radius: var(--radius); padding: 1rem 1.1rem;
+    }
+  }
+</style>

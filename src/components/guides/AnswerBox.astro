@@ -1,0 +1,35 @@
+---
+// AnswerBox — the TL;DR callout directly under the hero. Answers the literal
+// question in the first breath (skimmable + featured-snippet friendly), per the
+// guide voice rule "answer the literal question in sentence one."
+interface Props {
+  /** Short eyebrow, e.g. "The short answer". */
+  label?: string;
+  text: string;
+}
+const { label = 'The short answer', text } = Astro.props;
+---
+<aside class="answer-box" aria-label={label}>
+  <p class="answer-box__label">{label}</p>
+  <p class="answer-box__text">{text}</p>
+</aside>
+
+<style>
+  .answer-box {
+    background: #fff;
+    border: 1.5px solid rgba(82, 183, 136, 0.35);
+    border-left: 5px solid var(--green-accent);
+    border-radius: var(--radius);
+    padding: clamp(1.1rem, 3vw, 1.5rem) clamp(1.2rem, 3vw, 1.6rem);
+    box-shadow: var(--shadow-card);
+  }
+  .answer-box__label {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--green-primary); margin: 0 0 0.5rem;
+  }
+  .answer-box__text {
+    margin: 0; font-size: 1.1rem; line-height: 1.55; color: var(--ink);
+    font-weight: 500;
+  }
+</style>

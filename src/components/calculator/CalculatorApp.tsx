@@ -17,7 +17,14 @@ import { track, priceBand, visitsBand, paybackBand } from '@/lib/telemetry';
 
 type Step = 'operator' | 'tier' | 'options' | 'details';
 
-export default function CalculatorApp() {
+interface CalculatorAppProps {
+  /** Where this calculator is embedded — tags every signal so guide-driven
+   *  usage is attributable separately from the standalone /calculator page.
+   *  Defaults to 'calculator' (the standalone page). */
+  placement?: string;
+}
+
+export default function CalculatorApp({ placement = 'calculator' }: CalculatorAppProps = {}) {
   const [operatorId, setOperatorId] = useState<OperatorId | null>(null);
   const [tierId, setTierId] = useState<string | null>(null);
   const [residency, setResidency] = useState<Residency>('out_of_state');
@@ -39,7 +46,7 @@ export default function CalculatorApp() {
 
   // Top of the funnel: someone loaded the calculator. Fires once per mount.
   useEffect(() => {
-    if (!viewFired.current) { viewFired.current = true; track('Calculator.View'); }
+    if (!viewFired.current) { viewFired.current = true; track('Calculator.View', { placement }); }
   }, []);
 
   const op = operatorById(operatorId);
@@ -97,7 +104,7 @@ export default function CalculatorApp() {
   }
 
   function pickOperator(id: OperatorId) {
-    track('Calculator.Start', { operator: id }); // engaged past the hero
+    track('Calculator.Start', { operator: id, placement }); // engaged past the hero
     setOperatorId(id); setTierId(null); setUnitedHomePark(null); setStep('tier');
   }
 
@@ -146,8 +153,9 @@ export default function CalculatorApp() {
   // Categorical dimensions describing the pass the user built. Funnel signals
   // attach these so we can segment by audience without identifying anyone.
   function passDimensions(): Record<string, string> {
-    if (!op || !tier) return {};
+    if (!op || !tier) return { placement };
     return {
+      placement,
       operator: op.id,
       tier: tier.id,
       parkCount: op.flow === 'universal' ? String(parkCount) : 'na',
