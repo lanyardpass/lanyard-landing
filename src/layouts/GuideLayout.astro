@@ -132,6 +132,43 @@ const faqSchema = faq.length
       reveals.forEach((el) => io.observe(el));
     }
   </script>
+
+  <script>
+    // Read-depth + dwell telemetry (anonymous, aggregate, matches the site's
+    // privacy posture). Answers "do people actually read the guide, and how far."
+    import { track } from '@/lib/telemetry';
+    const guide = location.pathname.match(/\/guides\/([^/]+)/)?.[1] || 'guides';
+
+    // Scroll milestones, fired once each as the reader reaches them. The 75 and
+    // 100 rates are the real "did they read it" signal.
+    const hit = new Set<number>();
+    function checkDepth() {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      const pct = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+      for (const m of [25, 50, 75, 100]) {
+        if (pct >= m && !hit.has(m)) { hit.add(m); track('Guide.Read', { guide, depth: String(m) }); }
+      }
+    }
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(() => { checkDepth(); ticking = false; }); }
+    }, { passive: true });
+    checkDepth();
+
+    // Best-effort dwell bucket, sent when the tab is hidden or closed. Approximate
+    // (on-exit sends aren't guaranteed), so lean on Guide.Read for read-through.
+    const start = performance.now();
+    let sent = false;
+    function sendDwell() {
+      if (sent) return; sent = true;
+      const s = Math.round((performance.now() - start) / 1000);
+      const bucket = s < 15 ? '0-15s' : s < 60 ? '15-60s' : s < 180 ? '1-3m' : s < 360 ? '3-6m' : '6m+';
+      track('Guide.Dwell', { guide, bucket });
+    }
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendDwell(); });
+    window.addEventListener('pagehide', sendDwell);
+  </script>
 </Layout>
 
 <style>
