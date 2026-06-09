@@ -78,3 +78,44 @@ export const QUOTES: Quote[] = [
     attribution: 'Beta tester',
   },
 ];
+
+// ---- 6. FAQ (also feeds FAQPage JSON-LD on the homepage) ----
+// Leads with the companion definition (value is one pillar, not the headline);
+// see product_decisions.md → brand voice and LAN-102 (positioning).
+export interface FaqItem { question: string; answer: string; }
+export const HOME_FAQ: FaqItem[] = [
+  {
+    question: 'What is Lanyard?',
+    answer:
+      'Lanyard is a companion app for theme park annual passholders. It brings everything about your passes into one place: today’s park hours and blockouts, every event across your parks on one timeline, the perks you’re owed, and what your pass is actually worth.',
+  },
+  {
+    question: 'Is it free?',
+    answer:
+      'Yes. One active pass with every feature, free, no trial countdown. Pro ($29.99/yr or $3.49/mo) adds unlimited passes and special-event passes like Halloween Horror Nights, and it’s covered by Family Sharing.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'No sign-up, no email, no password. Open the app and start tracking.',
+  },
+  {
+    question: 'Is my pass data private?',
+    answer:
+      'Your pass details live on your phone. There’s no account, and your pass data isn’t sold or shared. Optional, anonymous usage analytics can be turned off anytime.',
+  },
+  {
+    question: 'Which parks and passes does it support?',
+    answer:
+      'Central Florida area operators: Universal Orlando, Walt Disney World, and United Parks (SeaWorld and Busch Gardens). It models the real tiers, park counts, resident pricing, and home-park rules the way operators sell them.',
+  },
+  {
+    question: 'What are “perks”?',
+    answer:
+      'The benefits your pass includes beyond getting in: food and merch discounts, parking, free guest days, seasonal extras. Lanyard surfaces the ones you can use and totals what they’ve saved you, so they don’t go to waste.',
+  },
+  {
+    question: 'Are you affiliated with Disney, Universal, or SeaWorld?',
+    answer:
+      'No. Lanyard is independent, not affiliated with, endorsed by, or sponsored by any operator. It just helps you get more from the pass you already bought.',
+  },
+];

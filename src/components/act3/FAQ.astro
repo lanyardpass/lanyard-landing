@@ -1,0 +1,77 @@
+---
+import { HOME_FAQ } from '@/data/act3';
+
+// FAQPage structured data — same array that renders below, so what users read
+// and what Google indexes never drift. Matches the calculator's pattern.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: HOME_FAQ.map((f) => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: { '@type': 'Answer', text: f.answer },
+  })),
+};
+---
+<section id="faq" class="section faq">
+  <div class="container">
+    <header class="faq__head">
+      <p class="kicker">Good to know</p>
+      <h2 class="display faq__title">Questions, answered.</h2>
+    </header>
+    <div class="faq__list">
+      {HOME_FAQ.map((item, i) => (
+        <details class="faq__item" open={i === 0}>
+          <summary class="faq__q">
+            <span>{item.question}</span>
+            <span class="faq__chev" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>{item.answer}</p></div>
+        </details>
+      ))}
+    </div>
+    <p class="faq__support">
+      Still have a question? Lanyard’s built by a passholder, not a faceless company.
+      Email <a href="mailto:dan@lanyardpass.com">dan@lanyardpass.com</a> and you’ll usually hear back within a day or two.
+    </p>
+  </div>
+</section>
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+<style>
+  .faq { background: var(--off-white); color: var(--ink); }
+  .faq__head { text-align: center; margin: 0 auto clamp(2rem, 5vw, 3rem); }
+  .faq__title { font-size: var(--fs-h2); margin: 0.6rem auto 0; max-width: 20ch; }
+  .faq__list { display: grid; gap: 0.6rem; max-width: 760px; margin-inline: auto; }
+  .faq__item {
+    background: #fff;
+    border: 1px solid rgba(20, 53, 42, 0.08);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .faq__q {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1.1rem 1.3rem; cursor: pointer; list-style: none;
+    font-family: var(--font-display); font-weight: 700; color: var(--ink); line-height: 1.4;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__chev {
+    flex-shrink: 0; width: 10px; height: 10px;
+    border-right: 2px solid var(--green-accent); border-bottom: 2px solid var(--green-accent);
+    transform: rotate(45deg); transition: transform 0.2s ease; margin-top: -4px;
+  }
+  .faq__item[open] .faq__chev { transform: rotate(-135deg); margin-top: 2px; }
+  .faq__a { padding: 0 1.3rem 1.2rem; }
+  .faq__a p { margin: 0; color: var(--muted); line-height: 1.65; }
+  .faq__support {
+    text-align: center;
+    margin: clamp(1.8rem, 4vw, 2.5rem) auto 0;
+    max-width: 760px;
+    color: var(--muted);
+    font-size: 0.97rem;
+  }
+  .faq__support a { color: var(--green-primary); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { .faq__chev { transition: none; } }
+</style>
