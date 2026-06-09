@@ -13,6 +13,8 @@ interface Props {
   dark?: boolean;
 }
 const { id, kicker, headline, body, screen, screenAlt, side = 'right', dark = false } = Astro.props;
+// Lean the phone toward the copy (opposite the side it sits on).
+const lean = side === 'left' ? 'right' : 'left';
 ---
 <section id={id} class={`section spotlight${dark ? ' section--dark' : ''} spotlight--phone-${side}`}>
   <div class="container spotlight__inner">
@@ -22,7 +24,7 @@ const { id, kicker, headline, body, screen, screenAlt, side = 'right', dark = fa
       <p class="spotlight__body">{body}</p>
     </div>
     <div class="spotlight__device">
-      <DeviceFrame src={screen} alt={screenAlt} />
+      <DeviceFrame src={screen} alt={screenAlt} lean={lean} />
     </div>
   </div>
 </section>

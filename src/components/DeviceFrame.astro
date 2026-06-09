@@ -7,10 +7,11 @@
 interface Props {
   src: string;
   alt: string;
+  lean?: 'left' | 'right' | 'none';
 }
-const { src, alt } = Astro.props;
+const { src, alt, lean = 'right' } = Astro.props;
 ---
-<div class="device">
+<div class={`device device--lean-${lean}`}>
   <div class="device__screen">
     <img src={src} alt={alt} width="1320" height="2868" loading="lazy" decoding="async" />
   </div>
@@ -22,6 +23,10 @@ const { src, alt } = Astro.props;
     display: block;
     width: 100%;
     padding: var(--bezel);
+    /* A slight 3D lean so the flat frame reads as a real device standing in
+       space, not a sticker. Each instance leans toward its adjacent copy;
+       it straightens on hover. */
+    transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
     background: linear-gradient(155deg, #34343a, #141416 60%);
     /* Slash radii compensate for the tall 1320:2868 aspect so corners read
        visually circular (vertical % ≈ horizontal % × 0.46). */
@@ -42,4 +47,11 @@ const { src, alt } = Astro.props;
     width: 100%;
     height: auto;
   }
+  /* rotateY turns the face toward the named side; rotateX leans it back a
+     touch (grounded); rotateZ adds a hair of dynamism. */
+  .device--lean-left  { transform: perspective(1100px) rotateY(-20deg) rotateX(4deg) rotateZ(-1.2deg); }
+  .device--lean-right { transform: perspective(1100px) rotateY(20deg) rotateX(4deg) rotateZ(1.2deg); }
+  .device--lean-none  { transform: none; }
+  .device:hover { transform: perspective(1100px) rotateY(0deg) rotateX(0deg) rotateZ(0deg); }
+  @media (prefers-reduced-motion: reduce) { .device { transition: none; } }
 </style>
