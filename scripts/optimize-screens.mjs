@@ -14,6 +14,7 @@ const SRC = resolve(here, '../../marketing/screenshots');
 const OUT = resolve(here, '../public/assets');
 
 const MAP = [
+  ['01_home_today.png', 'screen-home.webp'],
   ['02_payback_history.png', 'screen-payback.webp'],
   ['03_calendar_hero.png', 'screen-calendar.webp'],
   ['05_perks.png', 'screen-perks.webp'],
