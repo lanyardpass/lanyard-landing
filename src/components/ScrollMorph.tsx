@@ -39,8 +39,9 @@ export default function ScrollMorph() {
       if (mqReduced.matches) return;
       const vh = window.innerHeight;
       const scrolled = Math.max(-track.getBoundingClientRect().top, 0);
-      // Hero morph C→A across the first ~0.85 viewport.
-      const p = Math.min(scrolled / (vh * 0.85), 1);
+      // Hero morph C→A across the first ~0.6 viewport (lower = title settles
+      // to its small size in less scroll; was 0.85).
+      const p = Math.min(scrolled / (vh * 0.6), 1);
       track.style.setProperty('--p', p.toFixed(3));
       // Act dwell windows.
       const idx = scrolled < vh * 1.4 ? 0 : scrolled < vh * 2.5 ? 1 : 2;
