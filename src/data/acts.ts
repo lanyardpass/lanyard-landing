@@ -29,7 +29,7 @@ export const ACTS: Act[] = [
     kicker: 'A window to your parks',
     headline: 'Open the app, look outside.',
     body:
-      'Live sky, real weather and every park you hold, framed like a window. One glance reads the whole day.',
+      'Live sky, real weather and every park you hold, framed through the window. Open, closed, blocked... one glance reads the whole day.',
     screen: '/assets/screen-home.webp',
     screenAlt:
       'Lanyard home screen: a parallax window onto your parks with live sky, weather, park hours and good-to-go status.',
