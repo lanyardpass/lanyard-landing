@@ -1,31 +1,47 @@
 ---
 import { COVERAGE } from '@/data/act3';
+import DeviceFrame from '@/components/DeviceFrame.astro';
 ---
 <section id="coverage" class="section section--dark cov">
-  <div class="container">
-    <header class="cov__head">
-      <p class="kicker">Works with your pass</p>
-      <h2 class="display cov__title">Whatever you hold, it’s covered.</h2>
-      <p class="cov__lead">Tiers, park counts, resident pricing and home-park rules — modeled the way the operators actually sell them.</p>
-    </header>
-    <div class="cov__grid">
-      {COVERAGE.map((c) => (
-        <article class="cov__card">
-          <h3 class="cov__op">{c.operator}</h3>
-          <p class="cov__detail">{c.detail}</p>
-        </article>
-      ))}
+  <div class="container cov__layout">
+    <div class="cov__device">
+      <DeviceFrame
+        src="/assets/screen-myparks.webp"
+        alt="Lanyard My Parks screen: a wallet deck of passes across Universal, Disney and United Parks."
+      />
+    </div>
+    <div class="cov__content">
+      <header class="cov__head">
+        <p class="kicker">Works with your pass</p>
+        <h2 class="display cov__title">Whatever you hold, it’s covered.</h2>
+        <p class="cov__lead">Tiers, park counts, resident pricing and home-park rules — modeled the way the operators actually sell them.</p>
+      </header>
+      <div class="cov__grid">
+        {COVERAGE.map((c) => (
+          <article class="cov__card">
+            <h3 class="cov__op">{c.operator}</h3>
+            <p class="cov__detail">{c.detail}</p>
+          </article>
+        ))}
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  .cov__head { margin-bottom: clamp(2rem, 5vw, 3rem); }
+  .cov__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.42fr) 1fr;
+    gap: clamp(2rem, 6vw, 4.5rem);
+    align-items: center;
+  }
+  .cov__device { justify-self: center; width: min(260px, 80%); }
+  .cov__head { margin-bottom: clamp(1.75rem, 4vw, 2.5rem); }
   /* Cap the measure on the title itself so `ch` scales with the big headline
      font (≈2 lines), not the small body font. */
   .cov__title { font-size: var(--fs-h2); margin-top: 0.6rem; max-width: 18ch; }
   .cov__lead { color: var(--on-dark-muted); font-size: var(--fs-lead); margin-top: 1rem; max-width: 46ch; }
-  .cov__grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .cov__grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .cov__card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(82, 183, 136, 0.2);
@@ -34,4 +50,9 @@ import { COVERAGE } from '@/data/act3';
   }
   .cov__op { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--green-accent); margin: 0 0 0.5rem; }
   .cov__detail { color: var(--on-dark-muted); font-size: 0.98rem; margin: 0; }
+  @media (max-width: 860px) {
+    .cov__layout { grid-template-columns: 1fr; gap: clamp(1.75rem, 6vw, 2.5rem); }
+    .cov__device { order: 2; width: min(230px, 58%); }
+    .cov__content { order: 1; }
+  }
 </style>

@@ -1,0 +1,45 @@
+---
+// Flat CSS phone frame for below-the-fold screenshots. No hand (that stays
+// special to the hero morph) — a clean titanium bezel so the shots read as
+// focused "feature detail." Pure CSS, so it's crisp at any size and carries no
+// device-image licensing. The screenshot already contains the status bar +
+// Dynamic Island (it's a full simulator capture), so the frame is bezel only.
+interface Props {
+  src: string;
+  alt: string;
+}
+const { src, alt } = Astro.props;
+---
+<div class="device">
+  <div class="device__screen">
+    <img src={src} alt={alt} width="1320" height="2868" loading="lazy" decoding="async" />
+  </div>
+</div>
+
+<style>
+  .device {
+    --bezel: clamp(0.4rem, 1vw, 0.6rem);
+    display: block;
+    width: 100%;
+    padding: var(--bezel);
+    background: linear-gradient(155deg, #34343a, #141416 60%);
+    /* Slash radii compensate for the tall 1320:2868 aspect so corners read
+       visually circular (vertical % ≈ horizontal % × 0.46). */
+    border-radius: 13% / 6.1%;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.14) inset,
+      0 30px 60px -22px rgba(0, 0, 0, 0.5),
+      0 8px 22px -10px rgba(0, 0, 0, 0.35);
+  }
+  .device__screen {
+    border-radius: 10.5% / 4.9%;
+    overflow: hidden;
+    background: #000;
+    line-height: 0;
+  }
+  .device__screen img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

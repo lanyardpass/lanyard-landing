@@ -18,6 +18,8 @@ const MAP = [
   ['02_payback_history.png', 'screen-payback.webp'],
   ['03_calendar_hero.png', 'screen-calendar.webp'],
   ['05_perks.png', 'screen-perks.webp'],
+  ['06_my_parks.png', 'screen-myparks.webp'],
+  ['07_privacy.png', 'screen-privacy.webp'],
 ];
 
 for (const [src, out] of MAP) {

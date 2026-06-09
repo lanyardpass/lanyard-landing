@@ -1,25 +1,45 @@
 ---
 import { PRIVACY_POINTS } from '@/data/act3';
+import DeviceFrame from '@/components/DeviceFrame.astro';
 ---
 <section id="privacy" class="section section--dark privacy">
   <div class="container privacy__inner">
-    <div>
-      <p class="kicker">Your parks. Your data. Your phone.</p>
-      <h2 class="display privacy__title">It never leaves your phone.</h2>
+    <div class="privacy__device">
+      <DeviceFrame
+        src="/assets/screen-privacy.webp"
+        alt="Lanyard privacy onboarding screen: it tracks your passes, never you."
+      />
     </div>
-    <ul class="privacy__points" role="list">
-      {PRIVACY_POINTS.map((p) => <li>{p}</li>)}
-    </ul>
+    <div class="privacy__copy">
+      <div>
+        <p class="kicker">Your parks. Your data. Your phone.</p>
+        <h2 class="display privacy__title">It never leaves your phone.</h2>
+      </div>
+      <ul class="privacy__points" role="list">
+        {PRIVACY_POINTS.map((p) => <li>{p}</li>)}
+      </ul>
+    </div>
   </div>
 </section>
 
 <style>
-  .privacy__inner { display: grid; gap: clamp(1.5rem, 5vw, 3.5rem); grid-template-columns: 1fr 1fr; align-items: center; }
+  .privacy__inner {
+    display: grid;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    grid-template-columns: minmax(0, 0.42fr) 1fr;
+    align-items: center;
+  }
+  .privacy__device { justify-self: center; width: min(260px, 80%); }
+  .privacy__copy { display: grid; gap: clamp(1.5rem, 4vw, 2.2rem); }
   .privacy__title { font-size: var(--fs-h2); margin-top: 0.6rem; }
   .privacy__points { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
   .privacy__points li {
     color: var(--on-dark-muted); font-size: var(--fs-lead); padding-left: 1.6rem; position: relative;
   }
   .privacy__points li::before { content: '🔒'; position: absolute; left: 0; }
-  @media (max-width: 760px) { .privacy__inner { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) {
+    .privacy__inner { grid-template-columns: 1fr; }
+    .privacy__device { order: 2; width: min(230px, 58%); }
+    .privacy__copy { order: 1; }
+  }
 </style>
