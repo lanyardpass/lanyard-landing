@@ -31,7 +31,7 @@
   margin-inline: auto;
   padding-inline: var(--gutter);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(1.5rem, 4vw, 4rem);
 }
@@ -64,10 +64,12 @@
 .morph__phone {
   position: relative;
   justify-self: end;
-  /* 56vw cap keeps the phone within its grid column on narrower desktop widths
+  /* 60vw cap keeps the phone within its grid column on narrower desktop widths
      (just above the 1024 tablet breakpoint) so it never overflows into the
-     caption. On real laptop/desktop widths 82vh governs, unchanged. */
-  height: min(82vh, 860px, 56vw);
+     caption. On real laptop/desktop widths 90vh governs. Bumped from
+     82vh/860/56vw and the phone column widened (0.92fr → 1fr) so the device
+     reads larger on desktop without crowding the caption (LAN-100 follow-up). */
+  height: min(90vh, 1000px, 60vw);
   aspect-ratio: var(--plate-aspect);
   filter: drop-shadow(var(--shadow-phone));
   /* Force a compositing layer from first paint. Without this the drop-shadow
