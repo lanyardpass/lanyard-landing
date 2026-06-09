@@ -10,10 +10,12 @@ import { CAPABILITIES } from '@/data/act3';
     <ul class="cap__grid" role="list">
       {CAPABILITIES.map((c) => (
         <li class="cap__card">
-          {c.pro && <span class="cap__pro">Pro</span>}
           <span class="cap__icon" aria-hidden="true">{c.icon}</span>
-          <h3 class="cap__name">{c.title}</h3>
-          <p class="cap__body">{c.body}</p>
+          <div class="cap__text">
+            <h3 class="cap__name">{c.title}</h3>
+            <p class="cap__body">{c.body}</p>
+          </div>
+          {c.pro && <span class="cap__pro">Pro</span>}
         </li>
       ))}
     </ul>
@@ -21,26 +23,57 @@ import { CAPABILITIES } from '@/data/act3';
 </section>
 
 <style>
+  /* The cards deliberately echo the app's PerkRow: a white rounded card with a
+     tinted square icon tile, title over description, and the badge as a
+     top-right corner overlay. So the site previews the app's visual language
+     before download. Proportions mirror PerkRow.swift (tile 36pt → 44px web,
+     radius 14, shadow black-6%), scaled up for desktop reading distance. */
   .cap { background: var(--off-white); color: var(--ink); }
   .cap__head { margin-bottom: clamp(2rem, 5vw, 3.5rem); }
   .cap__title { font-size: var(--fs-h2); margin-top: 0.6rem; max-width: 18ch; }
   .cap__grid {
     list-style: none; margin: 0; padding: 0;
-    display: grid; gap: 1.25rem;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    display: grid; gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
   .cap__card {
     position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
     background: #fff;
     border: 1px solid rgba(20, 53, 42, 0.06);
     border-radius: var(--radius);
-    padding: 1.5rem;
+    padding: 1.05rem 1.1rem;
     box-shadow: var(--shadow-card);
   }
+  /* Tinted square tile — the app's accent.opacity(0.15) over white, radius 8. */
+  .cap__icon {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--green-accent) 15%, #fff);
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+  .cap__text { min-width: 0; }
+  .cap__name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.02rem;
+    line-height: 1.25;
+    margin: 0.1rem 0 0.25rem;
+    padding-right: 2.4rem; /* reserve for the corner Pro badge */
+  }
+  .cap__body { color: var(--muted); font-size: 0.9rem; line-height: 1.4; margin: 0; }
+  /* Corner badge — maps to PerkRow's top-trailing state pill slot. */
   .cap__pro {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 0.9rem;
+    right: 0.9rem;
     font-family: var(--font-display);
     font-weight: 800;
     font-size: 0.68rem;
@@ -52,7 +85,4 @@ import { CAPABILITIES } from '@/data/act3';
     padding: 0.18rem 0.5rem;
     border-radius: var(--pill);
   }
-  .cap__icon { font-size: 1.6rem; line-height: 1; }
-  .cap__name { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin: 0.8rem 0 0.4rem; }
-  .cap__body { color: var(--muted); font-size: 0.97rem; margin: 0; }
 </style>
