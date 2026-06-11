@@ -1,9 +1,12 @@
 ---
-// Lanyard wordmark — LAN + clipboard-badge(Y, tilted 12°) + ARD.
-// Canonical source: Lanyard/Lanyard/LanyardLogo.swift (mirrored by the
-// design-system LanyardLogo.jsx). Pure type + CSS so it stays crisp at any
-// size. Two variants: filled badge (header / app style) and outline (original
-// site style). Geometry is expressed as fractions of `width` so it scales.
+// Lanyard wordmark — LAN + badge(Y, tilted 12°) + ARD.
+// THIS FILE IS THE CANONICAL SPEC as of the 2026-06-10 lock (bare eyelet, no
+// housing ring; slot 8.06x2.02 at top 3.5; Y 33; badge x1.1 overlap via
+// transform). Spec + colorway rules:
+// brand/wordmark_canonical.md. The app (LanyardLogo.swift), design-system
+// (LanyardLogo.jsx) and print SVGs align TO this. Pure type + CSS so it stays
+// crisp at any size. Geometry is expressed as fractions of `width` so it
+// scales. Letters: white on dark backgrounds, forest #2D6A4F on light.
 interface Props {
   width?: number;
   /** Color of the LAN / ARD wordmark. */
@@ -17,9 +20,14 @@ const { width = 220, color = '#FFFFFF', outlineBadge = false, label = 'Lanyard' 
 
 const s = width / 220;
 const badgeW = 29 * s, badgeH = 41 * s;
-const clipW = 17 * s, clipH = 5 * s;
-const slotW = 8 * s, slotH = 3 * s;
-const wordSize = 42 * s, ySize = 34 * s;
+// Eyelet slot — bare pill, no housing ring. 2px render floor so the slot
+// never fades to an antialiased whisper at small sizes.
+const slotW = 8.06 * s, slotH = Math.max(2.02 * s, 2), slotTop = 3.5 * s;
+const wordSize = 42 * s, ySize = 33 * s;
+// Badge renders at x1.1 via transform: layout footprint stays the 29x41 box,
+// so the growth OVERLAPS the letters (badge pinned over the word) instead of
+// pushing them apart. The tilted corners land on the word's cap/baseline.
+const badgeScale = 1.1;
 
 const badgeFill = outlineBadge ? '#FFFFFF' : '#1B4332';
 const yColor = outlineBadge ? '#1B4332' : '#FFFFFF';
@@ -34,11 +42,9 @@ const wordStyle = `font-family:var(--font-display);font-size:${wordSize}px;font-
   aria-hidden={label ? undefined : 'true'}
 >
   <span style={wordStyle}>LAN</span>
-  <span style={`position:relative;width:${badgeW}px;height:${badgeH}px;transform:rotate(12deg);margin-left:${2 * s}px;margin-right:${-2 * s}px;`}>
+  <span style={`position:relative;width:${badgeW}px;height:${badgeH}px;transform:rotate(12deg) scale(${badgeScale});margin-left:${2 * s}px;margin-right:${-2 * s}px;`}>
     <span style={`position:absolute;inset:0;border-radius:${4 * s}px;background:${badgeFill};border:${1.5 * s}px solid #52B788;`}></span>
-    <span style={`position:absolute;top:${-clipH * 0.4}px;left:50%;transform:translateX(-50%);width:${clipW}px;height:${clipH}px;border-radius:${2 * s}px;background:${badgeFill};border:${1.5 * s}px solid #52B788;display:flex;align-items:center;justify-content:center;`}>
-      <span style={`width:${slotW}px;height:${slotH}px;background:#52B788;border-radius:999px;`}></span>
-    </span>
+    <span style={`position:absolute;top:${slotTop}px;left:50%;transform:translateX(-50%);width:${slotW}px;height:${slotH}px;background:#52B788;border-radius:999px;`}></span>
     <span style={`position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:${ySize}px;font-weight:900;color:${yColor};padding-top:${4 * s}px;`}>Y</span>
   </span>
   <span style={wordStyle}>ARD</span>

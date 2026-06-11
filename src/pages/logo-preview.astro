@@ -1,0 +1,50 @@
+---
+// Isolated logo preview — renders ONLY the real LanyardLogo component, large,
+// on the backgrounds that matter. Dev-only scratch page for judging the badge.
+// MUST import the site styles: the wordmark + Y render in var(--font-display)
+// (Montserrat), which only exists once tokens.css is loaded. Without it the
+// logo silently falls back to a system font and looks wrong.
+import '@/styles/tokens.css';
+import '@/styles/global.css';
+import LanyardLogo from '@/components/LanyardLogo.astro';
+---
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lanyard logo preview</title>
+    <style>
+      * { margin: 0; box-sizing: border-box; }
+      body { font-family: system-ui, sans-serif; }
+      .row { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 44px 20px 52px; }
+      .row .tag { font-size: 13px; letter-spacing: 0.06em; opacity: 0.55; margin-bottom: 18px; }
+      .on-dark .tag { color: #fff; }
+      .on-light .tag { color: #1B4332; }
+    </style>
+  </head>
+  <body>
+    <div class="row on-dark" style="background:#2D6A4F;">
+      <div class="tag">size ladder &mdash; 120 / 160 (header) / 320</div>
+      <div style="display:flex;align-items:center;gap:48px;">
+        <LanyardLogo width={120} label="" color="#FFFFFF" />
+        <LanyardLogo width={160} label="" color="#FFFFFF" />
+        <LanyardLogo width={320} label="" color="#FFFFFF" />
+      </div>
+    </div>
+    <div class="row on-dark" style="background:#2D6A4F;">
+      <div class="tag">#1 &mdash; forest &middot; white letters (site header/footer)</div>
+      <LanyardLogo width={700} label="Lanyard" color="#FFFFFF" />
+    </div>
+    <div class="row on-dark" style="background:#1B4332;">
+      <div class="tag">#2 &mdash; ink &middot; white letters</div>
+      <LanyardLogo width={700} label="Lanyard" color="#FFFFFF" />
+    </div>
+    <div class="row on-light" style="background:#F3EEE5;">
+      <div class="tag">#3 &mdash; cream &middot; forest letters</div>
+      <LanyardLogo width={700} label="Lanyard" color="#2D6A4F" />
+    </div>
+    <div class="row on-light" style="background:#FFFFFF;">
+      <div class="tag">#4 &mdash; white &middot; forest letters</div>
+      <LanyardLogo width={700} label="Lanyard" color="#2D6A4F" />
+    </div>
+  </body>
+</html>
