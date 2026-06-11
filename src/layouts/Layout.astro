@@ -76,7 +76,14 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* PNG (not SVG) on purpose: Google rasterizes SVG favicons poorly — the
+        inset-with-ring SERP rendering seen 2026-06-11. Full-bleed circle
+        artwork fills Google's circular chip (Reddit pattern). Master:
+        brand/favicon_serp_v1.svg via tools/build-favicon.py. */}
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48 32x32 16x16" />
+    {/* iOS home-screen pin gets the LY app icon (labels-off legibility). */}
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
