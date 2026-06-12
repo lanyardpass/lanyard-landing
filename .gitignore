@@ -29,3 +29,6 @@ dist/
 # If you want this tracked, remove the line below
 logo.png
 
+
+# Local Claude Code session config (matches lanyard-docs convention)
+.claude/
