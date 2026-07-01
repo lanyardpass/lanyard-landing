@@ -1,0 +1,83 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = true;
+---
+<Layout
+  title="Support — Lanyard"
+  description="Get help with Lanyard. Email hello@lanyardpass.com — we read every message and usually reply within a day or two."
+>
+  <article class="legal">
+    <div class="legal__inner">
+      <p class="kicker legal__label">Help</p>
+      <h1 class="display legal__title">Support</h1>
+
+      <p class="legal__lead">Lanyard is made by a small independent team. If you hit a bug, need help, or want to suggest something, email <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a>. We read every message and usually reply within a day or two.</p>
+
+      <h2>Report a bug or get help</h2>
+      <p>Email <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a> and include your iPhone model, your iOS version, and what you were doing when it happened. A screenshot helps a lot. We'll take it from there.</p>
+
+      <h2>Common questions</h2>
+
+      <h3>What is Lanyard?</h3>
+      <p>Lanyard is a companion app for theme park annual passholders. It brings everything about your passes into one place: today's park hours and blockouts, every event across your parks on one timeline, the perks you're owed, and what your pass is actually worth.</p>
+
+      <h3>Is it free?</h3>
+      <p>Yes. One active pass with every feature, free, no trial countdown. Pro ($29.99/yr or $3.49/mo) adds unlimited passes and special-event passes like Halloween Horror Nights, and it's covered by Family Sharing.</p>
+
+      <h3>Do I need an account?</h3>
+      <p>No sign-up, no email, no password. Open the app and start tracking.</p>
+
+      <h3>Is my pass data private?</h3>
+      <p>Your pass details live on your phone. There's no account, and your pass data isn't sold or shared. Optional, anonymous usage analytics can be turned off anytime in Settings. See our <a href="/privacy">Privacy Policy</a> for the full detail.</p>
+
+      <h3>Which parks and passes does it support?</h3>
+      <p>Central Florida area operators: Universal Orlando, Walt Disney World, and United Parks (SeaWorld and Busch Gardens). It models the real tiers, park counts, resident pricing, and home-park rules the way operators sell them.</p>
+
+      <h3>How do I restore my Pro subscription?</h3>
+      <p>Open Settings in the app and tap Restore Purchases. If Pro was bought on this Apple Account (or shared with you through Family Sharing), it will reactivate. Still stuck? Email <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a>.</p>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .legal { background: var(--off-white); color: var(--ink); }
+  .legal__inner {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) clamp(4rem, 10vw, 7rem);
+  }
+  .legal__label { color: var(--green-primary); margin-bottom: 1rem; }
+  .legal__title { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; }
+  .legal__lead {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-top: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .legal h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-top: 2.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .legal h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+    margin-top: 1.6rem;
+    margin-bottom: 0.35rem;
+  }
+  .legal p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .legal a { color: var(--green-primary); text-decoration: underline; text-underline-offset: 2px; }
+  .legal a:hover { color: var(--green-accent); }
+</style>
