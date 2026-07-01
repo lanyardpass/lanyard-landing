@@ -54,8 +54,8 @@ export const PRICING = {
 
 // ---- 4. Privacy (promise-based, per memory) ----
 export const PRIVACY_POINTS = [
-  'Your pass data lives on your phone, not our servers.',
-  'No account. No login. Nothing to leak.',
+  'No name, no email, no sign-up. Nothing that ties Lanyard to you.',
+  'Never linked to your identity, and never sold.',
   'Works offline — the parking lot with no signal is exactly when you need it.',
 ];
 
@@ -116,6 +116,6 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: 'Are you affiliated with Disney, Universal, or SeaWorld?',
     answer:
-      'No. Lanyard is independent, not affiliated with, endorsed by, or sponsored by any operator. It just helps you get more from the pass you already bought.',
+      'Lanyard is independent, and the parks don’t endorse or sponsor it. It just helps you get more from the pass you already bought.',
   },
 ];
