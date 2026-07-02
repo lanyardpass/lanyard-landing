@@ -26,7 +26,7 @@ export interface Act {
 export const ACTS: Act[] = [
   {
     id: 'home',
-    kicker: 'A window to your parks',
+    kicker: 'Your annual pass companion',
     headline: 'Open the app, look outside.',
     body:
       'Live sky, real weather and every park you hold, framed through the window. Open, closed, blocked... one glance reads the whole day.',

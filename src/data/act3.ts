@@ -15,7 +15,7 @@ export const CAPABILITIES: Capability[] = [
   { icon: '📈', title: 'Payback tracking', body: 'See cost-per-visit and the day your pass breaks even, counting both visits and perk savings.' },
   { icon: '🚫', title: 'Blockout dates', body: 'Per tier, per park — know before you drive whether today’s blocked out for your pass.' },
   { icon: '💸', title: 'Perks + value saved', body: 'Track the discounts, parking and freebies you use, and the running total they’ve saved you.' },
-  { icon: '🗓️', title: 'Hours & events', body: 'Park hours and the season’s events on one timeline, across all your passes.' },
+  { icon: '🗓️', title: 'Hours & events', body: 'Park hours and the season’s events on one timeline, with a heads-up when a park closes early.' },
   { icon: '🌤️', title: 'Weather for your parks', body: 'Live conditions and today’s forecast for the parks your passes cover, right on the home screen.' },
   { icon: '🔁', title: 'Renewal-save nudges', body: 'Quiet reminders when there’s a smarter way to renew or pay — advice, never pressure.' },
   { icon: '📍', title: 'Arrival detection', body: 'Reach a park and Lanyard offers to log your visit. Opt-in, and all on your phone.' },
@@ -31,7 +31,7 @@ export interface Coverage {
 export const COVERAGE: Coverage[] = [
   { operator: 'Universal Orlando', detail: '2-park & 3-park passes, Florida-resident pricing, every tier from Power to Premier.' },
   { operator: 'Walt Disney World', detail: 'Every Annual Pass tier — Incredi-Pass down to Pixie Dust.' },
-  { operator: 'United Parks (Florida)', detail: 'SeaWorld Orlando, Busch Gardens Tampa & Aquatica — Platinum and home-park passes.' },
+  { operator: 'SeaWorld & Busch Gardens', detail: 'SeaWorld Orlando, Busch Gardens Tampa & Aquatica — Platinum and home-park passes under United Parks.' },
 ];
 
 // ---- 3. Pricing (Free vs Pro) ----
@@ -106,7 +106,7 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: 'Which parks and passes does it support?',
     answer:
-      'Central Florida area operators: Universal Orlando, Walt Disney World, and United Parks (SeaWorld and Busch Gardens). It models the real tiers, park counts, resident pricing, and home-park rules the way operators sell them.',
+      'Universal Orlando, Walt Disney World, SeaWorld Orlando, and Busch Gardens Tampa, plus their water parks. It models the real tiers, park counts, resident pricing, and home-park rules the way operators sell them.',
   },
   {
     question: 'What are “perks”?',
