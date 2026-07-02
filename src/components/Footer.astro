@@ -12,13 +12,15 @@ const year = 2026;
     <nav class="site-footer__links" aria-label="Footer">
       <a href="/calculator">Calculator</a>
       <a href="/guides">Guides</a>
+      <a href="/about">About</a>
+      <a href="/press">Press</a>
       <a href="/beta">Join the beta</a>
       <a href="/privacy">Privacy Policy</a>
       <a href="mailto:dan@lanyardpass.com">Contact</a>
     </nav>
     <p class="site-footer__legal">
-      © {year} Lanyard LLC · Lanyard™ is a trademark of Lanyard LLC · An
-      independent app; the parks don’t endorse or sponsor it.
+      <span>© {year} Lanyard LLC · Lanyard™ is a trademark of Lanyard LLC</span>
+      <span>An independent app; the parks don’t endorse or sponsor it.</span>
     </p>
   </div>
 </footer>
@@ -42,4 +44,8 @@ const year = 2026;
   }
   .site-footer__links a:hover { color: var(--green-accent); }
   .site-footer__legal { font-size: 0.82rem; color: rgba(207, 228, 216, 0.6); max-width: 90ch; }
+  /* Each legal statement on its own line — a mid-clause wrap orphaning a word
+     ("it.") reads as broken. Long lines still wrap within their statement. */
+  .site-footer__legal span { display: block; }
+  .site-footer__legal span + span { margin-top: 0.25rem; }
 </style>

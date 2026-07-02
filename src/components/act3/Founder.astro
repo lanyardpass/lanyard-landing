@@ -1,0 +1,39 @@
+---
+// "Built by a passholder" teaser (website_plan §1b #8) — the homepage gets
+// this short version; /about carries the full story. Light section so it
+// reads as a breather between the dark SocialProof and the FAQ.
+---
+<section id="founder" class="section founder">
+  <div class="container founder__inner">
+    <p class="kicker">Built by a passholder</p>
+    <h2 class="display founder__title">Made in Orlando, by one of you.</h2>
+    <p class="founder__body">
+      Lanyard is independent. No park built it, no park sponsors it, and
+      that's the point: the tool that tracks every operator's passes has to
+      answer only to the passholder holding them.
+    </p>
+    <a class="founder__link" href="/about">Read the story →</a>
+  </div>
+</section>
+
+<style>
+  .founder { background: var(--off-white); color: var(--ink); }
+  .founder__inner { text-align: center; max-width: 38rem; margin-inline: auto; }
+  .founder .kicker { color: var(--green-primary); }
+  .founder__title { font-size: var(--fs-h2); margin: 0.6rem auto 0; }
+  .founder__body {
+    color: var(--muted);
+    font-size: var(--fs-lead);
+    line-height: 1.6;
+    margin: 1.2rem auto 0;
+    max-width: 46ch;
+  }
+  .founder__link {
+    display: inline-block;
+    margin-top: 1.4rem;
+    color: var(--green-primary);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .founder__link:hover { text-decoration: underline; }
+</style>
