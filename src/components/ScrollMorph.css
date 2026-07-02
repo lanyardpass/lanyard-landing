@@ -43,10 +43,20 @@
   /* No width cap needed: the grid's two tracks + gap are the safe-zone, so the
      caption fills its column. (Mobile overrides this with absolute positioning.) */
 }
-.morph__caption .kicker { margin-bottom: 0.7rem; }
+/* The kicker carries the category label ("your annual pass companion"), so in
+   the hero it gets a size + contrast bump over the sitewide accent-green kicker
+   (which disappears against the dark hero for the one visitor who needs it). */
+.morph__caption .kicker {
+  margin-bottom: 0.7rem;
+  font-size: calc(var(--fs-kicker) * 1.25);
+  color: var(--on-dark-muted);
+}
 .morph__headline {
-  /* C 100% -> A ~50% of the fluid hero size, driven by the morph progress */
-  font-size: calc(var(--fs-hero) * (1 - 0.5 * var(--p, 0)));
+  /* C ~80% -> A ~50% of the fluid hero size, driven by the morph progress.
+     (Start trimmed from 100% for "Make every park day worth it." — at full
+     size the long words wrap to five ragged lines in the caption column.) */
+  font-size: calc(var(--fs-hero) * (0.8 - 0.3 * var(--p, 0)));
+  text-wrap: balance;
   line-height: 0.96;
   text-shadow: 0 10px 40px rgba(0, 0, 0, calc(0.45 * (1 - var(--p, 0))));
 }
@@ -184,11 +194,15 @@
     max-width: none;
     z-index: 3;
   }
-  .morph__caption .kicker { margin-bottom: 0.5rem; }
-  /* Hero shrink: big at the top (~3rem) where the body is still hidden and
-     there's room, settling to ~1.65rem as you scroll so the body fits in. */
+  /* Kicker stays at base size on mobile — the desktop bump wraps it to two
+     lines here, which shoves the headline down into the phone. */
+  .morph__caption .kicker { margin-bottom: 0.5rem; font-size: var(--fs-kicker); }
+  /* Hero shrink: big at the top (~2.7rem) where the body is still hidden and
+     there's room, settling to ~1.65rem as you scroll so the body fits in.
+     (Start size trimmed from 3rem when the headline grew to three lines —
+     "Make every park day worth it." must clear the phone's top edge at p=0.) */
   .morph__headline {
-    font-size: calc(1.65rem + 1.35rem * (1 - var(--p, 0)));
+    font-size: calc(1.65rem + 1.05rem * (1 - var(--p, 0)));
   }
   /* Body flows in as the headline shrinks — there's room now that the phone
      slid down. Reserves its space (opacity, not display) so the pinned phone

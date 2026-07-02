@@ -27,9 +27,9 @@ export const ACTS: Act[] = [
   {
     id: 'home',
     kicker: 'Your annual pass companion',
-    headline: 'Open the app, look outside.',
+    headline: 'Make every park day worth it.',
     body:
-      'Live sky, real weather and every park you hold, framed through the window. Open, closed, blocked... one glance reads the whole day.',
+      'Blockouts, perks, events, and payback for Disney, Universal, and SeaWorld. Live hours, real weather, every park you hold. One glance reads the whole day.',
     screen: '/assets/screen-home.webp',
     screenAlt:
       'Lanyard home screen: a parallax window onto your parks with live sky, weather, park hours and good-to-go status.',
