@@ -3,10 +3,11 @@
 // Apple-supplied (public/assets/appstore-badge.svg) — guidelines require the
 // official asset, never a redraw. Fires an AppStore.Click signal with a
 // placement dimension so TQL can compare header vs. final vs. guide clicks.
-import { APP_STORE_URL } from '@/data/site';
+import { appStoreUrl } from '@/data/site';
 
 interface Props {
-  /** Where this badge sits, for analytics: "header", "final", "beta-page"… */
+  /** Where this badge sits — doubles as the TelemetryDeck placement dimension
+   * AND the Apple App Analytics ct campaign token. */
   placement: string;
   width?: number;
 }
@@ -16,7 +17,7 @@ const height = Math.round((width / 119.66407) * 40);
 ---
 <a
   class="appstore-badge"
-  href={APP_STORE_URL}
+  href={appStoreUrl(placement)}
   data-placement={placement}
   aria-label="Download Lanyard on the App Store"
 >

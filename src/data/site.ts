@@ -11,20 +11,33 @@ export const SITE = {
 };
 
 // ---- App Store (launch cutover) ----
-// FILL BEFORE MERGE: the numeric Apple ID from App Store Connect → App
-// Information. The CTA, smart banner, and JSON-LD all derive from it. The
-// placeholder href is deliberately loud so an unfilled merge is caught in
-// review, not by users.
-export const APP_STORE_ID = ''; // e.g. '6741234567'
-export const APP_STORE_URL = APP_STORE_ID
-  ? `https://apps.apple.com/app/id${APP_STORE_ID}`
-  : '#APP-STORE-ID-MISSING';
+// Apple ID from ASC → App Information (filled 2026-07-02). Deliberately
+// COUNTRY-LESS URL: apps.apple.com without a storefront geo-routes each
+// visitor to their own store (all 175 territories are enabled); the slug is
+// cosmetic — the id governs. NOTE: the URL 404s until the app is Ready for
+// Sale, which is why this branch merges only on approval day.
+export const APP_STORE_ID = '6766682128';
+export const APP_STORE_URL = `https://apps.apple.com/app/lanyard-annual-pass-companion/id${APP_STORE_ID}`;
+
+// Apple App Analytics campaign attribution. FILL AT (OR AFTER) LAUNCH: the
+// numeric provider token from ASC → App Analytics → Acquisition → Campaigns.
+// With it set, every site link carries ?pt&ct so App Analytics reports
+// DOWNLOADS per placement (ct mirrors the TelemetryDeck placement names).
+// Empty = clean links; TelemetryDeck still counts the clicks.
+export const APP_STORE_PT = '';
+
+/** App Store URL, campaign-tagged when APP_STORE_PT is set. `campaign` should
+ * be the placement name (site-header, final, calculator, beta-page…). */
+export function appStoreUrl(campaign?: string): string {
+  if (campaign && APP_STORE_PT) return `${APP_STORE_URL}?pt=${APP_STORE_PT}&ct=${campaign}&mt=8`;
+  return APP_STORE_URL;
+}
 
 /** The single repeated call to action. App Store at launch; the beta lives on
  * as a footer link + FinalCTA fine print (early builds for enthusiasts). */
 export const CTA = {
   label: 'Get the app',
-  href: APP_STORE_URL,
+  href: appStoreUrl('site-cta'),
 };
 
 // Root-relative so they work from any page (e.g. /privacy), not just home —
