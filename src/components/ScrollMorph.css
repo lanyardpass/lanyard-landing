@@ -43,9 +43,13 @@
   /* No width cap needed: the grid's two tracks + gap are the safe-zone, so the
      caption fills its column. (Mobile overrides this with absolute positioning.) */
 }
-/* The kicker is the wink (flavor, skippable) — accent green, base size. The
-   headline + body carry the actual story, so they get the white. */
-.morph__caption .kicker { margin-bottom: 0.7rem; }
+/* The kicker is the wink (flavor, skippable) — accent green so it recedes
+   behind the white story, but sized up so it's still noticed. Color does the
+   hierarchy work here, not size. */
+.morph__caption .kicker {
+  margin-bottom: 0.7rem;
+  font-size: calc(var(--fs-kicker) * 1.25);
+}
 .morph__headline {
   /* C ~80% -> A ~50% of the fluid hero size, driven by the morph progress.
      (Start trimmed from 100% for "Make every park day worth it." — at full
@@ -190,7 +194,9 @@
     max-width: none;
     z-index: 3;
   }
-  .morph__caption .kicker { margin-bottom: 0.5rem; }
+  /* Smaller bump than desktop: at 1.25× the 26-char kicker wraps to two lines
+     on a 375px viewport, shoving the story down into the phone. */
+  .morph__caption .kicker { margin-bottom: 0.5rem; font-size: calc(var(--fs-kicker) * 1.1); }
   /* Hero shrink: ~2.1rem at the top settling to ~1.65rem as you scroll.
      (Trimmed twice from the original 3rem: the headline grew to three lines,
      and the body is now visible at p=0 — headline + body together must clear
