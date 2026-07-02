@@ -59,10 +59,14 @@ const appSchema = {
 };
 
 // TelemetryDeck "Lanyard Web" app (privacy-first, cookieless, no IP storage).
-// Reuses the existing web app — same property, just redesigned. Flag signals
-// as TEST on non-production builds (branch/preview, where PUBLIC_NOINDEX is set)
-// so WIP traffic stays out of the live numbers. Localhost is auto-flagged by
-// the SDK. The appID is public by design (it ships in the client).
+// LIVE signals come ONLY from the production host — every other hostname is
+// test-flagged at runtime in the loader below. This closes the gap the
+// enumerate-the-test-contexts approach left open: Netlify deploy PERMALINKS
+// of production builds (<deploy-id>--site.netlify.app) carry no
+// PUBLIC_NOINDEX and aren't localhost, so they leaked live signals (verified
+// via TQL 2026-07-02: 4 permalink pageviews in live data; localhost + branch
+// deploys were correctly flagged). PUBLIC_NOINDEX stays as the build-time
+// belt. The appID is public by design (it ships in the client).
 const TD_APP_ID = '155A1765-42BE-4F22-B380-691BB80566D5';
 const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
 ---
@@ -106,13 +110,16 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     {/* Privacy-first web analytics. Fires one pageView per load; ?src=… rides
-        in the URL for channel attribution. Excluded from /admin (own layout). */}
-    <script
-      is:inline
-      src="https://cdn.telemetrydeck.com/websdk/telemetrydeck.min.js"
-      data-app-id={TD_APP_ID}
-      data-is-test-mode={tdTestMode ? 'true' : undefined}
-    ></script>
+        in the URL for channel attribution. Excluded from /admin (own layout).
+        Injected at runtime so test mode can be decided by HOSTNAME (see the
+        frontmatter comment): production host → live, anything else → test. */}
+    <script is:inline define:vars={{ TD_APP_ID, tdTestMode, PROD_HOST: SITE.domain }}>
+      const td = document.createElement('script');
+      td.src = 'https://cdn.telemetrydeck.com/websdk/telemetrydeck.min.js';
+      td.dataset.appId = TD_APP_ID;
+      if (tdTestMode || window.location.hostname !== PROD_HOST) td.dataset.isTestMode = 'true';
+      document.head.appendChild(td);
+    </script>
 
     {/* Per-page <head> extras (e.g. a guide's Article + FAQPage JSON-LD). */}
     <slot name="head" />

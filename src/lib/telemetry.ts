@@ -8,17 +8,19 @@
 
 import TelemetryDeck from '@telemetrydeck/sdk';
 import { resolveSource } from './source';
+import { SITE } from '@/data/site';
 
 // Public by design (ships in the client) — same app id as the pageview websdk.
 const APP_ID = '155A1765-42BE-4F22-B380-691BB80566D5';
 
-// Keep non-production traffic out of the live numbers. PUBLIC_NOINDEX covers
-// branch/preview deploys; the hostname check covers local `npm run dev` (the
-// websdk auto-detects localhost, but the npm SDK does not, so we do it).
+// Keep non-production traffic out of the live numbers. Allowlist, not
+// blocklist: LIVE signals come only from the production host — anything else
+// (localhost, LAN IPs, branch deploys, Netlify deploy permalinks of
+// production builds) is test by definition. PUBLIC_NOINDEX stays as the
+// build-time belt for prerendered contexts.
 function isTestMode(): boolean {
   if (import.meta.env.PUBLIC_NOINDEX === 'true') return true;
-  const h = window.location.hostname;
-  return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h.endsWith('.local');
+  return window.location.hostname !== SITE.domain;
 }
 
 // Anonymous per-session id. Not tied to identity and not persisted across
