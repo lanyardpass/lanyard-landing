@@ -26,7 +26,7 @@ const {
 // Single link-preview card sitewide for the beta phase (matches beta.html).
 // Swap back to /og-image.png at App Store launch. A page can override it (a
 // guide passes its hero) via the `ogImage` prop.
-const ogImage = ogImageOverride ?? new URL('/og-image-beta.png?v=1', Astro.site).href;
+const ogImage = ogImageOverride ?? new URL('/og-image-beta.png?v=2', Astro.site).href;
 
 // Canonical URL for this page — strips query strings (e.g. ?src=reddit) so
 // channel-tagged inbound links consolidate to one URL instead of splitting
