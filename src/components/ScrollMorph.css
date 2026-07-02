@@ -43,14 +43,9 @@
   /* No width cap needed: the grid's two tracks + gap are the safe-zone, so the
      caption fills its column. (Mobile overrides this with absolute positioning.) */
 }
-/* The kicker carries the category label ("your annual pass companion"), so in
-   the hero it gets a size + contrast bump over the sitewide accent-green kicker
-   (which disappears against the dark hero for the one visitor who needs it). */
-.morph__caption .kicker {
-  margin-bottom: 0.7rem;
-  font-size: calc(var(--fs-kicker) * 1.25);
-  color: var(--on-dark-muted);
-}
+/* The kicker is the wink (flavor, skippable) — accent green, base size. The
+   headline + body carry the actual story, so they get the white. */
+.morph__caption .kicker { margin-bottom: 0.7rem; }
 .morph__headline {
   /* C ~80% -> A ~50% of the fluid hero size, driven by the morph progress.
      (Start trimmed from 100% for "Make every park day worth it." — at full
@@ -66,8 +61,9 @@
   font-size: var(--fs-lead);
   line-height: 1.45;
   margin-top: 1.4rem;
-  opacity: var(--p, 0);
-  transform: translateY(calc(10px * (1 - var(--p, 0))));
+  /* Visible from first paint: the body carries the category ("annual
+     passes"), so it can't wait for scroll — the kicker is just the wink. */
+  opacity: 1;
 }
 
 /* ---------- Phone (right track) — pinned, constant anchor ---------- */
@@ -194,31 +190,29 @@
     max-width: none;
     z-index: 3;
   }
-  /* Kicker stays at base size on mobile — the desktop bump wraps it to two
-     lines here, which shoves the headline down into the phone. */
-  .morph__caption .kicker { margin-bottom: 0.5rem; font-size: var(--fs-kicker); }
-  /* Hero shrink: big at the top (~2.7rem) where the body is still hidden and
-     there's room, settling to ~1.65rem as you scroll so the body fits in.
-     (Start size trimmed from 3rem when the headline grew to three lines —
-     "Make every park day worth it." must clear the phone's top edge at p=0.) */
+  .morph__caption .kicker { margin-bottom: 0.5rem; }
+  /* Hero shrink: ~2.1rem at the top settling to ~1.65rem as you scroll.
+     (Trimmed twice from the original 3rem: the headline grew to three lines,
+     and the body is now visible at p=0 — headline + body together must clear
+     the phone's top edge before any scroll. Measured ~4px of clearance at
+     2.25rem/0.9rem on a 812px viewport; these sizes buy ~20px.) */
   .morph__headline {
-    font-size: calc(1.65rem + 1.05rem * (1 - var(--p, 0)));
+    font-size: calc(1.65rem + 0.45rem * (1 - var(--p, 0)));
   }
   /* Body flows in as the headline shrinks — there's room now that the phone
      slid down. Reserves its space (opacity, not display) so the pinned phone
      never reflows underneath it. */
   .morph__body {
     display: block;
-    /* Hold invisible until the headline has shrunk enough that the body has
-       risen clear of the phone (~p 0.45), THEN fade in. Otherwise it ghosts
-       over the screen during the morph — visible especially when Safari's
-       address bar collapses mid-scroll and shifts the viewport. */
-    opacity: clamp(0, (var(--p, 0) - 0.45) / 0.55, 1);
-    transform: translateY(calc(6px * (1 - var(--p, 0))));
-    font-size: 0.9rem;
+    /* Visible from first paint (it carries the category — see the desktop
+       rule). The old fade-at-p-0.45 ghosting concern is gone because the
+       headline start size is trimmed enough that the body sits clear of the
+       phone for the whole morph, not just after it. */
+    opacity: 1;
+    font-size: 0.85rem;
     line-height: 1.35;
     max-width: 36ch;
-    margin-top: 0.6rem;
+    margin-top: 0.5rem;
   }
 
   /* Phone sized by HEIGHT so the full screen always fits the vertical space
