@@ -2,7 +2,7 @@
 import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import { SITE } from '@/data/site';
+import { SITE, APP_STORE_ID, APP_STORE_URL } from '@/data/site';
 
 interface Props {
   title?: string;
@@ -23,10 +23,9 @@ const {
   noindex = import.meta.env.PUBLIC_NOINDEX === 'true',
 } = Astro.props;
 
-// Single link-preview card sitewide for the beta phase (matches beta.html).
-// Swap back to /og-image.png at App Store launch. A page can override it (a
-// guide passes its hero) via the `ogImage` prop.
-const ogImage = ogImageOverride ?? new URL('/og-image-beta.png?v=2', Astro.site).href;
+// Launch link-preview card sitewide (built by scripts/og.html ?v=launch).
+// A page can override it (a guide passes its hero) via the `ogImage` prop.
+const ogImage = ogImageOverride ?? new URL('/og-image.png?v=2', Astro.site).href;
 
 // Canonical URL for this page — strips query strings (e.g. ?src=reddit) so
 // channel-tagged inbound links consolidate to one URL instead of splitting
@@ -43,7 +42,8 @@ const canonical = new URL(cleanPath, Astro.site).href;
 // Category is Travel (theme-park vertical — same neighborhood as the official
 // Disney/Universal apps + Touring Plans), with a free offer. NO aggregateRating
 // until there are real App Store ratings — faking review markup is a Google
-// penalty. Add the App Store URL + rating once the app ships.
+// penalty. downloadUrl/installUrl light up once APP_STORE_ID is filled;
+// aggregateRating stays out until real ratings exist.
 const appSchema = {
   '@context': 'https://schema.org',
   '@type': 'TravelApplication',
@@ -55,6 +55,7 @@ const appSchema = {
   image: ogImage,
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   publisher: { '@type': 'Organization', name: SITE.name, url: new URL('/', Astro.site).href },
+  ...(APP_STORE_ID ? { downloadUrl: APP_STORE_URL, installUrl: APP_STORE_URL } : {}),
 };
 
 // TelemetryDeck "Lanyard Web" app (privacy-first, cookieless, no IP storage).
@@ -75,6 +76,9 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
+    {/* Smart App Banner — mobile Safari shows an inline "open in App Store"
+        strip on every page. Renders only once APP_STORE_ID is filled. */}
+    {APP_STORE_ID && <meta name="apple-itunes-app" content={`app-id=${APP_STORE_ID}`} />}
 
     {/* PNG (not SVG) on purpose: Google rasterizes SVG favicons poorly — the
         inset-with-ring SERP rendering seen 2026-06-11. Full-bleed circle

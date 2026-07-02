@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import CalculatorApp from '@/components/calculator/CalculatorApp.tsx';
-import WaitlistForm from '@/components/WaitlistForm.astro';
+import AppStoreBadge from '@/components/AppStoreBadge.astro';
 // Island styles are shared with any embed of the calculator (e.g. guides), so
 // they live in one stylesheet; this page keeps only its own hero/SEO/band CSS.
 import '@/styles/calculator.css';
@@ -114,11 +114,10 @@ const faqSchema = {
   <section class="calc-wl-band">
     <div class="calc-wl-band__inner">
       <h2 class="calc-wl-band__title">Stop doing this math by hand.</h2>
-      <p class="calc-wl-band__sub">Lanyard logs your visits, perks and blockouts automatically and keeps this receipt updated all year. Join the beta, or get notified at launch.</p>
+      <p class="calc-wl-band__sub">Lanyard logs your visits, perks and blockouts automatically and keeps this receipt updated all year. Free for your first pass.</p>
       <div class="calc-wl-band__actions">
-        <a class="btn btn--primary" href="/beta">Join the beta</a>
+        <AppStoreBadge placement="calculator" width={190} />
       </div>
-      <WaitlistForm />
     </div>
   </section>
 </Layout>

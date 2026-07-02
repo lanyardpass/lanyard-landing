@@ -1,19 +1,16 @@
 ---
-import { CTA, SITE } from '@/data/site';
-import WaitlistForm from '@/components/WaitlistForm.astro';
+import { SITE } from '@/data/site';
+import AppStoreBadge from '@/components/AppStoreBadge.astro';
 ---
 <section id="get" class="section section--dark final">
   <div class="container final__inner">
     <p class="kicker">{SITE.tagline}</p>
     <h2 class="display final__title">Make your pass worth it.</h2>
-    <p class="final__sub">Free for your first pass. No account. Join the beta and start tracking today.</p>
-    <a class="btn btn--primary final__cta" href={CTA.href}>{CTA.label}</a>
-    <p class="final__fine">A quick application. TestFlight invites usually go out within a day.</p>
-
-    <div class="final__waitlist" id="waitlist">
-      <p class="final__waitlist-lead">Not ready to test? Get notified when it hits the App Store.</p>
-      <WaitlistForm />
+    <p class="final__sub">Free for your first pass. No account. Download it and start tracking today.</p>
+    <div class="final__cta">
+      <AppStoreBadge placement="final" width={200} />
     </div>
+    <p class="final__fine">Want new features early? <a href="/beta">Join the beta</a>.</p>
   </div>
 </section>
 
@@ -21,12 +18,7 @@ import WaitlistForm from '@/components/WaitlistForm.astro';
   .final__inner { text-align: center; max-width: 34rem; margin-inline: auto; }
   .final__title { font-size: var(--fs-h2); margin: 0.6rem auto 0; max-width: 16ch; }
   .final__sub { color: var(--on-dark-muted); font-size: var(--fs-lead); margin: 1.2rem auto 0; max-width: 44ch; }
-  .final__cta { margin-top: 1.8rem; padding: 1rem 2rem; font-size: 1.05rem; }
+  .final__cta { margin-top: 1.8rem; display: flex; justify-content: center; }
   .final__fine { color: rgba(207, 228, 216, 0.7); font-size: 0.85rem; margin-top: 1rem; }
-  .final__waitlist {
-    margin-top: 2.5rem;
-    padding-top: 2.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  .final__waitlist-lead { color: var(--on-dark-muted); font-size: 0.95rem; margin-bottom: 1rem; }
+  .final__fine a { color: var(--green-accent); font-weight: 600; }
 </style>

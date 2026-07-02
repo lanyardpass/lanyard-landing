@@ -1,0 +1,38 @@
+---
+// Official Apple "Download on the App Store" badge. The artwork is
+// Apple-supplied (public/assets/appstore-badge.svg) — guidelines require the
+// official asset, never a redraw. Fires an AppStore.Click signal with a
+// placement dimension so TQL can compare header vs. final vs. guide clicks.
+import { APP_STORE_URL } from '@/data/site';
+
+interface Props {
+  /** Where this badge sits, for analytics: "header", "final", "beta-page"… */
+  placement: string;
+  width?: number;
+}
+const { placement, width = 180 } = Astro.props;
+// Official badge aspect ratio is 119.66407:40.
+const height = Math.round((width / 119.66407) * 40);
+---
+<a
+  class="appstore-badge"
+  href={APP_STORE_URL}
+  data-placement={placement}
+  aria-label="Download Lanyard on the App Store"
+>
+  <img src="/assets/appstore-badge.svg" alt="Download on the App Store" width={width} height={height} loading="lazy" decoding="async" />
+</a>
+
+<script>
+  import { track } from '@/lib/telemetry';
+  document.querySelectorAll<HTMLAnchorElement>('.appstore-badge').forEach((a) => {
+    a.addEventListener('click', () => {
+      track('AppStore.Click', { placement: a.dataset.placement ?? 'unknown' });
+    });
+  });
+</script>
+
+<style>
+  .appstore-badge { display: inline-block; line-height: 0; }
+  .appstore-badge img { display: block; }
+</style>

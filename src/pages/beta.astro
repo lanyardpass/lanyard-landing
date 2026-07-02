@@ -1,18 +1,19 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { APP_STORE_URL } from '@/data/site';
 
 export const prerender = true;
 ---
 <Layout
-  title="You're invited to test Lanyard"
-  description="Apply to be an early tester for Lanyard — tell us which passes you hold and help shape the app."
+  title="Test what's next — Lanyard beta"
+  description="Lanyard is on the App Store — the beta is where new features land first. Tell us which passes you hold and help shape what's next."
 >
   <section class="beta">
     <div class="beta__inner">
       <header class="beta__head">
         <p class="kicker beta__kicker">You shall pass.</p>
-        <h1 class="display beta__title">You’re invited to test Lanyard.</h1>
-        <p class="beta__sub">A few questions first — partly to get you set up, partly because the best testers are the ones who’ll actually tell us what’s broken.</p>
+        <h1 class="display beta__title">Test what’s next.</h1>
+        <p class="beta__sub">Lanyard is live on the <a href={APP_STORE_URL}>App Store</a> — the beta is where new features land first. A few questions to get you set up, partly because the best testers are the ones who’ll actually tell us what’s broken.</p>
       </header>
 
       <form id="betaForm" autocomplete="on">

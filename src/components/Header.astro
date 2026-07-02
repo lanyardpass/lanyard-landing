@@ -11,12 +11,7 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
       {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
     <div class="site-header__actions">
-      <a class="site-header__waitlist" href="/#waitlist">
-        <span class="lbl-full">Join the waitlist</span><span class="lbl-short">Waitlist</span>
-      </a>
-      <a class="btn btn--primary site-header__cta" href={CTA.href}>
-        <span class="lbl-full">{CTA.label}</span><span class="lbl-short">Beta</span>
-      </a>
+      <a class="btn btn--primary site-header__cta" href={CTA.href}>{CTA.label}</a>
     </div>
     <button class="site-header__burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
       <span></span><span></span><span></span>
@@ -30,7 +25,6 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
       {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
     <div class="site-mobile-menu__ctas">
-      <a class="site-header__waitlist" href="/#waitlist">Join the waitlist</a>
       <a class="btn btn--primary" href={CTA.href}>{CTA.label}</a>
     </div>
   </div>
@@ -99,23 +93,6 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
 
   .site-header__actions { display: flex; align-items: center; gap: 0.6rem; }
   .site-header__cta { padding: 0.55rem 1.2rem; font-size: 0.92rem; white-space: nowrap; }
-
-  /* Secondary "waitlist" — a ghost button that reads clearly on the dark header. */
-  .site-header__waitlist {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.92rem;
-    color: var(--on-dark);
-    text-decoration: none;
-    padding: 0.5rem 1.05rem;
-    border-radius: var(--pill);
-    border: 1.5px solid rgba(255, 255, 255, 0.28);
-    white-space: nowrap;
-    transition: border-color 0.15s ease;
-  }
-  .site-header__waitlist:hover { border-color: var(--green-accent); }
-
-  .lbl-short { display: none; }
 
   /* ---- Hamburger (mobile only) ---- */
   .site-header__burger {

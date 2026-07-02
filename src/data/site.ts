@@ -10,10 +10,21 @@ export const SITE = {
     'Lanyard is your annual pass companion: blockouts, perks, events, and payback for Disney, Universal, and SeaWorld. Track every visit and watch your pass pay for itself. Built by an Orlando passholder.',
 };
 
-/** The single repeated call to action. Beta now → App Store at launch. */
+// ---- App Store (launch cutover) ----
+// FILL BEFORE MERGE: the numeric Apple ID from App Store Connect → App
+// Information. The CTA, smart banner, and JSON-LD all derive from it. The
+// placeholder href is deliberately loud so an unfilled merge is caught in
+// review, not by users.
+export const APP_STORE_ID = ''; // e.g. '6741234567'
+export const APP_STORE_URL = APP_STORE_ID
+  ? `https://apps.apple.com/app/id${APP_STORE_ID}`
+  : '#APP-STORE-ID-MISSING';
+
+/** The single repeated call to action. App Store at launch; the beta lives on
+ * as a footer link + FinalCTA fine print (early builds for enthusiasts). */
 export const CTA = {
-  label: 'Join the beta',
-  href: '/beta',
+  label: 'Get the app',
+  href: APP_STORE_URL,
 };
 
 // Root-relative so they work from any page (e.g. /privacy), not just home —
