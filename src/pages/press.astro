@@ -1,0 +1,174 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+// Press kit — facts, story angles, downloadable assets. Angles follow the
+// canonical positioning (product_decisions.md → Brand voice & positioning):
+// the press hook is "the cross-operator tool no single park COULD build,"
+// tension without an enemy. Assets live in /public/press/.
+export const prerender = true;
+
+const FACTS: Array<[string, string]> = [
+  ['What', 'An iOS companion app for theme park annual passholders: blockout dates, perks, events, park hours, and pass payback in one place.'],
+  ['Who', 'Dan Seals, solo founder. Lanyard LLC, Winter Garden, Florida (metro Orlando).'],
+  ['Parks covered', 'Walt Disney World, Universal Orlando, SeaWorld Orlando, and Busch Gardens Tampa, plus their water parks.'],
+  ['Price', 'Free with every feature for one pass. Lanyard Pro ($29.99/yr or $3.49/mo) adds unlimited passes and special-event pass types; Family Sharing included.'],
+  ['Privacy', 'No account, no sign-up. Pass data stays on the device, never linked to identity, never sold. No ads.'],
+  ['Platform', 'iPhone, iOS 17 or later.'],
+  ['Status', 'In beta. App Store release coming in 2026.'],
+  ['Website', 'lanyardpass.com'],
+];
+
+const ASSETS: Array<{ label: string; detail: string; href: string }> = [
+  { label: 'Full press kit (.zip)', detail: 'Everything below in one download, ~18 MB', href: '/press/lanyard-press-kit.zip' },
+  { label: 'Wordmark (green) — SVG', detail: 'Vector, for light backgrounds', href: '/press/lanyard-wordmark.svg' },
+  { label: 'Wordmark (green) — PNG', detail: 'Transparent, 2240×540, for light backgrounds', href: '/press/lanyard-wordmark.png' },
+  { label: 'Wordmark (white) — SVG', detail: 'Vector, for dark backgrounds', href: '/press/lanyard-wordmark-white.svg' },
+  { label: 'Wordmark (white) — PNG', detail: 'Transparent, 2240×540, for dark backgrounds', href: '/press/lanyard-wordmark-white.png' },
+  { label: 'App icon', detail: 'PNG, 1024×1024', href: '/press/lanyard-app-icon.png' },
+  { label: 'Screenshots, device-framed (8)', detail: 'Transparent PNG on a titanium iPhone, article-ready — previewed below, ~7 MB', href: '/press/lanyard-screenshots-framed.zip' },
+  { label: 'Screenshots, raw (8)', detail: 'Straight app captures, 1320×2868 PNG, ~6 MB', href: '/press/lanyard-screenshots-raw.zip' },
+  { label: 'Screenshots, App Store set (8)', detail: 'The store listing art with captions, ~5 MB', href: '/press/lanyard-screenshots-appstore.zip' },
+];
+
+// The device-framed set is what an article actually embeds, so it gets the
+// preview grid; raw + App Store sets ride in the zip.
+const SCREENSHOTS = [
+  'lanyard-framed-home.png', 'lanyard-framed-payback.png', 'lanyard-framed-events-calendar.png', 'lanyard-framed-event-detail.png',
+  'lanyard-framed-perks.png', 'lanyard-framed-my-parks.png', 'lanyard-framed-good-to-go.png', 'lanyard-framed-privacy.png',
+];
+---
+<Layout
+  title="Press — Lanyard"
+  description="Press kit for Lanyard, the annual pass companion app: fact sheet, story angles, founder background, and downloadable logos and screenshots."
+>
+  <article class="legal">
+    <div class="legal__inner">
+      <p class="kicker legal__label">Press</p>
+      <h1 class="display legal__title">Press kit</h1>
+
+      <p class="legal__lead">Everything you need to cover Lanyard: the facts, the story, and the assets. Need a quote, an interview, or something that isn't here? Email <a href="mailto:dan@lanyardpass.com">dan@lanyardpass.com</a> and you'll hear back from the founder directly.</p>
+
+      <h2>Boilerplate</h2>
+      <p>Lanyard is the annual pass companion: an independent iOS app that puts a passholder's blockout dates, perks, events, park hours, and pass payback in one place, across Walt Disney World, Universal Orlando, SeaWorld, and Busch Gardens. Free for your first pass, no account required, and everything stays on your phone. Built in Orlando by a passholder. <em>You shall pass.</em></p>
+
+      <h2>Fact sheet</h2>
+      <dl class="facts">
+        {FACTS.map(([term, def]) => (
+          <div class="facts__row">
+            <dt>{term}</dt>
+            <dd>{def}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <h2>Story angles</h2>
+      <p><strong>The tool no single park could build.</strong> Most Central Florida passholders hold passes from more than one operator, and no park can track its competitors' blockout dates or surface their perks. A cross-operator passholder tool has to be neutral, which means it has to be independent. That's the structural gap Lanyard fills.</p>
+      <p><strong>A coach, not an auditor.</strong> Lanyard never asks "is your pass worth it?" It assumes you have the pass and makes sure it pays off: the perks you're owed, the days you can actually go, the moment it breaks even. Pro-passholder, pro-visiting, and friendly to the parks whose perks it helps people use.</p>
+      <p><strong>The founder who found another way in.</strong> An Orlando passholder who knew he'd never be a daily vlogger built his way into the theme park world instead. The full story is on the <a href="/about">about page</a>.</p>
+
+      <h2>Assets</h2>
+      <ul class="assets" role="list">
+        {ASSETS.map((a) => (
+          <li class="assets__item">
+            <a href={a.href} download>{a.label}</a>
+            <span>{a.detail}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Grid shows ~25KB webp thumbs; the click downloads the full-res PNG.
+          Keeps a casual page visit at ~0.2MB instead of ~8MB of bandwidth. */}
+      <div class="shots" aria-label="Screenshot previews">
+        {SCREENSHOTS.map((s) => (
+          <a href={`/press/screenshots-framed/${s}`} download>
+            <img src={`/press/screenshots-framed/thumbs/${s.replace('.png', '.webp')}`} alt={`Lanyard screenshot in an iPhone frame: ${s.replace('lanyard-framed-', '').replace('.png', '').replace(/-/g, ' ')}`} loading="lazy" decoding="async" width="406" height="808" />
+          </a>
+        ))}
+      </div>
+
+      <h2 id="usage">Usage</h2>
+      <p>Please don't stretch, recolor, or restyle the wordmark or icon. Screenshots are real app captures and may be published as-is. Lanyard™ is a trademark of Lanyard LLC. Park and pass names are trademarks of their respective owners; Lanyard is an independent app and is not affiliated with, endorsed by, or sponsored by any park operator.</p>
+    </div>
+  </article>
+</Layout>
+
+<script>
+  // Download signals — pageviews are automatic (Layout websdk), but a zip/PNG
+  // click never loads a page, so it's invisible without this. One signal per
+  // click, dimension = the file grabbed, so TQL can answer "which assets do
+  // journalists actually take?"
+  import { track } from '@/lib/telemetry';
+
+  document.querySelectorAll<HTMLAnchorElement>('.assets a, .shots a').forEach((a) => {
+    a.addEventListener('click', () => {
+      const asset = a.getAttribute('href')?.split('/').pop() ?? 'unknown';
+      track('Press.Download', { asset });
+    });
+  });
+</script>
+
+<style>
+  .legal { background: var(--off-white); color: var(--ink); }
+  .legal__inner {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) clamp(4rem, 10vw, 7rem);
+  }
+  .legal__label { color: var(--green-primary); margin-bottom: 1rem; }
+  .legal__title { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; }
+  .legal__lead {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-top: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .legal h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-top: 2.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .legal p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .legal a { color: var(--green-primary); font-weight: 600; }
+
+  .facts { margin: 0; }
+  .facts__row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  }
+  .facts__row dt { font-family: var(--font-display); font-weight: 700; font-size: 0.92rem; }
+  .facts__row dd { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+  @media (max-width: 560px) {
+    .facts__row { grid-template-columns: 1fr; gap: 0.15rem; }
+  }
+
+  .assets { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; gap: 0.55rem; }
+  .assets__item { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: baseline; }
+  .assets__item span { color: var(--muted); font-size: 0.88rem; }
+
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    margin: 1rem 0 0.5rem;
+  }
+  /* Framed shots are transparent PNGs with their own device silhouette —
+     no border/radius chrome needed. */
+  .shots img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  @media (max-width: 560px) { .shots { grid-template-columns: repeat(2, 1fr); } }
+</style>
