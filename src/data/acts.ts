@@ -30,9 +30,9 @@ export const ACTS: Act[] = [
     // cold visitor who never reads the kicker must still learn what Lanyard
     // is from the white type alone (hence "annual passes" in the body).
     kicker: 'Open the app, look outside',
-    headline: 'Make every park day worth it.',
+    headline: 'Your annual pass companion.',
     body:
-      'Blockouts, perks, events, and payback for your Disney, Universal, and SeaWorld annual passes. One glance reads the whole day.',
+      'Make every park day worth it. Blockouts, perks, events, and payback for Disney, Universal, and SeaWorld. One glance reads the whole day.',
     screen: '/assets/screen-home.webp',
     screenAlt:
       'Lanyard home screen: a parallax window onto your parks with live sky, weather, park hours and good-to-go status.',
