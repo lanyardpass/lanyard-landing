@@ -68,7 +68,7 @@ const fmt = (ms: number) =>
             </div>
             <div class="admin__card">
               <div class="admin__num">{waitlistCount}</div>
-              <div class="admin__lbl">Waitlist signups</div>
+              <div class="admin__lbl">Updates list (waitlist pre-launch)</div>
               <a href="/api/admin/export.csv?type=waitlist">Export CSV →</a>
             </div>
             <div class="admin__card">
@@ -92,7 +92,7 @@ const fmt = (ms: number) =>
               </form>
             </div>
             <div class="admin__toggle-row">
-              <span>Email me on each <strong>waitlist</strong> signup</span>
+              <span>Email me on each <strong>updates-list</strong> signup</span>
               <form method="POST" action="/api/admin/settings">
                 <input type="hidden" name="field" value="waitlistEmails" />
                 <input type="hidden" name="value" value={settings.waitlistEmails ? 'off' : 'on'} />
