@@ -1,6 +1,7 @@
 ---
 import { SITE } from '@/data/site';
 import AppStoreBadge from '@/components/AppStoreBadge.astro';
+import WaitlistForm from '@/components/WaitlistForm.astro';
 ---
 <section id="get" class="section section--dark final">
   <div class="container final__inner">
@@ -11,6 +12,11 @@ import AppStoreBadge from '@/components/AppStoreBadge.astro';
       <AppStoreBadge placement="final" width={200} />
     </div>
     <p class="final__fine">Want new features early? <a href="/beta">Join the beta</a>.</p>
+
+    <div class="final__waitlist" id="updates">
+      <p class="final__waitlist-lead">No iPhone, or still deciding on a pass? Get a heads-up when something changes for passholders: price hikes, new perks, blockout drops, renewal windows. A few emails a year, nothing else.</p>
+      <WaitlistForm />
+    </div>
   </div>
 </section>
 
@@ -20,5 +26,11 @@ import AppStoreBadge from '@/components/AppStoreBadge.astro';
   .final__sub { color: var(--on-dark-muted); font-size: var(--fs-lead); margin: 1.2rem auto 0; max-width: 44ch; }
   .final__cta { margin-top: 1.8rem; display: flex; justify-content: center; }
   .final__fine { color: rgba(207, 228, 216, 0.7); font-size: 0.85rem; margin-top: 1rem; }
+  .final__waitlist {
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .final__waitlist-lead { color: var(--on-dark-muted); font-size: 0.95rem; margin-bottom: 1rem; }
   .final__fine a { color: var(--green-accent); font-weight: 600; }
 </style>

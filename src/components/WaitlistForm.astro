@@ -1,6 +1,7 @@
 ---
-// Compact waitlist capture. Posts JSON to /api/waitlist and swaps to a success
-// state. Carries ?src= through for channel attribution. Vanilla JS — no island.
+// Compact email capture (post-launch: passholder updates, was the launch
+// waitlist). Posts JSON to /api/waitlist and swaps to a success state.
+// Carries ?src= through for channel attribution. Vanilla JS — no island.
 ---
 <form class="wl" data-waitlist novalidate>
   <div class="wl__row">
@@ -9,10 +10,10 @@
       name="email"
       required
       placeholder="you@email.com"
-      aria-label="Email for launch notification"
+      aria-label="Email for passholder updates"
       class="wl__input"
     />
-    <button type="submit" class="wl__btn">Notify me at launch</button>
+    <button type="submit" class="wl__btn">Keep me posted</button>
   </div>
   {/* Honeypot — hidden from humans, bots fill it. */}
   <input type="text" name="botField" tabindex="-1" autocomplete="off" class="wl__hp" aria-hidden="true" />
@@ -45,7 +46,7 @@
         });
         if (res.ok) {
           track('Waitlist.Submitted');
-          f.innerHTML = '<p class="wl__done">You’re on the list — we’ll email you once, at launch.</p>';
+          f.innerHTML = '<p class="wl__done">You’re in. A few emails a year, only when something changes.</p>';
         } else {
           const d = await res.json().catch(() => ({}));
           msg.textContent = d.error || 'Something went wrong. Please try again.';

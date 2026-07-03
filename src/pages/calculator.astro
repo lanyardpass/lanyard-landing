@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import CalculatorApp from '@/components/calculator/CalculatorApp.tsx';
 import AppStoreBadge from '@/components/AppStoreBadge.astro';
+import WaitlistForm from '@/components/WaitlistForm.astro';
 // Island styles are shared with any embed of the calculator (e.g. guides), so
 // they live in one stylesheet; this page keeps only its own hero/SEO/band CSS.
 import '@/styles/calculator.css';
@@ -118,6 +119,8 @@ const faqSchema = {
       <div class="calc-wl-band__actions">
         <AppStoreBadge placement="calculator" width={190} />
       </div>
+      <p class="calc-wl-band__sub calc-wl-band__lead">Still deciding on a pass? We'll email you when prices, perks, or blockout dates change. A few times a year, nothing else.</p>
+      <WaitlistForm />
     </div>
   </section>
 </Layout>
@@ -163,6 +166,7 @@ const faqSchema = {
   .calc-faq dd { margin: 0; color: var(--muted); line-height: 1.7; }
 
   /* ---------- Waitlist band (dark, so WaitlistForm renders as designed) ---------- */
+  .calc-wl-band__lead { margin-top: 2.2rem; font-size: 0.95rem; }
   .calc-wl-band { background: var(--dark-gradient); color: var(--on-dark); }
   .calc-wl-band__inner {
     max-width: 40rem; margin-inline: auto; text-align: center;
