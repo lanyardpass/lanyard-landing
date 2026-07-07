@@ -1,0 +1,87 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = true;
+---
+<Layout
+  title="Terms of Use — Lanyard"
+  description="Lanyard terms of use. How the app is licensed, how Lanyard Pro subscriptions work, and the standard Apple end-user license agreement that governs your use."
+>
+  <article class="legal">
+    <div class="legal__inner">
+      <p class="kicker legal__label">Legal</p>
+      <h1 class="display legal__title">Terms of Use</h1>
+      <p class="legal__date">Effective July 7, 2026</p>
+
+      <h2>The short version</h2>
+      <p>Lanyard is an app that helps annual passholders track the value of their passes. You're free to use it, and if you subscribe to Lanyard Pro, Apple handles the billing. Your license to use the app is governed by Apple's standard Licensed Application End User License Agreement, linked below. This page explains, in plain language, how the subscription works and where to go with questions.</p>
+
+      <h2>The license that governs your use</h2>
+      <p>Your use of Lanyard is licensed, not sold, under Apple's standard <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">Licensed Application End User License Agreement</a> (the "Standard EULA"). That agreement is the binding contract between you and Lanyard LLC for the app; it covers the scope of your license, warranty, and liability terms. By downloading or using Lanyard, you agree to it. We've chosen Apple's standard agreement rather than writing our own, because it's the well-established default for App Store apps.</p>
+
+      <h2>Lanyard Pro subscriptions</h2>
+      <p>Lanyard is free to use with one active pass. Lanyard Pro unlocks unlimited passes and special event pass types, and includes Family Sharing for up to six family members. It's offered as an auto-renewing subscription in two plans:</p>
+      <ul>
+        <li><strong>Lanyard Pro · Annual</strong> — $29.99 per year.</li>
+        <li><strong>Lanyard Pro · Monthly</strong> — $3.49 per month.</li>
+      </ul>
+      <p>Both plans renew automatically at the end of each period unless you cancel at least 24 hours before it ends. Your subscription is charged to your Apple Account, and payment, renewal, and any refunds are handled entirely by Apple through the App Store. Lanyard LLC never sees your payment details.</p>
+      <p>You can view, manage, or cancel your subscription anytime in your Apple Account settings: on your iPhone, open <strong>Settings → [your name] → Subscriptions</strong>. Canceling stops the next renewal; you keep Pro access through the end of the period you've already paid for. Prices are set in U.S. dollars; local prices and taxes may vary by region.</p>
+
+      <h2>Using the app responsibly</h2>
+      <p>The pass values, break-even math, blockout dates, park hours, and event details in Lanyard are provided to help you plan, and we work to keep them accurate — but they're informational, not a guarantee. Always confirm the specifics of your pass, admission, and any blockout or perk directly with the park operator before relying on them. Lanyard is a planning companion, not the official word of any park.</p>
+
+      <h2>Trademarks and affiliation</h2>
+      <p>Lanyard is an independent app, built by passholders, not by the parks. The operators whose passes it helps you track do not endorse or sponsor it. Universal Orlando Resort, Walt Disney World, SeaWorld, Busch Gardens, and all related park, pass, and event names and logos are trademarks of their respective owners; we reference them only to describe the passes and parks Lanyard tracks.</p>
+
+      <h2>Changes to these terms</h2>
+      <p>We may update these terms as Lanyard grows or as the law requires. When we make a material change, we'll revise the effective date at the top of this page and post the updated version here. Because Lanyard has no account and no way to email you, this page is the place to check for the current version.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about these terms? Email us at <a href="mailto:hello@lanyardpass.com">hello@lanyardpass.com</a>.</p>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .legal { background: var(--off-white); color: var(--ink); }
+  .legal__inner {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) clamp(4rem, 10vw, 7rem);
+  }
+  .legal__label { color: var(--green-primary); margin-bottom: 1rem; }
+  .legal__title { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; }
+  .legal__date { color: var(--muted); font-size: 0.9rem; margin-top: 0.6rem; margin-bottom: 2.5rem; }
+  .legal h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-top: 2.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .legal p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .legal ul {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin: 0 0 1rem 1.25rem;
+    list-style: disc;
+  }
+  .legal li { margin-bottom: 0.35rem; }
+  .legal a { color: var(--green-primary); text-decoration: underline; text-underline-offset: 2px; }
+  .legal a:hover { color: var(--green-accent); }
+  .legal code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: rgba(45, 106, 79, 0.08);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+</style>
