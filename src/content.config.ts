@@ -49,4 +49,30 @@ const guides = defineCollection({
     }),
 });
 
-export const collections = { guides };
+// `posts` is the blog — the founder-as-publisher surface (website_plan §1a, the
+// 1.1 page). Same machinery as guides, lighter contract: a post is DATED (told
+// once, ages honestly), a guide is VERIFIED (kept current). No answer box, no
+// FAQ requirement, hero optional (the index card falls back to a brand panel).
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/posts' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      seoTitle: z.string().optional(),
+      description: z.string(), // meta description
+      dek: z.string(), // one-liner under the H1 + the index card teaser
+
+      published: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+
+      byline: z.string().default('By Dan, Orlando passholder'),
+
+      hero: image().optional(),
+      heroAlt: z.string().optional(),
+      ogImage: image().optional(),
+
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { guides, posts };

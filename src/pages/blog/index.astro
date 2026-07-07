@@ -1,0 +1,134 @@
+---
+// The blog index — the founder-as-publisher front door (website_plan §1a, the
+// last unbuilt page). Posts are dated writing, not verified references; the
+// card shows the date, not a LastVerified badge. Hero optional — cards without
+// one get the brand panel.
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Layout from '@/layouts/Layout.astro';
+import { SITE } from '@/data/site';
+
+export const prerender = true;
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.published.valueOf() - a.data.published.valueOf()
+);
+
+const title = `Blog — From the workbench | ${SITE.name}`;
+const description =
+  'Notes from building Lanyard — the annual pass companion. What got built, why it got built that way, and the details most apps would skip.';
+
+const listSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: `${SITE.name} Blog`,
+  description,
+  url: new URL('/blog', Astro.site).href,
+  blogPost: posts.map((p) => ({
+    '@type': 'BlogPosting',
+    headline: p.data.title,
+    url: new URL(`/blog/${p.id}`, Astro.site).href,
+    datePublished: p.data.published.toISOString(),
+  })),
+};
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+---
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(listSchema)} />
+  </Fragment>
+
+  <section class="blog-index">
+    <header class="blog-index__head">
+      <p class="kicker">From the workbench</p>
+      <h1 class="display blog-index__title">Notes from building Lanyard.</h1>
+      <p class="blog-index__sub">
+        What got built, why it got built that way, and the details most apps would skip.
+        Written by the passholder who builds it.
+      </p>
+    </header>
+
+    {posts.length === 0 ? (
+      <p class="blog-index__empty">First post is on the way.</p>
+    ) : (
+      <ul class="blog-index__list">
+        {posts.map((p) => (
+          <li class="post-card">
+            <a href={`/blog/${p.id}`} class="post-card__link">
+              <div class="post-card__media">
+                {p.data.hero ? (
+                  <Image
+                    src={p.data.hero}
+                    alt={p.data.heroAlt ?? ''}
+                    widths={[320, 480, 720]}
+                    sizes="(min-width: 720px) 300px, 100vw"
+                    loading="lazy"
+                    class="post-card__img"
+                  />
+                ) : (
+                  <div class="post-card__panel" aria-hidden="true">L</div>
+                )}
+              </div>
+              <div class="post-card__body">
+                <time class="post-card__date" datetime={p.data.published.toISOString()}>
+                  {fmt(p.data.published)}
+                </time>
+                <h2 class="post-card__title">{p.data.title}</h2>
+                <p class="post-card__dek">{p.data.dek}</p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .blog-index {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .blog-index__head { max-width: 40rem; }
+  .blog-index__head .kicker { color: var(--green-primary); }
+  .blog-index__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
+  .blog-index__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+  .blog-index__empty { color: var(--muted); margin-top: 2rem; }
+
+  .blog-index__list {
+    list-style: none; margin: clamp(2rem, 5vw, 3rem) 0 0; padding: 0;
+    display: grid; gap: 1.4rem; max-width: 46rem;
+  }
+  .post-card {
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+    border-radius: var(--radius); overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .post-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
+  .post-card__link {
+    display: grid; text-decoration: none; color: inherit;
+  }
+  @media (min-width: 640px) {
+    .post-card__link { grid-template-columns: 220px 1fr; }
+  }
+  .post-card__media { background: rgba(45, 106, 79, 0.06); min-height: 100%; }
+  .post-card__img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; aspect-ratio: 16/10; }
+  @media (min-width: 640px) { .post-card__img { aspect-ratio: auto; } }
+  .post-card__panel {
+    width: 100%; height: 100%; min-height: 8rem;
+    display: grid; place-items: center;
+    background: radial-gradient(130% 100% at 72% 32%, #2a5b44 0%, var(--green-dark, #1B4332) 60%);
+    color: rgba(255, 255, 255, 0.85);
+    font-family: var(--font-display); font-weight: 900; font-size: 2.6rem;
+  }
+  .post-card__body { padding: 1.1rem 1.2rem 1.3rem; }
+  .post-card__date { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.02em; }
+  .post-card__title {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
+    color: var(--green-primary); line-height: 1.22; margin: 0.35rem 0 0;
+  }
+  .post-card__dek { color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; font-size: 0.95rem; }
+</style>

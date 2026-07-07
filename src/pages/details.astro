@@ -1,0 +1,121 @@
+---
+// /details — the evergreen "quiet obsessions" page (weather_engine_story.md
+// structure item 2). The standing answer to "why does this app feel different":
+// a short list of the places Lanyard cares past the point of reason. Each entry
+// is promise-based (what you get, not how it's built); the weather entry
+// anchors the list and links to the blog post that tells its story.
+import Layout from '@/layouts/Layout.astro';
+import { SITE } from '@/data/site';
+
+export const prerender = true;
+
+const title = `The details | ${SITE.name}`;
+const description =
+  'The small things Lanyard cares about past the point of reason — the live sky, the payback rulebook, the names passholders actually use. Why the app feels the way it does.';
+
+const details = [
+  {
+    kicker: 'The sky',
+    title: 'The weather on your card is the weather at your park',
+    body: "Every park card draws a live sky: real cloud cover, wind you can see, rain that leans with the gusts, lightning that flashes the whole scene when a storm is actually severe. No two days render alike, neighboring parks never share clouds, and the moon is tonight's actual moon. It answers one question, what's it like at my parks right now, and it refuses to pretend it's a forecast app.",
+    link: { href: '/blog/weather-system-nobody-asked-for', label: 'The full story' },
+  },
+  {
+    kicker: 'The math',
+    title: 'Every dollar has a receipt',
+    body: 'The payback number follows a written rulebook, not vibes. What a visit is worth, how a perk counts, what happens when you upgrade mid-year, all of it is defined once and applied everywhere, so the number on your pass means the same thing on day 4 and day 340. The free web calculator runs the same rules as the app.',
+    link: { href: '/calculator', label: 'Try the calculator' },
+  },
+  {
+    kicker: 'The names',
+    title: 'Parks are called what you call them',
+    body: 'Nobody says "Universal Studios Florida" out loud, they say Studios. Every park in Lanyard carries two names, the official one for when there\'s room and the one passholders actually use for when there isn\'t. It\'s a tiny rule that makes every screen read like it was written by someone who goes.',
+  },
+  {
+    kicker: 'The data',
+    title: 'Blockout dates are treated like they cost money, because they do',
+    body: 'A wrong blockout date sends someone to a gate they can\'t get through. So the calendars, park hours, events, and perk values in Lanyard are curated by hand, checked against the operators, and run through layered validation before they ever reach your phone. Updates arrive between App Store releases, and if anything ever looks off, the app falls back to known-good data instead of guessing.',
+  },
+  {
+    kicker: 'The ring',
+    title: 'Break-even keeps going past 100%',
+    body: 'When your pass pays for itself, the ring doesn\'t stop, it laps, the way a closed Activity ring keeps going. Your second hundred percent is the fun part, and the app treats it that way.',
+  },
+  {
+    kicker: 'The trust',
+    title: 'There is nothing to log into',
+    body: 'No account, no sync, no tracking. Your passes, visits, and history live on your phone and nowhere else. This isn\'t a missing feature, it\'s the design, and it\'s why the app works in a dead zone in the middle of a park.',
+    link: { href: '/privacy', label: 'The privacy promise' },
+  },
+];
+---
+<Layout title={title} description={description}>
+  <section class="details">
+    <header class="details__head">
+      <p class="kicker">The details</p>
+      <h1 class="display details__title">Why it feels different.</h1>
+      <p class="details__sub">
+        Lanyard is built by one Orlando passholder who cares past the point of reason. These are
+        the places it shows.
+      </p>
+    </header>
+
+    <ol class="details__list">
+      {details.map((d) => (
+        <li class="detail">
+          <p class="detail__kicker">{d.kicker}</p>
+          <h2 class="detail__title">{d.title}</h2>
+          <p class="detail__body">{d.body}</p>
+          {d.link && <a class="detail__link" href={d.link.href}>{d.link.label} →</a>}
+        </li>
+      ))}
+    </ol>
+  </section>
+</Layout>
+
+<style>
+  .details {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .details__head { max-width: 40rem; }
+  .details__head .kicker { color: var(--green-primary); }
+  .details__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
+  .details__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+
+  .details__list {
+    list-style: none; counter-reset: detail;
+    margin: clamp(2rem, 5vw, 3rem) 0 0; padding: 0;
+    display: grid; gap: 1.4rem; max-width: 46rem;
+  }
+  .detail {
+    counter-increment: detail;
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.6rem 1.6rem;
+    position: relative;
+  }
+  .detail::after {
+    content: counter(detail, decimal-leading-zero);
+    position: absolute; top: 1.3rem; right: 1.5rem;
+    font-family: var(--font-display); font-weight: 900;
+    font-size: 1.05rem; color: rgba(45, 106, 79, 0.22);
+  }
+  .detail__kicker {
+    margin: 0; font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--green-accent);
+  }
+  .detail__title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.25rem; line-height: 1.25;
+    color: var(--green-primary); margin: 0.45rem 2.4rem 0 0;
+  }
+  .detail__body { color: var(--muted); line-height: 1.6; margin: 0.7rem 0 0; }
+  .detail__link {
+    display: inline-block; margin-top: 0.8rem;
+    color: var(--green-primary); font-weight: 600; text-decoration: none;
+  }
+  .detail__link:hover { text-decoration: underline; }
+</style>

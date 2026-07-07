@@ -1,0 +1,36 @@
+---
+// Per-post page. Mirrors guides/[...slug].astro: static-prerendered, MDX body
+// renders as prose, PostLayout wraps it with the head, hero, CTA and schema.
+import { getCollection, render } from 'astro:content';
+import PostLayout from '@/layouts/PostLayout.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.round(words / 200));
+
+const d = entry.data;
+---
+<PostLayout
+  title={d.title}
+  seoTitle={d.seoTitle}
+  description={d.description}
+  dek={d.dek}
+  byline={d.byline}
+  published={d.published}
+  updated={d.updated}
+  hero={d.hero}
+  heroAlt={d.heroAlt}
+  ogImage={d.ogImage}
+  readingTime={readingTime}
+>
+  <Content />
+</PostLayout>

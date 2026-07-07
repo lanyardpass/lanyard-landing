@@ -1,0 +1,52 @@
+---
+title: "We built a weather system nobody asked for"
+seoTitle: "The Weather System Nobody Asked For | Lanyard"
+description: "Lanyard's home screen renders the actual sky over your actual park, down to tonight's moon phase. Nobody asked for this. Here's why it exists anyway."
+dek: "Lanyard's home screen now draws the real sky over your real park, down to tonight's actual moon. Nobody asked. I built it anyway, and this is my explanation, sort of."
+published: 2026-07-06
+byline: "By Dan, Orlando passholder"
+hero: ../../assets/blog/home-today.png
+heroAlt: "Lanyard's home screen, with the Today card showing live park conditions under a rendered sky."
+draft: false
+---
+
+I knew Lanyard needed a weather system. You're deciding whether today is a park day, and the sky has a vote.
+
+Did it need one that accounts for wind speed and direction, the precipitation rate in millimeters per hour, how high the cloud ceiling is hanging over the castle, and the actual current phase of the moon?
+
+No. Nobody asked for that. I built it because I'm a giant nerd and it made me happy. I hope it makes you happy too.
+
+## The window
+
+Lanyard's home screen has a card for each of your parks, and from the beginning I wanted those cards to feel like a window, not a dashboard. A dashboard tells you it's 91 degrees. A window shows you the afternoon cumulus stacking up behind the skyline, and you think, yeah, that's a Florida summer sky, I know exactly how this day goes.
+
+So that's what it does now. A few of my favorite things about it:
+
+- No two days ever draw the same sky. And no two parks share clouds, even when they're in the same storm system. Universal and SeaWorld are under the same weather, but not under the same cloud, because that's how being a few miles apart works.
+- The cloud ceiling hangs low on humid days, because that's what humid days do.
+- Lightning strikes more often when the storm is actually severe, and the whole scene flashes with it.
+- On a day when storms are coming, you can watch the cumulus build toward the afternoon.
+- When a hurricane warning posts, your card closes the parks before you've checked the news.
+- The moon on your card is tonight's actual moon. This one isn't even weather. It stays in the list.
+
+## What building it was like
+
+I'll spare you the shader math and tell you about the bugs instead, because the bugs are where a thing like this earns its keep.
+
+For one glorious afternoon, the rain fell up. It would fall, slow down, and then drift back into the clouds like the sky was taking it back. It turns out that if you do the gust math slightly wrong, easing wind literally rewinds the rain. Physics has opinions about shortcuts.
+
+The clouds went through a phase where every one of them looked like a bunch of perfectly round balls glued together. Real cumulus is lumpy in an irregular, cauliflower way, and getting from "soap bubbles" to "cloud" took three separate passes and a rule where the little bumps on a cloud only grow on top, because the flat bottom is the whole point of a cumulus.
+
+A beta tester watched a raindrop run down the glass, trailing a short wet track behind it, and described it with one word, "biological." She was right. The trail is three times longer now and wobbles less. It reads as rain.
+
+And the clouds on two neighboring park cards were briefly identical, same shapes, same spots, which nobody would consciously notice but everybody would feel. Each card seeds its own sky now.
+
+## What it won't do
+
+Here's the line we drew, and it's load-bearing. Lanyard is an advisor with a window, not a weather app.
+
+It won't tell you it'll rain at 7:14. It'll tell you afternoon storms are likely, and the sky on your card will already be building. If you're standing in the park deciding whether to duck into a show, you have a sky above you and a weather app in your pocket, and both of them beat me. What Lanyard answers is the passholder question, which is softer and honestly more useful. What's it like at my parks right now, and what kind of day is it going to be if I go?
+
+That's the whole feature. It costs you nothing, it runs on knowledge the app already had, and it makes checking your parks feel less like reading a spreadsheet and more like looking out the window at a place you love.
+
+The moon thing still makes me smile every time.
