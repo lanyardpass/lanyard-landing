@@ -17,6 +17,27 @@
 
 # /beta and /privacy are Astro pages now — no redirects needed.
 
+# Channel vanity links — clean on a social profile, still source-tagged for
+# attribution. /ig → homepage with ?src=ig (resolveSource files it as source
+# "ig" in TelemetryDeck; the query-stripped canonical keeps it a non-duplicate
+# in Search Console). 302 (not 301) so the tag always re-fires and the path can
+# be repointed later without fighting browser cache. The redirect renders no
+# page, so "/ig" never appears as a landing page — home does, tagged ig.
+[[redirects]]
+  from = "/ig"
+  to = "/?src=ig"
+  status = 302
+
+[[redirects]]
+  from = "/bsky"
+  to = "/?src=bsky"
+  status = 302
+
+[[redirects]]
+  from = "/threads"
+  to = "/?src=threads"
+  status = 302
+
 # Long-cache build-hashed assets.
 [[headers]]
   for = "/_astro/*"
