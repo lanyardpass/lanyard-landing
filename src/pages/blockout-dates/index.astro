@@ -1,0 +1,84 @@
+---
+// Blockout-dates index — routes searchers to their operator's calendar and
+// carries the category query ("theme park annual pass blockout dates").
+import Layout from '@/layouts/Layout.astro';
+import { SITE } from '@/data/site';
+import snapshot from '@/data/blockouts.json';
+
+export const prerender = true;
+
+const year = new Date(snapshot.snapshot_date + 'T12:00:00Z').getUTCFullYear();
+const title = `Annual Pass Blockout Dates (${year}) — Disney, Universal, SeaWorld | ${SITE.name}`;
+const description =
+  'Upcoming annual pass blockout dates for Walt Disney World, Universal Orlando, and SeaWorld & Busch Gardens Florida, by pass tier — verified from the same curated data the Lanyard app uses.';
+
+const upcoming = (op: (typeof snapshot.operators)[number]) =>
+  op.tiers.reduce((n, t) => n + t.ranges.length, 0);
+const clearTiers = (op: (typeof snapshot.operators)[number]) =>
+  op.tiers.filter((t) => t.ranges.length === 0).map((t) => t.name);
+---
+<Layout title={title} description={description}>
+  <section class="boi">
+    <header class="boi__head">
+      <p class="kicker">Blockout dates</p>
+      <h1 class="display boi__title">When can't your pass get in?</h1>
+      <p class="boi__sub">
+        Blockout dates by operator and tier, kept verified. Pick your park.
+      </p>
+    </header>
+
+    <ul class="boi__grid">
+      {snapshot.operators.map((op) => (
+        <li class="boi-card">
+          <a href={`/blockout-dates/${op.slug}`} class="boi-card__link">
+            <h2 class="boi-card__name">{op.name}</h2>
+            <p class="boi-card__stat">
+              {upcoming(op)} upcoming blockout windows across {op.tiers.length} tiers
+            </p>
+            {clearTiers(op).length > 0 && (
+              <p class="boi-card__clear">No blockout dates: {clearTiers(op).join(', ')}</p>
+            )}
+            <span class="boi-card__go">See the calendar →</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <p class="boi__foot">
+      In the Lanyard app, your pass carries its own blockout calendar — the Home screen tells
+      you if today's a go before you've had coffee. Free on the App Store.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .boi {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .boi__head { max-width: 40rem; }
+  .boi__head .kicker { color: var(--green-primary); }
+  .boi__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
+  .boi__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+
+  .boi__grid {
+    list-style: none; margin: clamp(2rem, 5vw, 3rem) 0 0; padding: 0;
+    display: grid; gap: 1.4rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .boi-card {
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12); border-radius: var(--radius);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .boi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
+  .boi-card__link { display: block; text-decoration: none; color: inherit; padding: 1.3rem 1.4rem 1.4rem; }
+  .boi-card__name {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
+    color: var(--green-primary); margin: 0; line-height: 1.25;
+  }
+  .boi-card__stat { color: var(--muted); margin: 0.5rem 0 0; font-size: 0.95rem; line-height: 1.5; }
+  .boi-card__clear { color: var(--green-accent); font-weight: 600; font-size: 0.88rem; margin: 0.5rem 0 0; }
+  .boi-card__go { display: inline-block; margin-top: 0.9rem; color: var(--green-primary); font-weight: 600; }
+  .boi__foot { max-width: 44rem; color: var(--muted); margin-top: clamp(2rem, 5vw, 3rem); line-height: 1.6; }
+</style>

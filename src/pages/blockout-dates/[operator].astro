@@ -1,0 +1,196 @@
+---
+// Per-operator blockout-dates page — SEO build-order items #5/#6 (growth
+// Pillar 3a): the query family "[operator] annual pass blockout dates 2026",
+// answered from the same curated corpus the app ships. Data is a build-time
+// snapshot (scripts/snapshot-blockouts.py → src/data/blockouts.json), the
+// calculator pattern. Regenerate the snapshot + rebuild when the data changes.
+import Layout from '@/layouts/Layout.astro';
+import GuideCTA from '@/components/guides/GuideCTA.astro';
+import LastVerifiedBadge from '@/components/guides/LastVerifiedBadge.astro';
+import { SITE } from '@/data/site';
+import snapshot from '@/data/blockouts.json';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  return snapshot.operators.map((op) => ({ params: { operator: op.slug }, props: { op } }));
+}
+
+interface Range {
+  start: string;
+  end: string;
+  label: string;
+  parks: string[];
+  notes: string;
+}
+interface Tier {
+  id: string;
+  name: string;
+  rank: number;
+  ranges: Range[];
+}
+const { op } = Astro.props as {
+  op: {
+    slug: string;
+    name: string;
+    passName: string;
+    lastVerified: string;
+    parkNames: string[];
+    tiers: Tier[];
+  };
+};
+
+const year = new Date(snapshot.snapshot_date + 'T12:00:00Z').getUTCFullYear();
+const title = `${op.name} ${op.passName} Blockout Dates (${year}), every tier`;
+const seoTitle = `${op.name} Annual Pass Blockout Dates ${year}, By Tier | ${SITE.name}`;
+const description = `Upcoming ${op.name} annual pass blockout dates for every pass tier, kept verified from the same curated data the Lanyard app uses. See which days your tier can't get in — and which tiers have no blockout dates at all.`;
+
+const fmtDay = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+const fmtShort = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+const monthKey = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+const spanText = (r: Range) =>
+  r.start === r.end ? fmtDay(r.start) : `${fmtShort(r.start)} – ${fmtDay(r.end)}`;
+
+const noteText = (n: string) => (n === 'before_4pm' ? 'before 4pm only' : n.replaceAll('_', ' '));
+
+// Group each tier's ranges by month for scannability.
+const grouped = op.tiers.map((t) => {
+  const months = new Map<string, Range[]>();
+  for (const r of t.ranges) {
+    const k = monthKey(r.start);
+    if (!months.has(k)) months.set(k, []);
+    months.get(k)!.push(r);
+  }
+  return { ...t, months: [...months.entries()] };
+});
+
+const others = snapshot.operators.filter((o) => o.slug !== op.slug);
+---
+<Layout title={seoTitle} description={description}>
+  <section class="bo">
+    <header class="bo__head">
+      <p class="kicker"><a href="/blockout-dates">Blockout dates</a></p>
+      <h1 class="display bo__title">{title}</h1>
+      <p class="bo__sub">
+        Every upcoming blockout window for every {op.name} pass tier, from the same
+        hand-curated data the Lanyard app ships. A blockout date is a day your tier can't get
+        into a park — check before you drive.
+      </p>
+      <div class="bo__meta">
+        <LastVerifiedBadge date={new Date(op.lastVerified + 'T12:00:00Z')} />
+      </div>
+    </header>
+
+    {grouped.map((t) => (
+      <section class="bo-tier" id={t.id}>
+        <h2 class="bo-tier__name">
+          {t.name}
+          {t.ranges.length === 0 && <span class="bo-tier__clear">No blockout dates</span>}
+        </h2>
+        {t.ranges.length === 0 ? (
+          <p class="bo-tier__none">
+            Every day is a park day: the {t.name} has no upcoming blockout dates at any park.
+          </p>
+        ) : (
+          t.months.map(([month, rs]) => (
+            <div class="bo-month">
+              <h3 class="bo-month__label">{month}</h3>
+              <ul class="bo-month__list">
+                {rs.map((r) => (
+                  <li class="bo-range">
+                    <span class="bo-range__dates">{spanText(r)}</span>
+                    <span class="bo-range__parks">
+                      {r.parks.map((p) => (
+                        <span class="bo-park">{p}</span>
+                      ))}
+                    </span>
+                    {(r.label || r.notes) && (
+                      <span class="bo-range__note">
+                        {[r.label, r.notes && noteText(r.notes)].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </section>
+    ))}
+
+    <p class="bo__foot">
+      Dates come from {op.name}'s published calendars, reviewed by hand and updated when the
+      operator changes them. Always confirm against the operator on the day of a
+      make-or-break visit — calendars can change with short notice.
+    </p>
+
+    <nav class="bo__others" aria-label="Other operators">
+      {others.map((o) => (
+        <a href={`/blockout-dates/${o.slug}`}>{o.name} blockout dates →</a>
+      ))}
+    </nav>
+
+    <div class="bo__cta">
+      <GuideCTA />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .bo {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .bo__head { max-width: 44rem; }
+  .bo__head .kicker a { color: var(--green-primary); text-decoration: none; }
+  .bo__title { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-top: 0.5rem; color: var(--ink); line-height: 1.15; }
+  .bo__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+  .bo__meta { margin-top: 1rem; }
+
+  .bo-tier { max-width: 44rem; margin-top: clamp(2rem, 5vw, 3rem); }
+  .bo-tier__name {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.45rem;
+    color: var(--green-primary); display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;
+  }
+  .bo-tier__clear {
+    font-family: var(--font-body, inherit); font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: #fff; background: var(--green-accent);
+    padding: 0.25rem 0.6rem; border-radius: 999px;
+  }
+  .bo-tier__none { color: var(--muted); margin-top: 0.6rem; line-height: 1.6; }
+
+  .bo-month { margin-top: 1.1rem; }
+  .bo-month__label {
+    font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--green-accent); margin: 0;
+  }
+  .bo-month__list { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
+  .bo-range {
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12); border-radius: var(--radius);
+    padding: 0.8rem 1rem; display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .bo-range__dates { font-weight: 700; color: var(--ink); min-width: 11rem; }
+  .bo-range__parks { display: inline-flex; gap: 0.35rem; flex-wrap: wrap; }
+  .bo-park {
+    font-size: 0.78rem; font-weight: 600; color: var(--green-primary);
+    background: rgba(82, 183, 136, 0.14); border-radius: 999px; padding: 0.18rem 0.55rem;
+  }
+  .bo-range__note { color: var(--muted); font-size: 0.85rem; }
+
+  .bo__foot { max-width: 44rem; color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-top: clamp(2rem, 5vw, 3rem); }
+  .bo__others { max-width: 44rem; margin-top: 1.5rem; display: grid; gap: 0.4rem; }
+  .bo__others a { color: var(--green-primary); font-weight: 600; text-decoration: none; }
+  .bo__others a:hover { text-decoration: underline; }
+  .bo__cta { margin-top: clamp(2rem, 5vw, 3rem); }
+</style>

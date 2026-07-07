@@ -1,0 +1,807 @@
+{
+  "snapshot_date": "2026-07-06",
+  "operators": [
+    {
+      "id": "disney_world",
+      "slug": "disney-world",
+      "name": "Walt Disney World",
+      "passName": "Annual Pass",
+      "lastVerified": "2026-07-01",
+      "parkNames": [
+        "Animal Kingdom",
+        "Blizzard Beach",
+        "EPCOT",
+        "Hollywood Studios",
+        "Magic Kingdom",
+        "Typhoon Lagoon"
+      ],
+      "tiers": [
+        {
+          "id": "pixie_dust",
+          "name": "Pixie Dust Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-07-02",
+              "end": "2026-07-06",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-11",
+              "end": "2026-07-12",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-18",
+              "end": "2026-07-19",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-25",
+              "end": "2026-07-26",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-01",
+              "end": "2026-08-02",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-08",
+              "end": "2026-08-09",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-15",
+              "end": "2026-08-16",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-22",
+              "end": "2026-08-23",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-29",
+              "end": "2026-08-30",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-09-05",
+              "end": "2026-09-07",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-09-12",
+              "end": "2026-09-13",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-09-19",
+              "end": "2026-09-20",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-09-26",
+              "end": "2026-09-27",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-03",
+              "end": "2026-10-04",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-10",
+              "end": "2026-10-12",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-17",
+              "end": "2026-10-18",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-24",
+              "end": "2026-10-25",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-31",
+              "end": "2026-11-01",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-11-07",
+              "end": "2026-11-08",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-11-14",
+              "end": "2026-11-15",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-11-20",
+              "end": "2026-11-29",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-05",
+              "end": "2026-12-06",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-12",
+              "end": "2026-12-13",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-18",
+              "end": "2027-01-03",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-01-09",
+              "end": "2027-01-10",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-01-16",
+              "end": "2027-01-18",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-01-23",
+              "end": "2027-01-24",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-01-30",
+              "end": "2027-01-31",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-02-06",
+              "end": "2027-02-07",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-02-13",
+              "end": "2027-02-15",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-02-20",
+              "end": "2027-02-21",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2027-02-27",
+              "end": "2027-02-28",
+              "label": "",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "pirate",
+          "name": "Pirate Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-09-05",
+              "end": "2026-09-07",
+              "label": "Labor Day Weekend",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-10",
+              "end": "2026-10-12",
+              "label": "Columbus Day Weekend",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-11-20",
+              "end": "2026-11-28",
+              "label": "Thanksgiving",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": "revised per operator blockout calendar 2026-07-01"
+            },
+            {
+              "start": "2026-12-19",
+              "end": "2026-12-31",
+              "label": "Christmas / New Year's",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": "revised per operator blockout calendar 2026-07-01"
+            }
+          ]
+        },
+        {
+          "id": "sorcerer",
+          "name": "Sorcerer Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-11-25",
+              "end": "2026-11-28",
+              "label": "Thanksgiving",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": "revised per operator blockout calendar 2026-07-01"
+            },
+            {
+              "start": "2026-12-20",
+              "end": "2026-12-31",
+              "label": "Christmas / New Year's",
+              "parks": [
+                "Magic Kingdom",
+                "EPCOT",
+                "Hollywood Studios",
+                "Animal Kingdom"
+              ],
+              "notes": "revised per operator blockout calendar 2026-07-01"
+            }
+          ]
+        },
+        {
+          "id": "incredi_pass",
+          "name": "Incredi-Pass",
+          "rank": 0,
+          "ranges": []
+        }
+      ]
+    },
+    {
+      "id": "universal_orlando",
+      "slug": "universal-orlando",
+      "name": "Universal Orlando",
+      "passName": "Annual Pass",
+      "lastVerified": "2026-07-01",
+      "parkNames": [
+        "CityWalk",
+        "Epic",
+        "Islands",
+        "Studios",
+        "Volcano Bay"
+      ],
+      "tiers": [
+        {
+          "id": "seasonal",
+          "name": "Seasonal Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-06-06",
+              "end": "2026-08-09",
+              "label": "",
+              "parks": [
+                "Volcano Bay"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-01",
+              "end": "2026-07-31",
+              "label": "",
+              "parks": [
+                "Studios",
+                "Islands"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-11-23",
+              "end": "2026-11-28",
+              "label": "",
+              "parks": [
+                "Studios",
+                "Islands"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-19",
+              "end": "2027-01-03",
+              "label": "",
+              "parks": [
+                "Studios",
+                "Islands"
+              ],
+              "notes": "holiday range crosses New Year — Jan 1-3 2027 verified on operator calendar 2026-07-01"
+            }
+          ]
+        },
+        {
+          "id": "power",
+          "name": "Power Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-06-06",
+              "end": "2026-08-09",
+              "label": "",
+              "parks": [
+                "Volcano Bay"
+              ],
+              "notes": "before_4pm"
+            },
+            {
+              "start": "2026-12-19",
+              "end": "2026-12-31",
+              "label": "",
+              "parks": [
+                "Studios",
+                "Islands"
+              ],
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "preferred",
+          "name": "Preferred Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-07-01",
+              "end": "2026-08-09",
+              "label": "",
+              "parks": [
+                "Volcano Bay"
+              ],
+              "notes": "before_4pm"
+            }
+          ]
+        },
+        {
+          "id": "premier",
+          "name": "Premier Pass",
+          "rank": 0,
+          "ranges": []
+        }
+      ]
+    },
+    {
+      "id": "united_parks",
+      "slug": "seaworld-busch-gardens",
+      "name": "SeaWorld & Busch Gardens (Florida)",
+      "passName": "Annual Pass",
+      "lastVerified": "2026-07-01",
+      "parkNames": [
+        "Adventure Island",
+        "Aquatica",
+        "Busch Gardens",
+        "SeaWorld"
+      ],
+      "tiers": [
+        {
+          "id": "bronze",
+          "name": "Bronze Pass",
+          "rank": 0,
+          "ranges": [
+            {
+              "start": "2026-07-11",
+              "end": "2026-07-11",
+              "label": "",
+              "parks": [
+                "SeaWorld",
+                "Aquatica",
+                "Adventure Island"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-12",
+              "end": "2026-07-12",
+              "label": "",
+              "parks": [
+                "Aquatica"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-18",
+              "end": "2026-07-18",
+              "label": "",
+              "parks": [
+                "SeaWorld",
+                "Aquatica",
+                "Adventure Island"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-19",
+              "end": "2026-07-19",
+              "label": "",
+              "parks": [
+                "Aquatica"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-25",
+              "end": "2026-07-25",
+              "label": "",
+              "parks": [
+                "SeaWorld",
+                "Aquatica",
+                "Adventure Island"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-07-26",
+              "end": "2026-07-26",
+              "label": "",
+              "parks": [
+                "Aquatica"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-01",
+              "end": "2026-08-01",
+              "label": "",
+              "parks": [
+                "SeaWorld"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-08-29",
+              "end": "2026-08-29",
+              "label": "",
+              "parks": [
+                "SeaWorld"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-17",
+              "end": "2026-10-17",
+              "label": "",
+              "parks": [
+                "SeaWorld"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-10-24",
+              "end": "2026-10-24",
+              "label": "",
+              "parks": [
+                "SeaWorld"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-11-21",
+              "end": "2026-11-21",
+              "label": "",
+              "parks": [
+                "Busch Gardens"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-22",
+              "end": "2026-12-22",
+              "label": "",
+              "parks": [
+                "SeaWorld"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-24",
+              "end": "2026-12-24",
+              "label": "Christmas Eve",
+              "parks": [
+                "SeaWorld",
+                "Busch Gardens"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-25",
+              "end": "2026-12-25",
+              "label": "Christmas Day",
+              "parks": [
+                "SeaWorld"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-26",
+              "end": "2026-12-26",
+              "label": "",
+              "parks": [
+                "SeaWorld",
+                "Busch Gardens"
+              ],
+              "notes": ""
+            },
+            {
+              "start": "2026-12-27",
+              "end": "2026-12-27",
+              "label": "",
+              "parks": [
+                "Busch Gardens"
+              ],
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "silver",
+          "name": "Silver Pass",
+          "rank": 0,
+          "ranges": []
+        },
+        {
+          "id": "gold",
+          "name": "Gold Pass",
+          "rank": 0,
+          "ranges": []
+        },
+        {
+          "id": "platinum",
+          "name": "Platinum Pass",
+          "rank": 0,
+          "ranges": []
+        }
+      ]
+    }
+  ]
+}
