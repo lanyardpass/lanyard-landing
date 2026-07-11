@@ -18,6 +18,15 @@ export const prerender = true;
 
       <p class="legal__lead">Lanyard is an independent iOS app for theme park annual passholders: blockouts, perks, events, park hours, and payback in one place. It's made in Winter Garden, Florida, a short drive from the parks, by Dan Seals, a passholder who wanted more from his passes and built the tool to get it.</p>
 
+      <figure class="about__photo">
+        <img
+          src="/assets/dan-winter-garden.webp"
+          alt="Dan Seals smiling in downtown Winter Garden, Florida, brick storefronts behind him."
+          width="1200" height="1200" loading="lazy" decoding="async"
+        />
+        <figcaption>Downtown Winter Garden. The parks are a short drive from here.</figcaption>
+      </figure>
+
       <h2>The story</h2>
       <p>Lanyard started with an admission. Dan loves the parks, and he wanted a way to be part of the world around them, the one the vloggers and bloggers and podcasters live in. The honest problem: <em>"I wish I could be a vlogger. I just don't think I could do that every day."</em></p>
       <p>So he built something instead. As his wife, Antonia, put it: <em>"You realized you weren't going to be someone who vlogs their experience, so you found your own way into that world."</em></p>
@@ -52,6 +61,20 @@ export const prerender = true;
     line-height: 1.7;
     margin-top: 1.4rem;
     margin-bottom: 0.5rem;
+  }
+  .about__photo { margin: 2rem 0 0.5rem; }
+  .about__photo img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    display: block;
+  }
+  .about__photo figcaption {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+    text-align: center;
   }
   .legal h2 {
     font-family: var(--font-display);
