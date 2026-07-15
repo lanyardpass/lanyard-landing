@@ -9,13 +9,14 @@ import { CAPABILITIES } from '@/data/act3';
     </header>
     <ul class="cap__grid" role="list">
       {CAPABILITIES.map((c) => (
-        <li class="cap__card">
+        <li class={`cap__card${c.soon ? ' cap__card--soon' : ''}`}>
           <span class="cap__icon" aria-hidden="true">{c.icon}</span>
           <div class="cap__text">
             <h3 class="cap__name">{c.title}</h3>
             <p class="cap__body">{c.body}</p>
           </div>
           {c.pro && <span class="cap__pro">Pro</span>}
+          {c.soon && <span class="cap__soon">Coming soon</span>}
         </li>
       ))}
     </ul>
@@ -69,6 +70,26 @@ import { CAPABILITIES } from '@/data/act3';
     padding-right: 2.4rem; /* reserve for the corner Pro badge */
   }
   .cap__body { color: var(--muted); font-size: 0.9rem; line-height: 1.4; margin: 0; }
+  /* Coming-soon pill — same corner slot as Pro, but dashed and muted: the
+     app's unwalked-house "stamp here" treatment, borrowed as "not yet". */
+  .cap__soon {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 1.5px dashed rgba(20, 53, 42, 0.28);
+    padding: 0.18rem 0.5rem;
+    border-radius: var(--pill);
+  }
+  /* Wider corner pill needs a wider title reserve on that card only. */
+  .cap__card--soon .cap__name { padding-right: 6.2rem; }
+
   /* Corner badge — maps to PerkRow's top-trailing state pill slot. */
   .cap__pro {
     position: absolute;

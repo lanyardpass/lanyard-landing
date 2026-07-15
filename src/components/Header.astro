@@ -153,11 +153,21 @@ import LanyardLogo from '@/components/LanyardLogo.astro';
   /* Switch to the hamburger at ≤1024px. The inline nav (4 links + two full CTA
      buttons + logo) only fits on one line above ~1024; below that it wraps ugly
      ("What / it / does"), so every tablet-in-portrait — incl. the 12.9" iPad at
-     1024 — gets the clean menu instead. Verified empirically at 834/900/1024. */
+     1024 — gets the clean menu instead. Verified empirically at 834/900/1024.
+     The CTA does NOT hide with the nav (changed 2026-07-09): the primary
+     conversion action stays visible in the sticky bar on every width — the
+     burger only holds navigation. Logo + compact pill + burger fit to 375px;
+     ≤380px tightens the pill for the SE/mini. The dropdown keeps its own CTA
+     copy for menu-open state. */
   @media (max-width: 1024px) {
     .site-nav { display: none; }
-    .site-header__actions { display: none; }
+    .site-header__inner { gap: 0.75rem; }
+    .site-header__actions { margin-left: auto; }
+    .site-header__cta { padding: 0.5rem 1rem; font-size: 0.9rem; }
     .site-header__burger { display: inline-flex; }
     .site-mobile-menu:not([hidden]) { display: block; }
+  }
+  @media (max-width: 380px) {
+    .site-header__cta { padding: 0.45rem 0.85rem; font-size: 0.86rem; }
   }
 </style>
