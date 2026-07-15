@@ -32,21 +32,22 @@ while ((cursor.getTime() - start.getTime()) / MS < days) {
   cursor.setMonth(cursor.getMonth() + 1);
 }
 
-// Tone families — several corpus types share a family so the legend stays small.
-const FAMILY: Record<string, string> = {
-  celebration: 'fest', festival: 'fest', spectacular: 'fest', concert_series: 'fest',
-  food_festival: 'food',
-  passholder_event: 'ph',
-  hard_ticket_event: 'ticket',
-  ride_event: 'ride', race_weekend: 'ride',
-  closure: 'closure',
-};
+// Event colors match the app's locked event palette EXACTLY (Color+Brand.swift
+// → "Locked palette for the events/calendar surface", + Event.textColorOnFill:
+// celebration reads dark-on-marigold, every other type reads white-on-fill).
+// The strip teaches the app's color language — scanner green means "yours",
+// electric blue means "separate ticket" — so update in step if that palette
+// ever changes.
 const LEGEND: Record<string, string> = {
-  fest: 'celebrations & festivals',
-  food: 'food festivals',
-  ph: 'passholder only',
-  ticket: 'ticketed select nights',
-  ride: 'ride & race days',
+  celebration: 'celebrations',
+  festival: 'festivals',
+  food_festival: 'food festivals',
+  spectacular: 'spectaculars',
+  concert_series: 'concert series',
+  passholder_event: 'passholder only',
+  hard_ticket_event: 'ticketed events',
+  ride_event: 'ride events',
+  race_weekend: 'race weekends',
   closure: 'closures',
 };
 
@@ -73,7 +74,7 @@ const groups = Object.entries(snapshot.operators).map(([opId, opName]) => {
       `${label(e)} — ${fmt(e.from)}${single ? '' : ' to ' + fmt(e.to)}` +
       (e.nights ? ` · ${e.nights} select nights` : '') +
       (e.description ? `. ${e.description}` : '');
-    return { ...e, left, width: Math.max(right - left, 0.8), lane, single, family: FAMILY[e.type] ?? 'fest', detail };
+    return { ...e, left, width: Math.max(right - left, 0.8), lane, single, family: e.type, detail };
   });
   return { opName, lanes: laneEnds.length, events: placed };
 }).filter((g) => g.events.length);
@@ -171,19 +172,26 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
   }
   .strip--active { outline: 2px solid var(--green-primary); outline-offset: 1px; }
 
-  .strip__bar--fest { background: #f6e3b0; color: #6b4a08; }
-  .strip__bar--food { background: #f4c9b4; color: #79301a; }
-  .strip__bar--ph { background: #d8ebdf; color: #1d4a36; }
-  .strip__bar--ride { background: #cfe0f2; color: #1d4e7a; }
-  .strip__bar--closure { background: #e7e7e2; color: #56564f; }
-  .strip__bar--ticket {
-    background: #fff; border: 1.5px dashed #7b72d8; color: #46408c; line-height: 15px;
-  }
-  .strip__dot--ph { background: var(--green-primary); }
-  .strip__dot--fest { background: #d9a922; }
-  .strip__dot--food { background: #c65f34; }
-  .strip__dot--ride { background: #3a6ea8; }
-  .strip__dot--ticket { background: #7b72d8; }
+  .strip__bar--celebration { background: #F5B800; color: #3a2900; }
+  .strip__bar--festival { background: #7C3AED; color: #fff; }
+  .strip__bar--food_festival { background: #A78BFA; color: #fff; }
+  .strip__bar--spectacular { background: #F97316; color: #fff; }
+  .strip__bar--concert_series { background: #C2185B; color: #fff; }
+  .strip__bar--passholder_event { background: #52B788; color: #fff; }
+  .strip__bar--hard_ticket_event { background: #2563EB; color: #fff; }
+  .strip__bar--ride_event { background: #3D9DD9; color: #fff; }
+  .strip__bar--race_weekend { background: #E55934; color: #fff; }
+  .strip__bar--closure { background: #6B7280; color: #fff; }
+  .strip__dot--celebration { background: #F5B800; }
+  .strip__dot--festival { background: #7C3AED; }
+  .strip__dot--food_festival { background: #A78BFA; }
+  .strip__dot--spectacular { background: #F97316; }
+  .strip__dot--concert_series { background: #C2185B; }
+  .strip__dot--passholder_event { background: #52B788; }
+  .strip__dot--hard_ticket_event { background: #2563EB; }
+  .strip__dot--ride_event { background: #3D9DD9; }
+  .strip__dot--race_weekend { background: #E55934; }
+  .strip__dot--closure { background: #6B7280; }
 
   .strip__legend {
     display: flex; flex-wrap: wrap; gap: 0.45rem 1rem;
@@ -192,12 +200,16 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
   .strip__swatch {
     display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px;
   }
-  .strip__swatch--fest { background: #f6e3b0; }
-  .strip__swatch--food { background: #f4c9b4; }
-  .strip__swatch--ph { background: #d8ebdf; }
-  .strip__swatch--ride { background: #cfe0f2; }
-  .strip__swatch--closure { background: #e7e7e2; }
-  .strip__swatch--ticket { background: #fff; border: 1.5px dashed #7b72d8; }
+  .strip__swatch--celebration { background: #F5B800; }
+  .strip__swatch--festival { background: #7C3AED; }
+  .strip__swatch--food_festival { background: #A78BFA; }
+  .strip__swatch--spectacular { background: #F97316; }
+  .strip__swatch--concert_series { background: #C2185B; }
+  .strip__swatch--passholder_event { background: #52B788; }
+  .strip__swatch--hard_ticket_event { background: #2563EB; }
+  .strip__swatch--ride_event { background: #3D9DD9; }
+  .strip__swatch--race_weekend { background: #E55934; }
+  .strip__swatch--closure { background: #6B7280; }
 
   .strip__detail {
     margin-top: 0.8rem; min-height: 2.6em; font-size: 0.88rem;
