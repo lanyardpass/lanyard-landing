@@ -5,6 +5,8 @@
 // events_calendar_spec.md §3.5 — keep this page in step with those if the
 // pipeline rules change.
 import DetailLayout from '@/layouts/DetailLayout.astro';
+import EventsStrip from '@/components/details/EventsStrip.astro';
+import EarlyCloseReplay from '@/components/details/EarlyCloseReplay.astro';
 import { SITE } from '@/data/site';
 
 export const prerender = true;
@@ -20,6 +22,8 @@ const description =
   heroTitle="Ninety days, read by a person."
   heroSub="The calendar looks simple. The next ninety days across every park you hold, with hours, events, and blockout dates filtered to your passes. Underneath it is the most carefully curated data in the app. Here is how it gets made."
 >
+  <EventsStrip />
+
   <section class="chapter">
     <p class="chapter__kicker">Park hours</p>
     <h2>Hours come from the operators, twice a week</h2>
@@ -57,6 +61,7 @@ const description =
       close comes from that event's own published night list, so every affected date is covered,
       not just the ones inside the current hours window.
     </p>
+    <EarlyCloseReplay />
     <aside class="chapter__aside">
       One more quiet rule. Once a day has passed, its hours are frozen as a receipt of what
       Lanyard showed you that day. If an operator back-fills a change nobody could have acted on,
@@ -69,7 +74,8 @@ const description =
     <h2>Sorted the way a passholder thinks</h2>
     <p>
       Every operator's event calendar is read by a person, and each event that makes the cut is
-      classified into a type a passholder would actually recognize.
+      classified into a type a passholder would actually recognize. The strip at the top of this
+      page is what came out of that reading, and these are the types it's sorted into.
     </p>
     <ul>
       <li><strong>Spectaculars</strong> — fireworks and nighttime shows worth planning an evening around.</li>

@@ -1,0 +1,122 @@
+---
+// The early-close replay on /details/calendar — an interactive retelling of a
+// real detection case: EPCOT's 5:30pm corporate-buyout close on 2026-07-01,
+// published by Disney ~10 weeks ahead (posted ~2026-04-22; see the hours
+// runbook's evidence note). Data is hand-authored because it's a historical
+// fact, not a live feed. Embedded inside the early-close chapter section.
+const days = [
+  { d: 'Jun 28', close: '9:00p', h: 96 },
+  { d: 'Jun 29', close: '9:00p', h: 96 },
+  { d: 'Jun 30', close: '9:00p', h: 96 },
+  { d: 'Jul 1', close: '5:30p', h: 64, flag: true },
+  { d: 'Jul 2', close: '9:00p', h: 96 },
+  { d: 'Jul 3', close: '9:00p', h: 96 },
+  { d: 'Jul 4', close: '10:00p', h: 104, late: true },
+];
+---
+<div class="replay">
+  <p class="replay__lead">
+    A real week of EPCOT closing times from this July. One of these days is hiding something.
+    Tap a day.
+  </p>
+  <div class="replay__week" id="replay-week">
+    {days.map((day) => (
+      <button
+        class="replay__day"
+        data-kind={day.flag ? 'flag' : day.late ? 'late' : 'normal'}
+        aria-label={`${day.d}, closes ${day.close}`}
+      >
+        <span class={`replay__col ${day.flag ? 'replay__col--flag' : ''}`} style={`height:${day.h}px`}>
+          {day.flag && <i class="replay__pulse"></i>}
+        </span>
+        <span class="replay__label">{day.d}<b>{day.close}</b></span>
+      </button>
+    ))}
+  </div>
+  <div class="replay__story">
+    <p class="replay__idle" id="replay-idle">Waiting on you.</p>
+    <div class="replay__beats" id="replay-beats" hidden>
+      <p><b class="replay__amber">Flagged.</b> Closes three and a half hours earlier than every
+        other day this week, and no event on the calendar explains it.</p>
+      <p id="replay-b2"><b class="replay__amber">Checked.</b> Not a party night, not seasonal hours,
+        and it doesn't match the weekday pattern. Candidate buyout, held for a person to verify.</p>
+      <p id="replay-b3"><b class="replay__green">Confirmed.</b> Corporate buyout. Disney posted it
+        about ten weeks ahead, and it went on Lanyard's calendar the same week, so nobody found out
+        at the tapstiles at 5:29.</p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var idle = document.getElementById('replay-idle');
+    var beats = document.getElementById('replay-beats');
+    var b2 = document.getElementById('replay-b2');
+    var b3 = document.getElementById('replay-b3');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('#replay-week .replay__day').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var kind = btn.getAttribute('data-kind');
+        if (kind === 'flag') {
+          idle.hidden = true;
+          beats.hidden = false;
+          if (reduce) { b2.style.opacity = 1; b3.style.opacity = 1; return; }
+          b2.style.opacity = 0; b3.style.opacity = 0;
+          setTimeout(function () { b2.style.opacity = 1; }, 900);
+          setTimeout(function () { b3.style.opacity = 1; }, 1900);
+        } else {
+          beats.hidden = true;
+          idle.hidden = false;
+          idle.textContent = kind === 'late'
+            ? 'July 4th runs late. A later close sails through quietly, operators extend far more often than they cut.'
+            : 'Matches the weekday pattern. Nothing to see, which is the point.';
+        }
+      });
+    });
+  })();
+</script>
+
+<style>
+  .replay {
+    margin-top: 1.1rem; padding: 1.1rem 1.2rem 1.2rem;
+    border: 1px solid rgba(45, 106, 79, 0.14); border-radius: var(--radius-sm);
+    background: rgba(45, 106, 79, 0.03);
+  }
+  .replay__lead { margin: 0 0 0.9rem !important; font-size: 0.9rem; }
+  .replay__week { display: flex; gap: 8px; align-items: flex-end; }
+  .replay__day {
+    flex: 1; border: 0; background: transparent; padding: 0;
+    cursor: pointer; text-align: center;
+  }
+  .replay__col {
+    display: block; background: #d8ebdf; border-radius: 6px 6px 0 0; position: relative;
+  }
+  .replay__col--flag { background: #f4cf82; }
+  .replay__pulse {
+    position: absolute; top: -7px; left: 50%; margin-left: -5px;
+    width: 10px; height: 10px; border-radius: 50%; background: #b07414;
+    animation: replay-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes replay-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.7); opacity: 0.4; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .replay__pulse { animation: none; }
+  }
+  .replay__label {
+    display: block; padding-top: 5px; font-size: 0.72rem; color: var(--muted); line-height: 1.35;
+  }
+  .replay__label b { display: block; font-weight: 600; color: var(--green-primary); }
+  .replay__day[data-kind='flag'] .replay__label b { color: #8a5a0a; }
+  .replay__story {
+    min-height: 7.2em; margin-top: 0.9rem; border-top: 1px solid rgba(45, 106, 79, 0.12);
+    padding-top: 0.8rem;
+  }
+  .replay__idle { margin: 0 !important; font-size: 0.85rem; color: var(--muted) !important; }
+  .replay__beats p { margin: 0 0 0.55rem !important; font-size: 0.88rem; line-height: 1.55; }
+  .replay__beats p:last-child { margin-bottom: 0 !important; }
+  #replay-b2, #replay-b3 { transition: opacity 0.5s ease; }
+  .replay__amber { font-weight: 700; color: #8a5a0a; }
+  .replay__green { font-weight: 700; color: var(--green-primary); }
+</style>

@@ -1,0 +1,209 @@
+---
+// The "next ninety days" strip on /details/calendar — a build-time render of
+// the real events corpus (src/data/events_snapshot.json, written by
+// scripts/snapshot-events.py). The window anchors on snapshot_date, NOT the
+// build date, so the honest label is "as curated on <snapshot_date>".
+// Re-snapshot + rebuild whenever events.json changes (events runbook cadence).
+import snapshot from '@/data/events_snapshot.json';
+
+const start = new Date(snapshot.snapshot_date + 'T00:00:00');
+const days = snapshot.window_days;
+const MS = 86400000;
+const pct = (iso: string, endInclusive = false) => {
+  const d = (new Date(iso + 'T00:00:00').getTime() - start.getTime()) / MS + (endInclusive ? 1 : 0);
+  return Math.min(100, Math.max(0, (d / days) * 100));
+};
+const fmt = (iso: string) =>
+  new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const snapshotLabel = new Date(snapshot.snapshot_date + 'T00:00:00').toLocaleDateString('en-US', {
+  month: 'long', day: 'numeric', year: 'numeric',
+});
+
+// Month gridlines at each 1st-of-month inside the window.
+const ticks: { label: string; left: number }[] = [];
+const cursor = new Date(start.getTime());
+cursor.setDate(1);
+cursor.setMonth(cursor.getMonth() + 1);
+while ((cursor.getTime() - start.getTime()) / MS < days) {
+  ticks.push({
+    label: cursor.toLocaleDateString('en-US', { month: 'short' }) + ' 1',
+    left: ((cursor.getTime() - start.getTime()) / MS / days) * 100,
+  });
+  cursor.setMonth(cursor.getMonth() + 1);
+}
+
+// Tone families — several corpus types share a family so the legend stays small.
+const FAMILY: Record<string, string> = {
+  celebration: 'fest', festival: 'fest', spectacular: 'fest', concert_series: 'fest',
+  food_festival: 'food',
+  passholder_event: 'ph',
+  hard_ticket_event: 'ticket',
+  ride_event: 'ride', race_weekend: 'ride',
+  closure: 'closure',
+};
+const LEGEND: Record<string, string> = {
+  fest: 'celebrations & festivals',
+  food: 'food festivals',
+  ph: 'passholder only',
+  ticket: 'ticketed select nights',
+  ride: 'ride & race days',
+  closure: 'closures',
+};
+
+type Ev = (typeof snapshot.events)[number];
+const dupShorts = new Set(
+  snapshot.events.map((e) => e.short).filter((s, _, all) => all.filter((x) => x === s).length > 1)
+);
+const label = (e: Ev) => (dupShorts.has(e.short) && e.parks.length ? `${e.short} · ${e.parks[0]}` : e.short);
+
+// Greedy lane packing per operator, in a fixed presentation order.
+const groups = Object.entries(snapshot.operators).map(([opId, opName]) => {
+  const evs = snapshot.events
+    .filter((e) => e.operator === opId)
+    .sort((a, b) => a.from.localeCompare(b.from) || a.to.localeCompare(b.to));
+  const laneEnds: number[] = [];
+  const placed = evs.map((e) => {
+    const left = pct(e.from);
+    const right = pct(e.to, true);
+    let lane = laneEnds.findIndex((end) => end + 1.5 <= left);
+    if (lane === -1) { lane = laneEnds.length; laneEnds.push(right); }
+    else laneEnds[lane] = right;
+    const single = e.from === e.to;
+    const detail =
+      `${label(e)} — ${fmt(e.from)}${single ? '' : ' to ' + fmt(e.to)}` +
+      (e.nights ? ` · ${e.nights} select nights` : '') +
+      (e.description ? `. ${e.description}` : '');
+    return { ...e, left, width: Math.max(right - left, 0.8), lane, single, family: FAMILY[e.type] ?? 'fest', detail };
+  });
+  return { opName, lanes: laneEnds.length, events: placed };
+}).filter((g) => g.events.length);
+
+const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.family)))];
+---
+<section class="chapter strip">
+  <p class="chapter__kicker">The proof</p>
+  <h2>Every event below is real</h2>
+  <p>
+    This strip is drawn from the same data the app ships. It covers the ninety days ahead as
+    curated on {snapshotLabel}, and it's rebuilt every time we update the site.
+  </p>
+
+  <div class="strip__scroll">
+    <div class="strip__frame">
+      <div class="strip__axis">
+        <span class="strip__today">{fmt(snapshot.snapshot_date)} · today</span>
+        {ticks.map((t) => <span class="strip__tick" style={`left:${t.left}%`}>{t.label}</span>)}
+      </div>
+      <div class="strip__grid">
+        {ticks.map((t) => <i class="strip__line" style={`left:${t.left}%`}></i>)}
+        {groups.map((g) => (
+          <div class="strip__group">
+            <p class="strip__op">{g.opName}</p>
+            <div class="strip__lanes" style={`height:${g.lanes * 24}px`}>
+              {g.events.map((e) =>
+                e.single ? (
+                  <button
+                    class={`strip__dot strip__dot--${e.family}`}
+                    style={`left:${e.left}%;top:${e.lane * 24 + 3}px`}
+                    data-detail={e.detail}
+                    aria-label={e.detail}
+                  ></button>
+                ) : (
+                  <button
+                    class={`strip__bar strip__bar--${e.family}`}
+                    style={`left:${e.left}%;width:${e.width}%;top:${e.lane * 24}px`}
+                    data-detail={e.detail}
+                    aria-label={e.detail}
+                  >{label(e)}{e.nights > 0 && <span class="strip__nights"> · {e.nights} nights</span>}</button>
+                )
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="strip__legend">
+    {familiesPresent.map((f) => (
+      <span><i class={`strip__swatch strip__swatch--${f}`}></i> {LEGEND[f]}</span>
+    ))}
+  </div>
+  <p class="strip__detail" id="strip-detail">Tap any event for the one-line version.</p>
+</section>
+
+<script is:inline>
+  (function () {
+    var out = document.getElementById('strip-detail');
+    document.querySelectorAll('.strip__bar, .strip__dot').forEach(function (b) {
+      b.addEventListener('click', function () {
+        out.textContent = b.getAttribute('data-detail');
+        document.querySelectorAll('.strip--active').forEach(function (a) { a.classList.remove('strip--active'); });
+        b.classList.add('strip--active');
+      });
+    });
+  })();
+</script>
+
+<style>
+  .strip__scroll { overflow-x: auto; margin-top: 1.1rem; }
+  .strip__frame { min-width: 620px; }
+  .strip__axis { position: relative; height: 18px; font-size: 0.72rem; color: var(--muted); }
+  .strip__today { position: absolute; left: 0; font-weight: 600; color: var(--green-primary); }
+  .strip__tick { position: absolute; transform: translateX(-50%); }
+  .strip__grid { position: relative; border-top: 1px solid rgba(45, 106, 79, 0.14); padding-top: 0.35rem; }
+  .strip__line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(45, 106, 79, 0.08); }
+  .strip__op {
+    margin: 0.55rem 0 0.25rem; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  }
+  .strip__lanes { position: relative; }
+  .strip__bar {
+    position: absolute; height: 18px; border: 0; border-radius: 5px;
+    font: 600 0.72rem/18px var(--font-body, inherit); text-align: left;
+    padding: 0 0 0 7px; white-space: nowrap; overflow: hidden;
+    cursor: pointer; min-width: 14px;
+  }
+  .strip__nights { font-weight: 500; opacity: 0.75; }
+  .strip__dot {
+    position: absolute; width: 12px; height: 12px; border: 0; border-radius: 3px;
+    transform: rotate(45deg) translateX(-50%); cursor: pointer; padding: 0;
+  }
+  .strip--active { outline: 2px solid var(--green-primary); outline-offset: 1px; }
+
+  .strip__bar--fest { background: #f6e3b0; color: #6b4a08; }
+  .strip__bar--food { background: #f4c9b4; color: #79301a; }
+  .strip__bar--ph { background: #d8ebdf; color: #1d4a36; }
+  .strip__bar--ride { background: #cfe0f2; color: #1d4e7a; }
+  .strip__bar--closure { background: #e7e7e2; color: #56564f; }
+  .strip__bar--ticket {
+    background: #fff; border: 1.5px dashed #7b72d8; color: #46408c; line-height: 15px;
+  }
+  .strip__dot--ph { background: var(--green-primary); }
+  .strip__dot--fest { background: #d9a922; }
+  .strip__dot--food { background: #c65f34; }
+  .strip__dot--ride { background: #3a6ea8; }
+  .strip__dot--ticket { background: #7b72d8; }
+
+  .strip__legend {
+    display: flex; flex-wrap: wrap; gap: 0.45rem 1rem;
+    margin-top: 0.9rem; font-size: 0.78rem; color: var(--muted);
+  }
+  .strip__swatch {
+    display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px;
+  }
+  .strip__swatch--fest { background: #f6e3b0; }
+  .strip__swatch--food { background: #f4c9b4; }
+  .strip__swatch--ph { background: #d8ebdf; }
+  .strip__swatch--ride { background: #cfe0f2; }
+  .strip__swatch--closure { background: #e7e7e2; }
+  .strip__swatch--ticket { background: #fff; border: 1.5px dashed #7b72d8; }
+
+  .strip__detail {
+    margin-top: 0.8rem; min-height: 2.6em; font-size: 0.88rem;
+    color: var(--ink); line-height: 1.5;
+    border-left: 3px solid var(--green-accent);
+    background: rgba(45, 106, 79, 0.05);
+    border-radius: var(--radius-sm); padding: 0.55rem 0.8rem;
+  }
+</style>
