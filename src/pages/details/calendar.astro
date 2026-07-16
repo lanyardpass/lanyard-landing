@@ -13,13 +13,13 @@ export const prerender = true;
 
 const title = `The calendar | ${SITE.name}`;
 const description =
-  'How Lanyard builds the calendar. Park hours pulled from the operators twice a week, an early-close watch, and events curated by a person who writes down every no.';
+  'How Lanyard builds the calendar. Park hours pulled from the operators twice a week, an early-close watch, and events that have to earn their place, with every no written down.';
 ---
 <DetailLayout
   title={title}
   description={description}
   heroKicker="The details · The calendar"
-  heroTitle="Ninety days, read by a person."
+  heroTitle="Ninety days, argued with."
   heroSub="The calendar looks simple. The next ninety days across every park you hold, with hours, events, and blockout dates filtered to your passes. Underneath it is the most carefully curated data in the app. Here is how it gets made."
 >
   <EventsStrip />
@@ -36,7 +36,7 @@ const description =
       Every incoming change is classified before it ships. New days and later closes flow through
       quietly, because operators extend hours far more often than they shorten them. Anything that
       shortens a day, truncates a calendar, or just looks implausible gets held and investigated
-      by a person before it reaches your phone.
+      before it reaches your phone.
     </p>
   </section>
 
@@ -73,9 +73,9 @@ const description =
     <p class="chapter__kicker">Events</p>
     <h2>Sorted the way a passholder thinks</h2>
     <p>
-      Every operator's event calendar is read by a person, and each event that makes the cut is
-      classified into a type a passholder would actually recognize. The strip at the top of this
-      page is what came out of that reading, and these are the types it's sorted into.
+      Every operator's event calendar gets read top to bottom, and each event that makes the cut
+      is classified into a type a passholder would actually recognize. The strip at the top of
+      this page is what came out of that reading, and these are the types it's sorted into.
     </p>
     <ul>
       <li><strong>Spectaculars</strong> — fireworks and nighttime shows worth planning an evening around.</li>
