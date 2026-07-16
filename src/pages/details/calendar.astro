@@ -13,7 +13,7 @@ export const prerender = true;
 
 const title = `The calendar | ${SITE.name}`;
 const description =
-  'How Lanyard builds the calendar. Park hours pulled from the operators twice a week, an early-close watch, and events that have to earn their place, with every no written down.';
+  'How Lanyard builds the calendar. Park hours pulled from the operators twice a week, an early-close watch, and events that have to earn their place. No rumors, no placeholder dates.';
 ---
 <DetailLayout
   title={title}
@@ -77,15 +77,15 @@ const description =
       is classified into a type a passholder would actually recognize. The strip at the top of
       this page is what came out of that reading, and these are the types it's sorted into.
     </p>
-    <ul>
-      <li><strong>Spectaculars</strong> — fireworks and nighttime shows worth planning an evening around.</li>
-      <li><strong>Celebrations</strong> — holidays, anniversaries, park-wide seasons.</li>
-      <li><strong>Festivals and food festivals</strong> — the eat-and-drink-around-the-park circuit.</li>
-      <li><strong>Concert series</strong> — the shows that come with your day.</li>
-      <li><strong>Ride events</strong> — openings, previews, and last-chance farewells.</li>
-      <li><strong>Race weekends</strong> — the mornings the parks belong to runners.</li>
-      <li><strong>Ticketed event nights</strong> — the hard-ticket nights that reshape park hours.</li>
-      <li><strong>Passholder events</strong> — the ones that exist only because you hold a pass.</li>
+    <ul style="list-style:none;padding-left:0">
+      <li><i class="strip__swatch strip__swatch--spectacular"></i> <strong>Spectaculars</strong> — fireworks and nighttime shows worth planning an evening around.</li>
+      <li><i class="strip__swatch strip__swatch--celebration"></i> <strong>Celebrations</strong> — holidays, anniversaries, park-wide seasons.</li>
+      <li><i class="strip__swatch strip__swatch--festival"></i><i class="strip__swatch strip__swatch--food_festival" style="margin-left:2px"></i> <strong>Festivals and food festivals</strong> — the eat-and-drink-around-the-park circuit.</li>
+      <li><i class="strip__swatch strip__swatch--concert_series"></i> <strong>Concert series</strong> — the shows that come with your day.</li>
+      <li><i class="strip__swatch strip__swatch--ride_event"></i> <strong>Ride events</strong> — openings, previews, and last-chance farewells.</li>
+      <li><i class="strip__swatch strip__swatch--race_weekend"></i> <strong>Race weekends</strong> — the mornings the parks belong to runners.</li>
+      <li><i class="strip__swatch strip__swatch--hard_ticket_event"></i> <strong>Ticketed event nights</strong> — the hard-ticket nights that reshape park hours.</li>
+      <li><i class="strip__swatch strip__swatch--passholder_event"></i> <strong>Passholder events</strong> — the ones that exist only because you hold a pass.</li>
     </ul>
   </section>
 
@@ -93,11 +93,16 @@ const description =
     <p class="chapter__kicker">The bar</p>
     <h2>Four questions decide what gets in</h2>
     <p>
-      An event earns a place on your calendar by doing at least one of four things. It closes a
-      park. It changes park hours. It's included with a pass. Or it exists only for passholders.
-      Everything else is noise, and noise is the enemy of a calendar you check at a glance.
+      An event earns a place on your calendar by doing at least one of four things.
     </p>
+    <ol>
+      <li>It closes a park.</li>
+      <li>It changes park hours.</li>
+      <li>It's included with your pass.</li>
+      <li>It exists only for passholders.</li>
+    </ol>
     <p>
+      Everything else is noise, and noise is the enemy of a calendar you check at a glance.
       An after-hours event that never touches your daytime visit doesn't clutter the calendar,
       but if your pass gets a ticket discount for it, that discount shows up where it belongs,
       as a perk.
@@ -105,24 +110,13 @@ const description =
   </section>
 
   <section class="chapter">
-    <p class="chapter__kicker">The no list</p>
-    <h2>Every no is written down</h2>
-    <p>
-      Deciding what stays off the calendar is half the curation. Every event Lanyard declines is
-      logged with the reason and a condition for reconsidering it, so a no is never silently
-      forgotten and re-argued from scratch. If the condition fires, say an event starts affecting
-      park hours, it gets another look. Until then the decision holds.
-    </p>
-  </section>
-
-  <section class="chapter">
     <p class="chapter__kicker">The dates</p>
-    <h2>Dates are never typed by hand</h2>
+    <h2>No rumors</h2>
     <p>
-      Select-night lists are generated from the operator's published night lists, never keyed in
-      manually, because a fat-fingered date sends someone to a dark park. And when an operator
-      teases "select nights this fall," that event is acknowledged, not dated. Lanyard doesn't
-      invent placeholder dates and it doesn't publish rumors. Operator-published dates only.
+      When an operator teases "select nights this fall," that event is acknowledged, not dated.
+      Lanyard doesn't guess, doesn't publish fan-blog speculation, and doesn't put placeholder
+      dates on your calendar. Every date you see is one the operator published. If a date isn't
+      certain, it isn't there.
     </p>
   </section>
 
