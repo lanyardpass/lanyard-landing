@@ -10,10 +10,12 @@
 //   glide  → the ECV rolls in smoothly, no frames
 //   anchored (standing couple, shoulders kid) → fades in place; these
 //            figures never walk in the app either
-// Departures fade (arrivals are the delight). Balloon shows up at Packed
-// with the app's documented 20% escape roll (rolled once per page load);
-// a steam train rarely crosses the back at Packed (LAN-187 brings the
-// traced one to the app — swap the geometric web train to match then).
+// Departures WALK OFF toward their nearest edge (anchored figures fade).
+// A figure's facing follows its travel direction and persists after it
+// settles — no snapping back. Balloon shows up at Packed with the app's
+// documented 20% escape roll (rolled once per page load). The steam train
+// was removed from the web plaza 2026-07-16 — with no park context it read
+// as a non sequitur; the train is app-only (USF/IoA scenes, LAN-187).
 //
 // FIGURE ART IS THE REAL CAST: unit-square SVGs generated from the app's
 // CrowdFigures.swift by tools/dump-shape-svgs.py (lanyard-docs →
@@ -97,18 +99,6 @@ const cast = [
   { kind: 'balloonKid', tier: 3, left: 68, row: 'front', delay: 0.45 },
 ];
 const kindOf = (k: string) => KINDS[k === 'balloonKid' ? 'kid' : k];
-
-const TRAIN =
-  '<rect x="10" y="28" width="66" height="22" rx="4"/>' +
-  '<rect x="20" y="14" width="10" height="16" rx="2"/>' +
-  '<rect x="62" y="12" width="24" height="38" rx="3"/>' +
-  '<circle cx="26" cy="56" r="7"/><circle cx="46" cy="56" r="7"/><circle cx="66" cy="56" r="7"/><circle cx="84" cy="56" r="7"/>' +
-  '<rect x="92" y="30" width="36" height="22" rx="3"/>' +
-  '<circle cx="101" cy="56" r="6"/><circle cx="119" cy="56" r="6"/>' +
-  '<rect x="134" y="24" width="76" height="28" rx="5"/>' +
-  '<circle cx="148" cy="56" r="6"/><circle cx="196" cy="56" r="6"/>' +
-  '<rect x="216" y="24" width="76" height="28" rx="5"/>' +
-  '<circle cx="230" cy="56" r="6"/><circle cx="278" cy="56" r="6"/>';
 ---
 <div class="plaza-wrap">
   <div class="plaza__words" role="group" aria-label="Set the demo crowd level">
@@ -118,9 +108,6 @@ const TRAIN =
   </div>
 
   <div class="plaza" id="crowd-plaza" data-state="quiet" aria-hidden="true">
-    <div class="plaza__train" id="plaza-train">
-      <svg viewBox="0 0 300 64" width="300" height="64" set:html={TRAIN} />
-    </div>
     {cast.map((f) => (
       <span
         class={`plaza__fig plaza__fig--${f.row}`}
@@ -160,12 +147,12 @@ const TRAIN =
     var plaza = document.getElementById('crowd-plaza');
     var wordEl = document.getElementById('plaza-word');
     var sentEl = document.getElementById('plaza-sentence');
-    var train = document.getElementById('plaza-train');
     var balloon = document.getElementById('plaza-balloon');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // If walkers moonwalk, flip this (walk-frame art faces one way; verify
-    // on the preview — flip-and-confirm).
+    // on the preview — flip-and-confirm). Standing art faces right too, so
+    // the same flip persists through settle: facing follows travel.
     var WALK_ART_FACES_RIGHT = true;
 
     var STATES = {
@@ -177,7 +164,6 @@ const TRAIN =
     var figs = Array.prototype.slice.call(plaza.querySelectorAll('.plaza__fig'));
     var balloonEscapes = Math.random() < 0.2;
     var balloonDone = false;
-    var trainTimer = null;
     var stepTicker = null;
 
     function ensureTicker() {
@@ -186,7 +172,13 @@ const TRAIN =
         var walking = plaza.querySelectorAll('.fig--walking');
         if (!walking.length) { clearInterval(stepTicker); stepTicker = null; return; }
         walking.forEach(function (f) { f.classList.toggle('fig--stepB'); });
-      }, 170);
+      }, 210);
+    }
+
+    function clearMotion(f) {
+      clearTimeout(f._motionT);
+      f._motionT = null;
+      f.classList.remove('fig--walking', 'fig--gliding', 'fig--skip', 'fig--stepB', 'fig--leaving');
     }
 
     function arrive(f) {
@@ -198,28 +190,73 @@ const TRAIN =
         return;
       }
       setTimeout(function () {
-        if (!f.classList.contains('fig--due')) return;
+        if (!f.classList.contains('fig--due') || f.classList.contains('fig--in')) return;
         var fromLeft = parseFloat(f.style.left) < 50;
         var dist = 90 + Math.random() * 70;
-        var tx = fromLeft ? -dist : dist;
         var travelingRight = fromLeft;
-        var flip = travelingRight !== WALK_ART_FACES_RIGHT;
-        f.classList.toggle('fig--flip', flip);
+        f.classList.toggle('fig--flip', travelingRight !== WALK_ART_FACES_RIGHT);
         f.style.transition = 'none';
-        f.style.setProperty('--tx', tx.toFixed(0) + 'px');
+        f.style.setProperty('--tx', (fromLeft ? -dist : dist).toFixed(0) + 'px');
         f.classList.add('fig--in', gait === 'glide' ? 'fig--gliding' : 'fig--walking');
         if (gait === 'skip') f.classList.add('fig--skip');
         void f.offsetWidth;
-        var dur = (gait === 'glide' ? 1100 : 900) + dist * 7;
+        var dur = (gait === 'glide' ? 1600 : 1400) + dist * 9;
         f.style.transition = 'transform ' + dur + 'ms cubic-bezier(0.25, 0.6, 0.35, 1)';
         f.style.setProperty('--tx', '0px');
         if (gait !== 'glide') ensureTicker();
-        setTimeout(function () {
-          f.classList.remove('fig--walking', 'fig--gliding', 'fig--skip', 'fig--stepB', 'fig--flip');
+        f._motionT = setTimeout(function () {
+          clearMotion(f);
           f.classList.add('fig--settled');
           f.style.transition = '';
         }, dur + 30);
       }, delay);
+    }
+
+    function depart(f) {
+      var gait = f.getAttribute('data-gait');
+      if (reduce || gait === 'anchored') {
+        clearMotion(f);
+        f.classList.remove('fig--due', 'fig--in', 'fig--settled', 'fig--flip');
+        f.style.transition = '';
+        f.style.removeProperty('--tx');
+        return;
+      }
+      var w = plaza.clientWidth;
+      var x = (parseFloat(f.style.left) / 100) * w;
+      var exitLeft = x < w / 2;
+      var dist = (exitLeft ? x : w - x) + 100;
+      var travelingRight = !exitLeft;
+      f.classList.toggle('fig--flip', travelingRight !== WALK_ART_FACES_RIGHT);
+      f.classList.remove('fig--settled');
+      f.classList.add('fig--leaving', gait === 'glide' ? 'fig--gliding' : 'fig--walking');
+      if (gait === 'skip') f.classList.add('fig--skip');
+      if (gait !== 'glide') ensureTicker();
+      var dur = 1200 + dist * 7;
+      f.style.transition = 'transform ' + dur + 'ms cubic-bezier(0.45, 0.05, 0.85, 0.5)';
+      f.style.setProperty('--tx', (exitLeft ? -dist : dist).toFixed(0) + 'px');
+      f._motionT = setTimeout(function () {
+        clearMotion(f);
+        f.classList.remove('fig--due', 'fig--in', 'fig--flip');
+        f.style.transition = 'none';
+        f.style.removeProperty('--tx');
+        void f.offsetWidth;
+        f.style.transition = '';
+      }, dur + 30);
+    }
+
+    function recall(f) {
+      // Re-summoned mid-departure: turn around and walk back to the spot.
+      clearMotion(f);
+      f.classList.add('fig--walking');
+      var backDur = 900;
+      f.style.transition = 'transform ' + backDur + 'ms ease-out';
+      f.style.setProperty('--tx', '0px');
+      if (f.getAttribute('data-gait') !== 'glide') ensureTicker();
+      f._motionT = setTimeout(function () {
+        clearMotion(f);
+        f.classList.add('fig--settled');
+        f.style.transition = '';
+      }, backDur + 30);
     }
 
     function setState(s) {
@@ -234,36 +271,27 @@ const TRAIN =
       figs.forEach(function (f) {
         var due = parseInt(f.getAttribute('data-tier'), 10) <= tier;
         var here = f.classList.contains('fig--in');
+        var leaving = f.classList.contains('fig--leaving');
         if (due && !here) {
           f.classList.add('fig--due');
           arrive(f);
-        } else if (!due && here) {
-          f.classList.remove('fig--due', 'fig--in', 'fig--settled', 'fig--walking', 'fig--gliding', 'fig--skip', 'fig--stepB', 'fig--flip');
-          f.style.transition = '';
-          f.style.removeProperty('--tx');
+        } else if (due && leaving) {
+          f.classList.add('fig--due');
+          recall(f);
+        } else if (!due && here && !leaving) {
+          depart(f);
         } else if (due) {
           f.classList.add('fig--due');
         }
       });
 
-      clearTimeout(trainTimer);
-      if (s === 'packed') {
-        trainTimer = setTimeout(function tick() {
-          if (!document.hidden && !reduce) {
-            train.classList.remove('plaza__train--run');
-            void train.offsetWidth;
-            train.classList.add('plaza__train--run');
+      if (s === 'packed' && balloonEscapes && !balloonDone && !reduce) {
+        setTimeout(function () {
+          if (plaza.getAttribute('data-state') === 'packed' && !balloonDone) {
+            balloonDone = true;
+            balloon.classList.add('plaza__balloon--fly');
           }
-          trainTimer = setTimeout(tick, 26000 + Math.random() * 18000);
-        }, 2500);
-        if (balloonEscapes && !balloonDone && !reduce) {
-          setTimeout(function () {
-            if (plaza.getAttribute('data-state') === 'packed' && !balloonDone) {
-              balloonDone = true;
-              balloon.classList.add('plaza__balloon--fly');
-            }
-          }, 5000 + Math.random() * 4000);
-        }
+        }, 5000 + Math.random() * 4000);
       }
     }
 
@@ -302,12 +330,16 @@ const TRAIN =
   }
   .plaza__fig {
     position: absolute; bottom: 24px; color: #1b4332;
-    transform: translateX(var(--tx, 0)) scale(var(--s, 1));
+    transform: translateX(var(--tx, 0)) scale(calc(var(--s, 1) * var(--m, 1)));
     transform-origin: bottom center;
     opacity: 0;
   }
   .plaza__fig--back { bottom: 78px; color: #4a6e5c; z-index: 1; }
   .plaza__fig--front { z-index: 3; }
+  @media (max-width: 560px) {
+    .plaza { height: 168px; --m: 0.72; }
+    .plaza__fig--back { bottom: 64px; }
+  }
   .plaza__fig.fig--in { opacity: 1; }
   .plaza__fig:not(.fig--in) { transition: opacity 0.5s ease; }
   .plaza__fig[data-gait='anchored'] { transition: opacity 0.55s ease; }
@@ -324,7 +356,9 @@ const TRAIN =
   .fig--walking .fig__frameB { display: none; }
   .fig--walking.fig--stepB .fig__frameA { display: none; }
   .fig--walking.fig--stepB .fig__frameB { display: inline-block; }
-  .fig--flip .fig__walk { transform: scaleX(-1); }
+  /* Facing follows travel and PERSISTS after settle (standing art faces the
+     same way as the walk art, so a right-entering figure keeps facing left). */
+  .fig--flip .fig__walk, .fig--flip .fig__settle { transform: scaleX(-1); }
   .fig--skip.fig--stepB .fig__walk { transform: translateY(-5px); }
   .fig--flip.fig--skip.fig--stepB .fig__walk { transform: scaleX(-1) translateY(-5px); }
   .fig__settle { display: inline-block; vertical-align: bottom; }
@@ -335,17 +369,7 @@ const TRAIN =
   }
   .plaza__balloon--fly { transform: translateY(-190px) translateX(24px); opacity: 0; }
 
-  .plaza__train {
-    position: absolute; bottom: 96px; left: 0; color: #56705f; opacity: 0.55;
-    transform: translateX(-320px); z-index: 0; pointer-events: none;
-  }
-  .plaza__train--run { animation: plaza-train-cross 13s linear 1; }
-  @keyframes plaza-train-cross {
-    from { transform: translateX(-320px); }
-    to { transform: translateX(calc(100vw + 320px)); }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .plaza__train--run { animation: none; }
     .plaza__fig { transition: none !important; }
     .plaza__balloon { transition: none; }
   }
