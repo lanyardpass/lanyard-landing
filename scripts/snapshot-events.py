@@ -69,6 +69,7 @@ def main() -> None:
                 "from": vf,
                 "to": vt,
                 "nights": len(e.get("select_dates") or []),
+                "dates": e.get("select_dates") or [],
                 "parks": [park_short.get(pid, pid) for pid in (e.get("park_ids") or [])],
                 "description": e.get("description", ""),
             }

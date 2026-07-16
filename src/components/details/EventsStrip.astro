@@ -1,8 +1,11 @@
 ---
 // The "next ninety days" strip on /details/calendar — a build-time render of
 // the real events corpus (src/data/events_snapshot.json, written by
-// scripts/snapshot-events.py). The window anchors on snapshot_date, NOT the
-// build date, so the honest label is "as curated on <snapshot_date>".
+// scripts/snapshot-events.py) with a client-side scrubber modeled on the
+// app's events calendar. The BARS are as fresh as the snapshot (the honest
+// label is "as curated on <snapshot_date>"); the PLAYHEAD is live — it lands
+// on the reader's actual date, clamps to the window edge when the snapshot
+// has aged past it, and the day readout below lists what's on under it.
 // Re-snapshot + rebuild whenever events.json changes (events runbook cadence).
 import snapshot from '@/data/events_snapshot.json';
 
@@ -80,23 +83,33 @@ const groups = Object.entries(snapshot.operators).map(([opId, opName]) => {
 }).filter((g) => g.events.length);
 
 const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.family)))];
+
+// Compact corpus for the client-side scrubber.
+const clientEvents = groups.flatMap((g) =>
+  g.events.map((e) => ({
+    label: label(e), type: e.family, from: e.from, to: e.to,
+    single: e.single, nights: e.nights, dates: e.dates, op: g.opName,
+  }))
+);
 ---
 <section class="chapter strip">
   <p class="chapter__kicker">The proof</p>
   <h2>Every event below is real</h2>
   <p>
     This strip is drawn from the same data the app ships. It covers the ninety days ahead as
-    curated on {snapshotLabel}, and it's rebuilt every time we update the site.
+    curated on {snapshotLabel}, and it's rebuilt every time we update the site. The playhead
+    lands on whatever day you're reading this — drag it.
   </p>
 
   <div class="strip__scroll">
     <div class="strip__frame">
       <div class="strip__axis">
-        <span class="strip__today">{fmt(snapshot.snapshot_date)} · today</span>
+        <span class="strip__start">{fmt(snapshot.snapshot_date)}</span>
         {ticks.map((t) => <span class="strip__tick" style={`left:${t.left}%`}>{t.label}</span>)}
       </div>
       <div class="strip__grid">
         {ticks.map((t) => <i class="strip__line" style={`left:${t.left}%`}></i>)}
+        <i class="strip__playhead" id="strip-playhead" hidden><b id="strip-playhead-label"></b></i>
         {groups.map((g) => (
           <div class="strip__group">
             <p class="strip__op">{g.opName}</p>
@@ -122,8 +135,15 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
           </div>
         ))}
       </div>
+      <input
+        class="strip__scrub" type="range" id="strip-scrub"
+        min="0" max={days} step="1" value="0"
+        aria-label="Scrub through the ninety days"
+      />
     </div>
   </div>
+
+  <div class="strip__day" id="strip-day"></div>
 
   <div class="strip__legend">
     {familiesPresent.map((f) => (
@@ -133,9 +153,66 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
   <p class="strip__detail" id="strip-detail">Tap any event for the one-line version.</p>
 </section>
 
-<script is:inline>
+<script is:inline define:vars={{ EVENTS: clientEvents, SNAP: snapshot.snapshot_date, DAYS: days }}>
   (function () {
+    var MS = 86400000;
+    var start = new Date(SNAP + 'T00:00:00');
+    var scrub = document.getElementById('strip-scrub');
+    var head = document.getElementById('strip-playhead');
+    var headLabel = document.getElementById('strip-playhead-label');
+    var dayPanel = document.getElementById('strip-day');
     var out = document.getElementById('strip-detail');
+
+    function at(v) { return new Date(start.getTime() + v * MS); }
+    function isoOf(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function fmtShort(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+    function fmtLong(d) { return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var offset = Math.round((today.getTime() - start.getTime()) / MS);
+    var clamped = Math.min(Math.max(offset, 0), DAYS);
+    var aged = offset > DAYS;
+
+    function render(v) {
+      var d = at(v);
+      var dIso = isoOf(d);
+      var isToday = v === offset;
+      var p = (v / DAYS) * 100;
+      head.hidden = false;
+      head.style.left = p + '%';
+      headLabel.textContent = isToday ? 'today' : fmtShort(d);
+      headLabel.style.transform = p < 7 ? 'translateX(0)' : p > 93 ? 'translateX(-100%)' : 'translateX(-50%)';
+
+      var rows = '';
+      EVENTS.forEach(function (e) {
+        if (dIso < e.from || dIso > e.to) return;
+        var night = e.dates.length ? e.dates.indexOf(dIso) >= 0 : null;
+        var note = e.single
+          ? 'one day only'
+          : night === true ? 'event night'
+          : night === false ? 'no event night this date'
+          : 'through ' + fmtShort(new Date(e.to + 'T00:00:00'));
+        rows +=
+          '<p class="strip__dayrow' + (night === false ? ' strip__dayrow--off' : '') + '">' +
+          '<i class="strip__swatch strip__swatch--' + e.type + '"></i>' +
+          '<span>' + esc(e.label) + '</span><em>' + note + ' · ' + esc(e.op) + '</em></p>';
+      });
+      if (!rows) rows = '<p class="strip__dayrow strip__dayrow--off"><span>A quiet day. Regular hours, no events.</span></p>';
+
+      var agedNote = aged && v === DAYS
+        ? '<p class="strip__aged">Your today is past the end of this snapshot. The app itself is current.</p>'
+        : '';
+      dayPanel.innerHTML =
+        '<p class="strip__dayhead">' + fmtLong(d) + (isToday ? ' · today' : '') + '</p>' + rows + agedNote;
+    }
+
+    scrub.value = clamped;
+    scrub.addEventListener('input', function () { render(+scrub.value); });
+    render(clamped);
+
     document.querySelectorAll('.strip__bar, .strip__dot').forEach(function (b) {
       b.addEventListener('click', function () {
         out.textContent = b.getAttribute('data-detail');
@@ -146,14 +223,24 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
   })();
 </script>
 
-<style>
+<style is:global>
   .strip__scroll { overflow-x: auto; margin-top: 1.1rem; }
-  .strip__frame { min-width: 620px; }
+  .strip__frame { min-width: 620px; padding-top: 16px; }
   .strip__axis { position: relative; height: 18px; font-size: 0.72rem; color: var(--muted); }
-  .strip__today { position: absolute; left: 0; font-weight: 600; color: var(--green-primary); }
+  .strip__start { position: absolute; left: 0; font-weight: 600; }
   .strip__tick { position: absolute; transform: translateX(-50%); }
   .strip__grid { position: relative; border-top: 1px solid rgba(45, 106, 79, 0.14); padding-top: 0.35rem; }
   .strip__line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(45, 106, 79, 0.08); }
+  .strip__playhead {
+    position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px;
+    background: var(--green-primary); pointer-events: none; z-index: 2;
+  }
+  .strip__playhead b {
+    position: absolute; top: -18px; left: 0; white-space: nowrap;
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em;
+    color: #fff; background: var(--green-primary);
+    border-radius: 999px; padding: 1px 7px;
+  }
   .strip__op {
     margin: 0.55rem 0 0.25rem; font-size: 0.7rem; font-weight: 700;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
@@ -171,6 +258,11 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
     transform: rotate(45deg) translateX(-50%); cursor: pointer; padding: 0;
   }
   .strip--active { outline: 2px solid var(--green-primary); outline-offset: 1px; }
+
+  .strip__scrub {
+    display: block; width: 100%; margin: 10px 0 0; accent-color: var(--green-primary);
+    cursor: ew-resize;
+  }
 
   .strip__bar--celebration { background: #F5B800; color: #3a2900; }
   .strip__bar--festival { background: #7C3AED; color: #fff; }
@@ -193,12 +285,34 @@ const familiesPresent = [...new Set(groups.flatMap((g) => g.events.map((e) => e.
   .strip__dot--race_weekend { background: #E55934; }
   .strip__dot--closure { background: #6B7280; }
 
+  .strip__day {
+    margin-top: 1rem; border: 1px solid rgba(45, 106, 79, 0.14);
+    border-radius: var(--radius-sm); padding: 0.8rem 1rem 0.9rem;
+    background: rgba(45, 106, 79, 0.03);
+  }
+  .strip__day .strip__dayhead {
+    margin: 0 0 0.5rem !important; font-size: 0.92rem !important;
+    font-weight: 700; color: var(--green-primary) !important;
+  }
+  .strip__day .strip__dayrow {
+    display: flex; align-items: baseline; gap: 8px;
+    margin: 0.3rem 0 0 !important; font-size: 0.85rem !important; line-height: 1.45;
+  }
+  .strip__day .strip__dayrow span { color: var(--ink); font-weight: 600; }
+  .strip__day .strip__dayrow em { color: var(--muted); font-style: normal; font-size: 0.78rem; }
+  .strip__day .strip__dayrow--off { opacity: 0.6; }
+  .strip__day .strip__dayrow--off span { font-weight: 500; }
+  .strip__day .strip__aged {
+    margin: 0.6rem 0 0 !important; font-size: 0.78rem !important; color: var(--muted) !important;
+  }
+
   .strip__legend {
     display: flex; flex-wrap: wrap; gap: 0.45rem 1rem;
     margin-top: 0.9rem; font-size: 0.78rem; color: var(--muted);
   }
   .strip__swatch {
     display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px;
+    flex: none;
   }
   .strip__swatch--celebration { background: #F5B800; }
   .strip__swatch--festival { background: #7C3AED; }
