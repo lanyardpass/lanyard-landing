@@ -339,6 +339,10 @@ const kindOf = (k: string) => KINDS[k === 'balloonKid' ? 'kid' : k];
   }
   .plaza__fig {
     position: absolute; bottom: 24px; color: #1b4332;
+    /* Zero-width anchor: the figure centers ON its left% mark instead of
+       hanging rightward from it (the mobile right-skew, 2026-07-16). Motion
+       stays on transform; centering is pure layout. */
+    width: 0; display: flex; justify-content: center; align-items: flex-end;
     transform: translateX(var(--tx, 0)) scale(calc(var(--s, 1) * var(--m, 1)));
     transform-origin: bottom center;
     opacity: 0;
@@ -373,7 +377,7 @@ const kindOf = (k: string) => KINDS[k === 'balloonKid' ? 'kid' : k];
   .fig__settle { display: inline-block; vertical-align: bottom; }
 
   .plaza__balloon {
-    position: absolute; top: -30px; right: 2px; color: #c65f34;
+    position: absolute; top: -30px; left: 4px; color: #c65f34;
     transition: transform 6s ease-in, opacity 6s ease-in;
   }
   .plaza__balloon--fly { transform: translateY(-190px) translateX(24px); opacity: 0; }
