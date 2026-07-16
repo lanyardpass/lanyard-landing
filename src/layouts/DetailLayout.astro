@@ -16,11 +16,13 @@ interface Props {
   heroKicker: string;
   heroTitle: string;
   heroSub: string;
+  /** Extra belt for pages that exist ahead of their feature (e.g. /crowds pre-1.2). */
+  noindex?: boolean;
 }
 
-const { title, description, heroKicker, heroTitle, heroSub } = Astro.props;
+const { title, description, heroKicker, heroTitle, heroSub, noindex } = Astro.props;
 ---
-<Layout title={title} description={description}>
+<Layout title={title} description={description} noindex={noindex}>
   <article class="dpage">
     <header class="dpage__head">
       <a class="dpage__back" href="/details">&larr; The details</a>

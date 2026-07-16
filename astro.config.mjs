@@ -36,7 +36,11 @@ export default defineConfig({
     // Google Search Console — the robots.txt is Cloudflare-managed, so we
     // don't reference it there.
     sitemap({
-      filter: (page) => !page.includes('/admin'),
+      // /crowds is dark-launched until Crowd Intelligence ships (1.2) — the
+      // page carries noindex AND stays out of the sitemap. ⚠ 1.2 GATE: remove
+      // the /crowds exclusion (and the page's noindex) when the feature goes
+      // live.
+      filter: (page) => !page.includes('/admin') && !page.includes('/crowds'),
     }),
   ],
 });

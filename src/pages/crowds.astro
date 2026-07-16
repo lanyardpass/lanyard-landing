@@ -1,0 +1,127 @@
+---
+// /crowds — the deep "how it works" layer for Crowd Intelligence, and the
+// landing page for the app's explainer sheet link ("How we do the wizardry →",
+// CrowdExplainerSheet.swift — that URL is a RELEASE GATE for the 1.2 un-gate:
+// this page must be live on lanyardpass.com before the sheet ships un-gated).
+//
+// ⚠ 1.2 GATE — TWO FLIPS WHEN THE FEATURE SHIPS:
+//   1. Remove `noindex` below (page is dark-launched: reachable by URL for
+//      the app link, invisible to search).
+//   2. /details hub: swap the dashed "The crowd — coming" teaser card for a
+//      live chapter card linking here.
+//
+// Voice contract: this page deepens CrowdExplainerSheet's ten Q&As — same
+// facts, one register down. If the sheet's copy changes, re-read this page.
+// Public-safe boundary: mechanism at the level the sheet already ships
+// (wait times every 15 min, two years of own history, own-curve grading).
+// The recipe (index formula, percentile cuts, threshold windows) stays out.
+import DetailLayout from '@/layouts/DetailLayout.astro';
+import CrowdPlaza from '@/components/details/CrowdPlaza.astro';
+import { SITE } from '@/data/site';
+
+export const prerender = true;
+
+const title = `How we do the wizardry | ${SITE.name}`;
+const description =
+  'How Lanyard reads a park. One honest word, Quiet, Normal, or Packed, graded against that park\'s own history — and silence whenever the data isn\'t sure.';
+---
+<DetailLayout
+  title={title}
+  description={description}
+  heroKicker="The details · Crowd Intelligence"
+  heroTitle="How we do the wizardry."
+  heroSub="Your park card carries a one-word crowd report. Quiet, Normal, or Packed, judged the only fair way, against that park's own history. The card keeps it to one word. This page is the rest of the story."
+  noindex={true}
+>
+  <section class="chapter">
+    <p class="chapter__kicker">The window</p>
+    <h2>The card shows you the park, not a chart</h2>
+    <p>
+      When a park is packed, the little figures on your card, the Parkfolk, gather at the gates.
+      On a quiet Tuesday night it might be two souls under the moon. There's a family with a
+      stroller, a kid riding shoulders, and somewhere in the crowd, a balloon that now and then
+      gets away.
+    </p>
+    <p>
+      The Parkfolk aren't decoration. Their numbers track the real reading, so the scene and the
+      word always agree. The scene expresses. The word asserts. And the word never lets the charm
+      carry a fact by itself.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Try it</p>
+    <h2>Drive the plaza yourself</h2>
+    <p>
+      This is the language the card speaks, in miniature. Set the word and watch the plaza answer.
+      Patience around Packed is occasionally rewarded.
+    </p>
+    <CrowdPlaza />
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The math</p>
+    <h2>How it knows</h2>
+    <p>
+      Lanyard reads posted wait times every fifteen minutes and weighs the moment against roughly
+      two years of that park's own history, matched to the right time of day, because a 9am
+      reading judged against a mid-afternoon standard would flatter every morning.
+    </p>
+    <p>
+      Every park is graded on its own curve. Packed means packed for that park. A slammed day at
+      SeaWorld and a slammed day at Epic Universe are wildly different wait times, and pretending
+      one scale fits every gate is how other apps end up wrong politely. Behind the grading sits
+      more than ten thousand recorded park-days, and before a park earned its words, the math had
+      to prove itself on days it had never seen.
+    </p>
+    <p>
+      One more thing the evidence settled. Same-day weather barely moves a park's crowd level.
+      Rain redistributes a day, it doesn't re-level it. So weather stays on your card as weather,
+      and the crowd word stays about the crowd.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The words</p>
+    <h2>Three honest words, no fake-precise number</h2>
+    <p>
+      There is no crowd score in Lanyard, no 6 out of 10, and that's on purpose. We can stand
+      behind Quiet, Normal, and Packed. Nobody on earth can stand behind the difference between
+      a 6 and a 7, and an app that pretends otherwise is decorating a guess.
+    </p>
+    <p>
+      It's an observation, not a prediction. The word describes what the lines look like right
+      now, and it can change through the day, which is exactly what you want from a park that
+      fluctuates.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The silence</p>
+    <h2>When it says nothing, that's the feature working</h2>
+    <p>
+      Some mornings the word takes a few minutes to appear, because wait times need a moment to
+      settle after open and we don't like to guess. If the data goes stale, the word disappears
+      rather than coast on old information. New parks and seasonal parks are still earning their
+      measuring stick, so they stay quiet until their history is deep enough to grade fairly.
+    </p>
+    <p>
+      The deal is simple. If there's a word on the card, we stand behind it. If we can't stand
+      behind it, there's no word.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The line we don't cross</p>
+    <h2>What this will never be</h2>
+    <p>
+      No phone tracking, ever. The reading comes from what the parks publish, not from watching
+      you, and your location never leaves your device. No crowd-sourced voting, no vibes, no
+      subjective impressions. And no dashboard. Lanyard is a window onto a place you love that
+      happens to be rigorously correct, and one honest word is what the window needs.
+    </p>
+    <p>
+      <a href="/details">&larr; More of the details</a>
+    </p>
+  </section>
+</DetailLayout>
