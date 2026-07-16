@@ -56,6 +56,10 @@ const { title, description, heroKicker, heroTitle, heroSub } = Astro.props;
     margin-top: clamp(2rem, 5vw, 3rem);
     display: grid; gap: 1.4rem;
   }
+  /* Grid items default to min-width:auto, so a wide child (the events strip's
+     scroll frame) blows out the page on phones instead of scrolling inside
+     its card — Safari then zooms the whole page out to fit. Clamp it. */
+  .dpage__body > :global(*) { min-width: 0; }
   .dpage__body :global(.chapter) {
     background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
     border-radius: var(--radius);
