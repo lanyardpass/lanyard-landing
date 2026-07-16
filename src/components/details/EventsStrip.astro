@@ -89,6 +89,7 @@ const clientEvents = groups.flatMap((g) =>
   g.events.map((e) => ({
     label: label(e), type: e.family, from: e.from, to: e.to,
     single: e.single, nights: e.nights, dates: e.dates, op: g.opName,
+    detail: e.detail,
   }))
 );
 ---
@@ -98,7 +99,7 @@ const clientEvents = groups.flatMap((g) =>
   <p>
     This strip is drawn from the same data the app ships. It covers the ninety days ahead as
     curated on {snapshotLabel}, and it's rebuilt every time we update the site. The playhead
-    lands on whatever day you're reading this — drag it.
+    lands on whatever day you're reading this. Drag it, and tap any event for the full story.
   </p>
 
   <div class="strip__scroll">
@@ -119,14 +120,14 @@ const clientEvents = groups.flatMap((g) =>
                   <button
                     class={`strip__dot strip__dot--${e.family}`}
                     style={`left:${e.left}%;top:${e.lane * 24 + 3}px`}
-                    data-detail={e.detail}
+                    data-label={label(e)}
                     aria-label={e.detail}
                   ></button>
                 ) : (
                   <button
                     class={`strip__bar strip__bar--${e.family}`}
                     style={`left:${e.left}%;width:${e.width}%;top:${e.lane * 24}px`}
-                    data-detail={e.detail}
+                    data-label={label(e)}
                     aria-label={e.detail}
                   >{e.width >= 6 && label(e)}{e.width >= 12 && e.nights > 0 && <span class="strip__nights"> · {e.nights} nights</span>}</button>
                 )
@@ -151,7 +152,6 @@ const clientEvents = groups.flatMap((g) =>
       <span><i class={`strip__swatch strip__swatch--${f}`}></i> {LEGEND[f]}</span>
     ))}
   </div>
-  <p class="strip__detail" id="strip-detail">Tap any event for the one-line version.</p>
 </section>
 
 <script is:inline define:vars={{ EVENTS: clientEvents, SNAP: snapshot.snapshot_date, DAYS: days }}>
@@ -162,7 +162,7 @@ const clientEvents = groups.flatMap((g) =>
     var head = document.getElementById('strip-playhead');
     var headLabel = document.getElementById('strip-playhead-label');
     var dayPanel = document.getElementById('strip-day');
-    var out = document.getElementById('strip-detail');
+    var openLabel = null;
 
     function at(v) { return new Date(start.getTime() + v * MS); }
     function isoOf(d) {
@@ -170,7 +170,7 @@ const clientEvents = groups.flatMap((g) =>
     }
     function fmtShort(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
     function fmtLong(d) { return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
-    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var offset = Math.round((today.getTime() - start.getTime()) / MS);
@@ -205,12 +205,18 @@ const clientEvents = groups.flatMap((g) =>
           : night === true ? 'event night'
           : night === false ? 'no event night this date'
           : 'through ' + fmtShort(new Date(e.to + 'T00:00:00'));
+        var open = openLabel === e.label;
         rows +=
-          '<p class="strip__dayrow' + (night === false ? ' strip__dayrow--off' : '') + '">' +
+          '<button class="strip__dayrow' + (night === false ? ' strip__dayrow--off' : '') + '"' +
+          ' aria-expanded="' + open + '" data-label="' + esc(e.label) + '">' +
           '<i class="strip__swatch strip__swatch--' + e.type + '"></i>' +
-          '<span>' + esc(e.label) + '</span><em>' + note + ' · ' + esc(e.op) + '</em></p>';
+          '<strong>' + esc(e.label) + '</strong>' +
+          '<span>' + note + ' · ' + esc(e.op) + '</span>' +
+          '<i class="strip__caret">' + (open ? '▾' : '▸') + '</i>' +
+          (open ? '<em>' + esc(e.detail) + '</em>' : '') +
+          '</button>';
       });
-      if (!rows) rows = '<p class="strip__dayrow strip__dayrow--off"><span>A quiet day. Regular hours, no events.</span></p>';
+      if (!rows) rows = '<p class="strip__dayquiet">A quiet day. Regular hours, no events.</p>';
 
       var agedNote = aged && v === DAYS
         ? '<p class="strip__aged">Your today is past the end of this snapshot. The app itself is current.</p>'
@@ -223,11 +229,32 @@ const clientEvents = groups.flatMap((g) =>
     scrub.addEventListener('input', function () { render(+scrub.value); });
     render(clamped);
 
+    dayPanel.addEventListener('click', function (ev) {
+      var row = ev.target.closest('.strip__dayrow');
+      if (!row) return;
+      var l = row.getAttribute('data-label');
+      openLabel = openLabel === l ? null : l;
+      render(+scrub.value);
+    });
+
     document.querySelectorAll('.strip__bar, .strip__dot').forEach(function (b) {
       b.addEventListener('click', function () {
-        out.textContent = b.getAttribute('data-detail');
+        var l = b.getAttribute('data-label');
+        var e = null;
+        EVENTS.forEach(function (x) { if (x.label === l) e = x; });
+        if (!e) return;
+        var targetIso = e.dates.length
+          ? (e.dates.filter(function (x) { return x >= SNAP; })[0] || e.from)
+          : e.from;
+        if (targetIso < SNAP) targetIso = SNAP;
+        var v = Math.round((new Date(targetIso + 'T00:00:00').getTime() - start.getTime()) / MS);
+        v = Math.min(Math.max(v, 0), DAYS);
+        openLabel = l;
+        scrub.value = v;
+        render(v);
         document.querySelectorAll('.strip--active').forEach(function (a) { a.classList.remove('strip--active'); });
         b.classList.add('strip--active');
+        dayPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });
   })();
@@ -336,13 +363,24 @@ const clientEvents = groups.flatMap((g) =>
     font-weight: 700; color: var(--green-primary) !important;
   }
   .strip__day .strip__dayrow {
-    display: flex; align-items: baseline; gap: 8px;
-    margin: 0.3rem 0 0 !important; font-size: 0.85rem !important; line-height: 1.45;
+    display: block; width: 100%; text-align: left;
+    background: none; border: 0; margin: 0; padding: 0.35rem 0 0;
+    font-family: inherit; font-size: 0.85rem; line-height: 1.55;
+    color: var(--ink); cursor: pointer;
   }
-  .strip__day .strip__dayrow span { color: var(--ink); font-weight: 600; }
-  .strip__day .strip__dayrow em { color: var(--muted); font-style: normal; font-size: 0.78rem; }
+  .strip__day .strip__dayrow .strip__swatch { margin-right: 7px; }
+  .strip__day .strip__dayrow strong { font-weight: 700; color: var(--ink); }
+  .strip__day .strip__dayrow > span { color: var(--muted); font-size: 0.8rem; margin-left: 6px; }
+  .strip__day .strip__caret { font-style: normal; color: var(--muted); font-size: 0.7rem; margin-left: 6px; }
+  .strip__day .strip__dayrow em {
+    display: block; font-style: normal; margin: 0.3rem 0 0.15rem 18px;
+    font-size: 0.8rem; color: var(--muted); line-height: 1.55;
+  }
   .strip__day .strip__dayrow--off { opacity: 0.6; }
-  .strip__day .strip__dayrow--off span { font-weight: 500; }
+  .strip__day .strip__dayrow--off strong { font-weight: 500; }
+  .strip__day .strip__dayquiet {
+    margin: 0.35rem 0 0 !important; font-size: 0.85rem !important; color: var(--muted) !important;
+  }
   .strip__day .strip__aged {
     margin: 0.6rem 0 0 !important; font-size: 0.78rem !important; color: var(--muted) !important;
   }
@@ -366,11 +404,4 @@ const clientEvents = groups.flatMap((g) =>
   .strip__swatch--race_weekend { background: #E55934; }
   .strip__swatch--closure { background: #6B7280; }
 
-  .strip__detail {
-    margin-top: 0.8rem; min-height: 2.6em; font-size: 0.88rem;
-    color: var(--ink); line-height: 1.5;
-    border-left: 3px solid var(--green-accent);
-    background: rgba(45, 106, 79, 0.05);
-    border-radius: var(--radius-sm); padding: 0.55rem 0.8rem;
-  }
 </style>
