@@ -26,28 +26,31 @@ import shouldersRaw from '@/assets/parkfolk/CrowdFigureShouldersShape.svg?raw';
 import skipGirlRaw from '@/assets/parkfolk/CrowdFigureSkipGirlAShape.svg?raw';
 import ecvRaw from '@/assets/parkfolk/CrowdFigureEcvShape.svg?raw';
 
-// Base figure unit in px (front row). relHeight/aspect values mirror the
-// app registry (CrowdFigures.swift named figures / frames).
+// Base figure unit in px (front row). relHeight values mirror the app
+// registry (CrowdFigures.swift named figures / frames). The dumped SVGs
+// carry TRUE proportions inside the unit square (figure centered, dominant
+// axis filling 0→1 — see brand/crowd-figures/README.md), so each renders
+// in a SQUARE box of its height. Do NOT stretch by aspect — that double-
+// applies it and squishes the figures (earned 2026-07-16).
 const U = 72;
-const art = (raw: string, relHeight: number, aspect: number) => {
-  const h = relHeight * U;
-  const w = h * aspect;
+const art = (raw: string, relHeight: number) => {
+  const h = (relHeight * U).toFixed(1);
   return raw
-    .replace('<svg ', `<svg width="${w.toFixed(1)}" height="${h.toFixed(1)}" preserveAspectRatio="none" `)
+    .replace('<svg ', `<svg width="${h}" height="${h}" `)
     .replace('fill="black"', 'fill="currentColor"');
 };
 const ART: Record<string, string> = {
-  couple: art(coupleRaw, 0.84, 0.571),
-  relaxed: art(relaxedRaw, 0.8, 0.431),
-  phone: art(phoneRaw, 0.78, 0.438),
-  crossed: art(crossedRaw, 0.8, 0.39),
-  hips: art(hipsRaw, 0.8, 0.483),
-  walker: art(walkARaw, 0.76, 0.418),
-  stroller: art(strollerRaw, 0.87, 1.0),
-  shoulders: art(shouldersRaw, 1.0, 0.368),
-  skipKid: art(skipGirlRaw, 0.58, 0.726),
-  ecv: art(ecvRaw, 0.72, 0.691),
-  kid: art(walkARaw, 0.55, 0.418),
+  couple: art(coupleRaw, 0.84),
+  relaxed: art(relaxedRaw, 0.8),
+  phone: art(phoneRaw, 0.78),
+  crossed: art(crossedRaw, 0.8),
+  hips: art(hipsRaw, 0.8),
+  walker: art(walkARaw, 0.76),
+  stroller: art(strollerRaw, 0.87),
+  shoulders: art(shouldersRaw, 1.0),
+  skipKid: art(skipGirlRaw, 0.58),
+  ecv: art(ecvRaw, 0.72),
+  kid: art(walkARaw, 0.55),
 };
 
 // The cast. tier: 1 = present from Quiet, 2 = joins at Normal, 3 = Packed.
@@ -215,7 +218,7 @@ const TRAIN =
   }
 
   .plaza__balloon {
-    position: absolute; top: -30px; right: -12px; color: #c65f34;
+    position: absolute; top: -30px; right: 2px; color: #c65f34;
     transition: transform 6s ease-in, opacity 6s ease-in;
   }
   .plaza__balloon--fly { transform: translateY(-190px) translateX(24px); opacity: 0; }
