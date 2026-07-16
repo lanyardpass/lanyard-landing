@@ -7,69 +7,69 @@
 // page load), and a steam train rarely crosses the back at Packed — the
 // same train LAN-187 brings to the app's USF/IoA scenes.
 //
-// FIGURE ART IS STAND-IN: geometric web silhouettes, deliberately simple.
-// LAN-187's optional rider is a dump tool that exports the real
-// CrowdFigures.swift cast to SVG — swap these when it lands.
+// FIGURE ART IS THE REAL CAST: unit-square SVGs generated from the app's
+// CrowdFigures.swift by tools/dump-shape-svgs.py (lanyard-docs →
+// brand/crowd-figures/, copied into src/assets/parkfolk/ — README there).
+// Width/height per figure come from the app registry's relHeight/aspect, so
+// the plaza's proportions match the card's. Re-copy after figure changes.
 //
 // Honesty contract: this demo NEVER shows a real crowd reading. The caption
 // says so; the finger drives it here, the evidence drives it in the app.
+import coupleRaw from '@/assets/parkfolk/CrowdFigureCoupleShape.svg?raw';
+import relaxedRaw from '@/assets/parkfolk/CrowdFigureRelaxedShape.svg?raw';
+import phoneRaw from '@/assets/parkfolk/CrowdFigurePhoneShape.svg?raw';
+import crossedRaw from '@/assets/parkfolk/CrowdFigureCrossedShape.svg?raw';
+import hipsRaw from '@/assets/parkfolk/CrowdFigureHipsShape.svg?raw';
+import walkARaw from '@/assets/parkfolk/CrowdFigureWalkAShape.svg?raw';
+import strollerRaw from '@/assets/parkfolk/CrowdFigureStrollerAShape.svg?raw';
+import shouldersRaw from '@/assets/parkfolk/CrowdFigureShouldersShape.svg?raw';
+import skipGirlRaw from '@/assets/parkfolk/CrowdFigureSkipGirlAShape.svg?raw';
+import ecvRaw from '@/assets/parkfolk/CrowdFigureEcvShape.svg?raw';
 
-// Stand-in silhouette parts (fill inherits currentColor).
-const HEAD = '<circle cx="20" cy="10" r="8"/>';
-const TORSO = '<rect x="12" y="20" width="16" height="30" rx="7"/>';
-const LEGS = '<rect x="13.5" y="46" width="5.5" height="32" rx="2.5"/><rect x="21" y="46" width="5.5" height="32" rx="2.5"/>';
-const person = HEAD + TORSO + LEGS;
-
-const FIGS: Record<string, { vb: string; body: string }> = {
-  walker: { vb: '0 0 40 80', body: person },
-  couple: {
-    vb: '0 0 70 80',
-    body:
-      person +
-      '<g transform="translate(30 8) scale(0.9)">' + person + '</g>',
-  },
-  stroller: {
-    vb: '0 0 84 80',
-    body:
-      person +
-      '<path d="M44 52 l20 0 a12 12 0 0 0 12 -12 l-6 0 a10 10 0 0 1 -10 10 l-16 0 z"/>' +
-      '<rect x="44" y="50" width="30" height="12" rx="5"/>' +
-      '<circle cx="52" cy="70" r="6"/><circle cx="68" cy="70" r="6"/>',
-  },
-  shoulders: {
-    vb: '0 0 40 92',
-    body:
-      '<circle cx="20" cy="10" r="6"/><rect x="14" y="15" width="12" height="12" rx="5"/>' +
-      '<g transform="translate(0 14)">' + person + '</g>',
-  },
-  kid: {
-    vb: '0 0 40 80',
-    body: '<g transform="translate(4 26) scale(0.68)">' + person + '</g>',
-  },
-  balloonKid: {
-    vb: '0 0 60 96',
-    body: '<g transform="translate(0 42) scale(0.68)">' + person + '</g>',
-  },
+// Base figure unit in px (front row). relHeight/aspect values mirror the
+// app registry (CrowdFigures.swift named figures / frames).
+const U = 72;
+const art = (raw: string, relHeight: number, aspect: number) => {
+  const h = relHeight * U;
+  const w = h * aspect;
+  return raw
+    .replace('<svg ', `<svg width="${w.toFixed(1)}" height="${h.toFixed(1)}" preserveAspectRatio="none" `)
+    .replace('fill="black"', 'fill="currentColor"');
+};
+const ART: Record<string, string> = {
+  couple: art(coupleRaw, 0.84, 0.571),
+  relaxed: art(relaxedRaw, 0.8, 0.431),
+  phone: art(phoneRaw, 0.78, 0.438),
+  crossed: art(crossedRaw, 0.8, 0.39),
+  hips: art(hipsRaw, 0.8, 0.483),
+  walker: art(walkARaw, 0.76, 0.418),
+  stroller: art(strollerRaw, 0.87, 1.0),
+  shoulders: art(shouldersRaw, 1.0, 0.368),
+  skipKid: art(skipGirlRaw, 0.58, 0.726),
+  ecv: art(ecvRaw, 0.72, 0.691),
+  kid: art(walkARaw, 0.55, 0.418),
 };
 
 // The cast. tier: 1 = present from Quiet, 2 = joins at Normal, 3 = Packed.
-// back row renders smaller + lighter for depth.
+// back row renders smaller + lighter for depth. balloonKid wears ART.kid
+// plus the code-drawn balloon (code-drawn in the app too).
 const cast = [
-  { kind: 'couple', tier: 1, left: 44, scale: 1, row: 'front', delay: 0 },
-  { kind: 'walker', tier: 2, left: 16, scale: 1, row: 'front', delay: 0.08 },
-  { kind: 'stroller', tier: 2, left: 62, scale: 1, row: 'front', delay: 0.16 },
-  { kind: 'shoulders', tier: 2, left: 30, scale: 1, row: 'front', delay: 0.24 },
-  { kind: 'walker', tier: 2, left: 78, scale: 0.82, row: 'back', delay: 0.1 },
-  { kind: 'walker', tier: 2, left: 8, scale: 0.8, row: 'back', delay: 0.2 },
-  { kind: 'walker', tier: 3, left: 5, scale: 1, row: 'front', delay: 0.05 },
-  { kind: 'kid', tier: 3, left: 24, scale: 1, row: 'front', delay: 0.3 },
-  { kind: 'walker', tier: 3, left: 52, scale: 1, row: 'front', delay: 0.12 },
-  { kind: 'couple', tier: 3, left: 86, scale: 0.95, row: 'front', delay: 0.2 },
-  { kind: 'walker', tier: 3, left: 38, scale: 0.8, row: 'back', delay: 0.15 },
-  { kind: 'couple', tier: 3, left: 55, scale: 0.78, row: 'back', delay: 0.25 },
-  { kind: 'stroller', tier: 3, left: 20, scale: 0.8, row: 'back', delay: 0.35 },
-  { kind: 'walker', tier: 3, left: 68, scale: 0.84, row: 'back', delay: 0.4 },
-  { kind: 'balloonKid', tier: 3, left: 72, scale: 1, row: 'front', delay: 0.45 },
+  { kind: 'couple', tier: 1, left: 44, row: 'front', delay: 0 },
+  { kind: 'walker', tier: 2, left: 14, row: 'front', delay: 0.08 },
+  { kind: 'stroller', tier: 2, left: 58, row: 'front', delay: 0.16 },
+  { kind: 'shoulders', tier: 2, left: 29, row: 'front', delay: 0.24 },
+  { kind: 'ecv', tier: 2, left: 76, row: 'front', delay: 0.32 },
+  { kind: 'relaxed', tier: 2, left: 8, row: 'back', delay: 0.1 },
+  { kind: 'phone', tier: 2, left: 82, row: 'back', delay: 0.2 },
+  { kind: 'crossed', tier: 3, left: 4, row: 'front', delay: 0.05 },
+  { kind: 'skipKid', tier: 3, left: 22, row: 'front', delay: 0.3 },
+  { kind: 'hips', tier: 3, left: 50, row: 'front', delay: 0.12 },
+  { kind: 'couple', tier: 3, left: 88, row: 'front', delay: 0.2 },
+  { kind: 'walker', tier: 3, left: 38, row: 'back', delay: 0.15 },
+  { kind: 'couple', tier: 3, left: 52, row: 'back', delay: 0.25 },
+  { kind: 'stroller', tier: 3, left: 18, row: 'back', delay: 0.35 },
+  { kind: 'crossed', tier: 3, left: 66, row: 'back', delay: 0.4 },
+  { kind: 'balloonKid', tier: 3, left: 68, row: 'front', delay: 0.45 },
 ];
 
 const TRAIN =
@@ -98,7 +98,7 @@ const TRAIN =
     {cast.map((f) => (
       <span
         class={`plaza__fig plaza__fig--t${f.tier} plaza__fig--${f.row}`}
-        style={`left:${f.left}%;transition-delay:${f.delay}s;--s:${f.scale}`}
+        style={`left:${f.left}%;transition-delay:${f.delay}s;--s:${f.row === 'back' ? 0.8 : 1}`}
       >
         {f.kind === 'balloonKid' && (
           <span class="plaza__balloon" id="plaza-balloon">
@@ -108,12 +108,7 @@ const TRAIN =
             </svg>
           </span>
         )}
-        <svg
-          viewBox={FIGS[f.kind].vb}
-          width={Number(FIGS[f.kind].vb.split(' ')[2])}
-          height={Number(FIGS[f.kind].vb.split(' ')[3])}
-          set:html={FIGS[f.kind].body}
-        />
+        <span set:html={ART[f.kind === 'balloonKid' ? 'kid' : f.kind]} />
       </span>
     ))}
     <div class="plaza__ground"></div>
