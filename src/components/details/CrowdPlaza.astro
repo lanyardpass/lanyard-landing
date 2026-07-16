@@ -80,23 +80,32 @@ const KINDS: Record<string, Kind> = {
 };
 
 // The cast. tier: 1 = present from Quiet, 2 = joins at Normal, 3 = Packed.
+// Density per Dan (2026-07-16): a quiet park is quiet, not abandoned —
+// Quiet seats ~5 souls, Normal ~13, Packed ~27.
 const cast = [
   { kind: 'couple', tier: 1, left: 44, row: 'front', delay: 0 },
-  { kind: 'walker', tier: 2, left: 14, row: 'front', delay: 0.08 },
-  { kind: 'stroller', tier: 2, left: 58, row: 'front', delay: 0.16 },
-  { kind: 'shoulders', tier: 2, left: 29, row: 'front', delay: 0.24 },
-  { kind: 'ecv', tier: 2, left: 76, row: 'front', delay: 0.32 },
-  { kind: 'relaxed', tier: 2, left: 8, row: 'back', delay: 0.1 },
-  { kind: 'phone', tier: 2, left: 82, row: 'back', delay: 0.2 },
+  { kind: 'walker', tier: 1, left: 72, row: 'front', delay: 0.15 },
+  { kind: 'relaxed', tier: 1, left: 12, row: 'back', delay: 0.05 },
+  { kind: 'phone', tier: 1, left: 88, row: 'back', delay: 0.25 },
+  { kind: 'stroller', tier: 2, left: 57, row: 'front', delay: 0.16 },
+  { kind: 'shoulders', tier: 2, left: 28, row: 'front', delay: 0.24 },
+  { kind: 'ecv', tier: 2, left: 78, row: 'front', delay: 0.32 },
+  { kind: 'walker', tier: 2, left: 8, row: 'front', delay: 0.08 },
+  { kind: 'crossed', tier: 2, left: 34, row: 'back', delay: 0.1 },
+  { kind: 'hips', tier: 2, left: 94, row: 'back', delay: 0.2 },
+  { kind: 'walker', tier: 2, left: 70, row: 'back', delay: 0.4 },
   { kind: 'crossed', tier: 3, left: 4, row: 'front', delay: 0.05 },
-  { kind: 'skipKid', tier: 3, left: 22, row: 'front', delay: 0.3 },
+  { kind: 'skipKid', tier: 3, left: 21, row: 'front', delay: 0.3 },
   { kind: 'hips', tier: 3, left: 50, row: 'front', delay: 0.12 },
+  { kind: 'kid', tier: 3, left: 37, row: 'front', delay: 0.5 },
   { kind: 'coupleWalk', tier: 3, left: 88, row: 'front', delay: 0.2 },
-  { kind: 'walker', tier: 3, left: 38, row: 'back', delay: 0.15 },
-  { kind: 'couple', tier: 3, left: 52, row: 'back', delay: 0.25 },
-  { kind: 'stroller', tier: 3, left: 18, row: 'back', delay: 0.35 },
-  { kind: 'crossed', tier: 3, left: 66, row: 'back', delay: 0.4 },
-  { kind: 'balloonKid', tier: 3, left: 68, row: 'front', delay: 0.45 },
+  { kind: 'balloonKid', tier: 3, left: 66, row: 'front', delay: 0.45 },
+  { kind: 'phone', tier: 3, left: 2, row: 'back', delay: 0.55 },
+  { kind: 'stroller', tier: 3, left: 20, row: 'back', delay: 0.35 },
+  { kind: 'walker', tier: 3, left: 44, row: 'back', delay: 0.15 },
+  { kind: 'couple', tier: 3, left: 56, row: 'back', delay: 0.25 },
+  { kind: 'relaxed', tier: 3, left: 62, row: 'back', delay: 0.6 },
+  { kind: 'walker', tier: 3, left: 80, row: 'back', delay: 0.48 },
 ];
 const kindOf = (k: string) => KINDS[k === 'balloonKid' ? 'kid' : k];
 ---

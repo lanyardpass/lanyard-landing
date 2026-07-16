@@ -15,6 +15,15 @@
 // Public-safe boundary: mechanism at the level the sheet already ships
 // (wait times every 15 min, two years of own history, own-curve grading).
 // The recipe (index formula, percentile cuts, threshold windows) stays out.
+//
+// GROWTH CONTRACT (Dan, 2026-07-16): this is the ONE crowd page, forever —
+// the app links this URL from shipped binaries, so it never fragments into
+// per-version pages. Each shipped phase (v2 nowcast, v3 crowd calendar,
+// v4 best bet) graduates from "The road ahead" into its own section here,
+// the same release the phase ships — mirroring the explainer sheet's
+// one-new-question-per-phase rule. Teasing unshipped phases is deliberate:
+// we ship (1.0, 1.1, and Crowd Intelligence inside one summer), so the
+// roadmap is a promise we have a record of keeping.
 import DetailLayout from '@/layouts/DetailLayout.astro';
 import CrowdPlaza from '@/components/details/CrowdPlaza.astro';
 import { SITE } from '@/data/site';
@@ -108,6 +117,32 @@ const description =
     <p>
       The deal is simple. If there's a word on the card, we stand behind it. If we can't stand
       behind it, there's no word.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The road ahead</p>
+    <h2>Where the wizardry goes next</h2>
+    <p>
+      What's in the app today is the honest observer. It's also the foundation, and the same
+      evidence base that graded the parks has already mapped the next three moves.
+    </p>
+    <ul>
+      <li><strong>The morning tells you the day.</strong> A park's first hour of wait times
+        predicts its afternoon remarkably well. Next up is a morning read on where today is
+        heading, so "should I go today?" gets an answer before you're in the car.</li>
+      <li><strong>Crowd words on the calendar.</strong> After that, the ninety-day calendar
+        learns the words, fused with your blockout dates, so you can pick the right Saturday
+        weeks out instead of guessing.</li>
+      <li><strong>Your best bet today.</strong> And for multi-park days, one honest sentence
+        about which of your parks is the better call. Same spine as everything above. When
+        it's genuinely close, it says so instead of manufacturing a winner.</li>
+    </ul>
+    <p>
+      Every one of those keeps the house rules. Own-curve grading, words instead of scores, and
+      silence when the data isn't sure. We're comfortable telling you what's coming because
+      shipping is a habit here. Lanyard's 1.0, 1.1, and Crowd Intelligence all landed inside a
+      single summer.
     </p>
   </section>
 
