@@ -4,6 +4,7 @@
 // rulebook) and product_decisions.md ("Collectibles are not monetized").
 // Keep this page in step with the spec if the rules change.
 import DetailLayout from '@/layouts/DetailLayout.astro';
+import SeasonReplay from '@/components/details/SeasonReplay.astro';
 import { SITE } from '@/data/site';
 
 export const prerender = true;
@@ -19,6 +20,8 @@ const description =
   heroTitle="Every dollar has a receipt."
   heroSub="The whole app is anchored to one promise. Lanyard will tell you the true value of your pass. A promise like that can't run on vibes, so the payback number follows a written rulebook. This is that rulebook in plain English."
 >
+  <SeasonReplay />
+
   <section class="chapter">
     <p class="chapter__kicker">The rulebook</p>
     <h2>One set of rules, applied everywhere</h2>

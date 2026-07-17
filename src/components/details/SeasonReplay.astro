@@ -1,0 +1,287 @@
+---
+// The season replay on /details/history — a made-up passholder season priced
+// with the real rulebook (product/payback_math.md), tapped forward one beat at
+// a time while a growing receipt and a lapping break-even ring show every rule
+// working. Prices mirror the calculator snapshot (src/data/calculator.ts):
+// Universal Preferred, FL resident, two parks $529.99; one-park gate floor
+// $119; park-to-park increment $55; free self-parking $35. If that snapshot
+// changes, re-check the arithmetic in the STEPS table below.
+//
+// The receipt quotes the calculator's PaybackReceipt design (paper surface,
+// tier stripe, dual ring, stat stack) but is its own implementation because
+// this ring LAPS past 100% — the calculator's clamps (PaybackReceipt.tsx
+// ringDash). Demonstration, not a tool: the season is fixed, nothing is
+// user-enterable (that's /calculator's job).
+
+// Preferred two-park card color (calculator.ts cardColorTwoPark).
+const ACCENT = '#1CA7C0';
+const SIZE = 116;
+const THICK = 14;
+const TICK = 9;
+const cx = SIZE / 2;
+const outerR = (SIZE - THICK) / 2; // 51
+const innerR = outerR - (THICK + 5); // 32
+const outerC = (2 * Math.PI * outerR).toFixed(2); // 320.44
+const innerC = (2 * Math.PI * innerR).toFixed(2); // 201.06
+
+// Receipt lines, revealed by step. Ledger: visits $119+$119+$174+$119 = $531,
+// perks $35×4+$9 = $149, worth $680 against $529.99 → 128%.
+const lines = [
+  { step: 1, label: 'Oct 4 · Studios', amt: '+$119' },
+  { step: 1, label: 'Free self-parking', amt: '+$35' },
+  { step: 2, label: 'Nov 22 · Islands', amt: '+$119' },
+  { step: 2, label: 'Free self-parking', amt: '+$35' },
+  { step: 2, label: 'Dining discount', amt: '+$9' },
+  { step: 3, label: 'Jan 17 · Islands → Studios', amt: '+$174' },
+  { step: 3, label: 'Free self-parking', amt: '+$35' },
+  { step: 4, label: 'Feb 8 · Studios', amt: '+$119' },
+  { step: 4, label: 'Free self-parking', amt: '+$35' },
+  { step: 5, label: 'Mar 14 · Passholder magnet', amt: 'ours', ours: true },
+];
+---
+<div class="season">
+  <p class="season__lead">
+    Before the rules, watch them work. Here is a made-up season on a real pass, priced with the
+    rulebook and the operator's published prices as of July 2026. Tap it forward.
+  </p>
+
+  <div class="season__receipt">
+    <div class="season__stripe" style={`background:${ACCENT}`}></div>
+    <div class="season__body">
+      <div class="season__header">Universal Orlando &nbsp;&middot;&nbsp; Preferred Pass</div>
+      <div class="season__subrow">
+        <span>The pass &middot; $530</span>
+        <span class="season__pct" id="sr-pct">0% paid back</span>
+      </div>
+
+      <div class="season__main">
+        <svg class="season__ring" width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
+          <g transform={`rotate(-90 ${cx} ${cx})`}>
+            <circle cx={cx} cy={cx} r={outerR} fill="none" stroke="rgba(0,0,0,0.10)" stroke-width={THICK} />
+            <circle id="sr-outer" cx={cx} cy={cx} r={outerR} fill="none" stroke={ACCENT} stroke-width={THICK}
+              stroke-linecap="round" class="season__arc"
+              stroke-dasharray={outerC} stroke-dashoffset={outerC} />
+            <circle cx={cx} cy={cx} r={innerR} fill="none" stroke="rgba(0,0,0,0.10)" stroke-width={THICK} />
+            <circle id="sr-inner" cx={cx} cy={cx} r={innerR} fill="none" stroke="var(--green-primary)" stroke-width={THICK}
+              stroke-linecap="round" class="season__arc"
+              stroke-dasharray={innerC} stroke-dashoffset={innerC} />
+            <circle id="sr-outer-lap" cx={cx} cy={cx} r={outerR} fill="none" stroke="#3fc3d9" stroke-width={THICK}
+              stroke-linecap="round" class="season__arc season__arc--lap"
+              stroke-dasharray={outerC} stroke-dashoffset={outerC} />
+            <circle id="sr-inner-lap" cx={cx} cy={cx} r={innerR} fill="none" stroke="#4a8f6d" stroke-width={THICK}
+              stroke-linecap="round" class="season__arc season__arc--lap"
+              stroke-dasharray={innerC} stroke-dashoffset={innerC} />
+          </g>
+          <g stroke="rgba(0,0,0,0.30)" stroke-width="1">
+            <path d={`M0 0 V${TICK} M0 0 H${TICK}`} />
+            <path d={`M${SIZE} 0 V${TICK} M${SIZE - TICK} 0 H${SIZE}`} />
+            <path d={`M0 ${SIZE - TICK} V${SIZE} M0 ${SIZE} H${TICK}`} />
+            <path d={`M${SIZE} ${SIZE - TICK} V${SIZE} M${SIZE - TICK} ${SIZE} H${SIZE}`} />
+          </g>
+        </svg>
+
+        <div class="season__stats">
+          <div class="season__stat season__stat--big">
+            <div class="season__statrow">
+              <span class="season__statlabel">Worth</span>
+              <span class="season__statvalue" id="sr-worth" style={`color:${ACCENT}`}>$0</span>
+            </div>
+            <div class="season__statrule"></div>
+          </div>
+          <div class="season__stat">
+            <div class="season__statrow">
+              <span class="season__statlabel">From visits</span>
+              <span class="season__statvalue season__statvalue--green" id="sr-fv">$0</span>
+            </div>
+            <div class="season__statrule"></div>
+          </div>
+          <div class="season__stat">
+            <div class="season__statrow">
+              <span class="season__statlabel">Visits</span>
+              <span class="season__statvalue" id="sr-v">0</span>
+            </div>
+            <div class="season__statrule"></div>
+          </div>
+          <div class="season__stat">
+            <div class="season__statrow">
+              <span class="season__statlabel">Per visit</span>
+              <span class="season__statvalue" id="sr-pv">&mdash;</span>
+            </div>
+            <div class="season__statrule"></div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="season__lines" id="sr-lines">
+        {lines.map((l) => (
+          <li class="season__line" data-step={l.step} hidden>
+            <span class="season__linelabel">{l.label}</span>
+            <span class={`season__lineamt ${l.ours ? 'season__lineamt--ours' : ''}`}>{l.amt}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p class="season__legend">
+        The outer ring is everything recovered. The inner ring is visits alone. The gap between
+        them is your perks.
+      </p>
+    </div>
+  </div>
+
+  <div class="season__story">
+    <p class="season__cap" id="sr-cap" aria-live="polite">
+      Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from here
+      is a real published price.
+    </p>
+    <button class="season__btn" id="sr-btn" type="button">Start the season</button>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var OUTER_C = 320.44, INNER_C = 201.06, PAID = 529.99;
+    var STEPS = [
+      { worth: 0,   fv: 0,   v: 0, pv: null,
+        cap: 'Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from here is a real published price.' },
+      { worth: 154, fv: 119, v: 1, pv: 530,
+        cap: 'Oct 4. First visit. The day stamps at the single-day gate price, the lower one when the operator publishes a spread, and parking stamps at the day’s real rate.' },
+      { worth: 317, fv: 238, v: 2, pv: 265,
+        cap: 'Nov 22. The dining discount records what was actually saved at the register that day. Perks are receipts, not estimates.' },
+      { worth: 526, fv: 412, v: 3, pv: 177,
+        cap: 'Jan 17. Both parks, one day. That prices like the ticket you’d really have bought, the flat park-to-park bump of $55, not a second full ticket. And look how close. Four dollars short of paid off.' },
+      { worth: 680, fv: 531, v: 4, pv: 132,
+        cap: 'Feb 8 pays it off, and the ring doesn’t stop, it laps. The second hundred percent is the fun part.' },
+      { worth: 680, fv: 531, v: 4, pv: 132,
+        cap: 'Mar 14. Magnet day. No dollar amount, on purpose, because pricing the magnet misses the point of the magnet. That’s the season, and every line on the receipt traces to a rule on this page.' },
+    ];
+    var btn = document.getElementById('sr-btn');
+    var cap = document.getElementById('sr-cap');
+    var pct = document.getElementById('sr-pct');
+    var els = {
+      worth: document.getElementById('sr-worth'),
+      fv: document.getElementById('sr-fv'),
+      v: document.getElementById('sr-v'),
+      pv: document.getElementById('sr-pv'),
+      outer: document.getElementById('sr-outer'),
+      inner: document.getElementById('sr-inner'),
+      outerLap: document.getElementById('sr-outer-lap'),
+      innerLap: document.getElementById('sr-inner-lap'),
+    };
+    var step = 0;
+
+    function setArc(arc, lap, c, ratio) {
+      arc.style.strokeDashoffset = c * (1 - Math.min(ratio, 1));
+      var extra = ratio - 1;
+      // Sub-1% laps (the inner ring clears by $1) would render as a stray dot.
+      lap.style.strokeDashoffset = extra > 0.01 ? c * (1 - Math.min(extra, 1)) : c;
+    }
+
+    function render() {
+      var s = STEPS[step];
+      els.worth.textContent = '$' + s.worth;
+      els.fv.textContent = '$' + s.fv;
+      els.v.textContent = String(s.v);
+      els.pv.textContent = s.pv === null ? '—' : '$' + s.pv;
+      pct.textContent = Math.round((s.worth / PAID) * 100) + '% paid back';
+      setArc(els.outer, els.outerLap, OUTER_C, s.worth / PAID);
+      setArc(els.inner, els.innerLap, INNER_C, s.fv / PAID);
+      cap.textContent = s.cap;
+      document.querySelectorAll('#sr-lines .season__line').forEach(function (li) {
+        var show = Number(li.getAttribute('data-step')) <= step;
+        li.hidden = !show;
+        li.classList.toggle('season__line--in', show);
+      });
+      btn.textContent = step === 0 ? 'Start the season'
+        : step < STEPS.length - 1 ? 'Next'
+        : 'Run it back';
+    }
+
+    btn.addEventListener('click', function () {
+      step = step < STEPS.length - 1 ? step + 1 : 0;
+      render();
+    });
+    render();
+  })();
+</script>
+
+<style>
+  .season { margin-top: 1.1rem; }
+  .season__lead { color: var(--muted); font-size: 0.92rem; line-height: 1.55; margin: 0 0 1rem; }
+
+  .season__receipt {
+    max-width: 25rem; background: #fbfaf4; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
+  }
+  .season__stripe { height: 6px; width: 100%; }
+  .season__body { padding: 20px 22px 16px; }
+  .season__header {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6); line-height: 1.4;
+  }
+  .season__subrow {
+    display: flex; justify-content: space-between; gap: 10px; margin-top: 4px;
+    font-size: 11px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6);
+  }
+  .season__pct { font-variant-numeric: tabular-nums; }
+
+  .season__main { display: flex; align-items: center; gap: 20px; margin-top: 16px; }
+  .season__ring { flex-shrink: 0; }
+  .season__arc { transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1); }
+  .season__arc--lap { filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.35)); }
+
+  .season__stats {
+    flex: 1; min-width: 0; display: flex; flex-direction: column;
+    justify-content: space-between; min-height: 116px;
+  }
+  .season__statrow { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .season__statlabel {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6);
+  }
+  .season__statvalue {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+  .season__statvalue--green { color: var(--green-primary); }
+  .season__stat--big .season__statvalue { font-size: 26px; font-weight: 800; }
+  .season__statrule { height: 1px; background: rgba(0, 0, 0, 0.16); margin-top: 4px; }
+
+  .season__lines {
+    list-style: none; margin: 14px 0 0; padding: 10px 0 0;
+    border-top: 1px dashed rgba(0, 0, 0, 0.22);
+  }
+  .season__line {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    padding: 3px 0; font-size: 12.5px;
+    opacity: 0; transform: translateY(4px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .season__line--in { opacity: 1; transform: none; }
+  .season__linelabel {
+    font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.75);
+  }
+  .season__lineamt { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .season__lineamt--ours { font-style: italic; font-weight: 600; color: rgba(20, 53, 42, 0.55); }
+
+  .season__legend {
+    margin: 12px 0 0; padding-top: 10px; border-top: 1px dashed rgba(0, 0, 0, 0.22);
+    font-size: 11px; line-height: 1.5; color: rgba(20, 53, 42, 0.55);
+  }
+
+  .season__story { max-width: 25rem; margin-top: 0.9rem; }
+  .season__cap { margin: 0 !important; font-size: 0.88rem; line-height: 1.55; min-height: 4.7em; }
+  .season__btn {
+    margin-top: 0.7rem; padding: 0.55rem 1.3rem; border: 0; border-radius: var(--pill);
+    background: var(--green-accent); color: var(--green-dark);
+    font-family: var(--font-display); font-weight: 800; font-size: 0.92rem; cursor: pointer;
+  }
+  .season__btn:hover { filter: brightness(1.05); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .season__arc { transition: none; }
+    .season__line { transition: none; }
+  }
+</style>
