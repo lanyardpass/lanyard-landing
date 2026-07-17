@@ -7,14 +7,24 @@
 // the REAL grunge texture (public/details/receipt-stamp-grunge.png, downscaled
 // from the app's ReceiptStampGrunge asset).
 //
+// The reader steers: each beat offers a park choice ("Rope-drop Studios" /
+// "Sleep in, then Islands") that decides what prints on the receipt. The
+// MATH is fixed — every path demonstrates the same rulebook beats (gate-price
+// day, recorded discount, park-to-park increment, payoff stamp, unpriced
+// magnet) — only the labels follow the reader's picks. Choice without letting
+// the exhibit become a tool (that's /calculator's job).
+//
 // Prices mirror the calculator snapshot (src/data/calculator.ts): Universal
 // Preferred, FL resident, two parks $529.99; one-park gate floor $119;
 // park-to-park increment $55; free self-parking $35. Ledger: visits
 // 119+119+174+119 = $531, perks 35×4+9 = $149, worth $680 → 128%. If the
-// price snapshot changes, re-check the arithmetic in the STEPS table below.
+// price snapshot changes, re-check the arithmetic in the NUMS table below.
 //
-// Demonstration, not a tool — the season is fixed, nothing is user-enterable
-// (that's /calculator's job).
+// Shadow note: the paper's shadow is a plain box-shadow on a ::before
+// rectangle BEHIND the paper, deliberately not a drop-shadow filter — the
+// filter re-rasterizes the whole clipped paper on every DOM change inside it
+// (visible flicker per tap) and draws tooth-shaped shadow ghosts under the
+// zigzag that read as a bad cut.
 import LanyardLogo from '@/components/LanyardLogo.astro';
 
 // Receipt palette — Color+Brand.swift receiptPaper/receiptInk. (No receiptMat
@@ -26,6 +36,7 @@ const INK_SOFT = 'rgba(27,35,48,0.55)';
 // Preferred two-park accent #1CA7C0 through receiptStampInk's algorithmic
 // darken (luminance → 0.30, hue preserved) = the printed tier ink.
 const STAMP_INK = '#116472';
+const ACCENT = '#1CA7C0';
 
 // Zigzag perforation — ZigzagPaperShape, 30 teeth, scaled depth.
 const TEETH = 30;
@@ -49,7 +60,9 @@ const bars = Array.from({ length: 64 }, () => ({
   gap: (0.5 + ((next() % 100) / 100) * 0.8).toFixed(2),
 }));
 
-// Receipt line items, revealed by step. money2 (cents) — the thermal look.
+// Receipt line skeletons, revealed by step. Visit labels are placeholders —
+// the script rewrites them from the reader's park picks. Amounts never change
+// (the math is the exhibit). money2 cents — the thermal look.
 const items = [
   { step: 1, label: 'Oct 4 · Studios', amt: '+$119.00' },
   { step: 1, label: 'Free self-parking', amt: '+$35.00' },
@@ -62,12 +75,22 @@ const items = [
   { step: 4, label: 'Free self-parking', amt: '+$35.00' },
   { step: 5, label: 'Mar 14 · Passholder magnet', amt: 'ours', ours: true },
 ];
+
+// Break-even ring geometry (PassPaybackCard's dual ring; this one laps).
+const R_SIZE = 108;
+const R_THICK = 13;
+const R_TICK = 8;
+const rc = R_SIZE / 2;
+const outerR = (R_SIZE - R_THICK) / 2;
+const innerR = outerR - (R_THICK + 5);
+const outerC = (2 * Math.PI * outerR).toFixed(2);
+const innerC = (2 * Math.PI * innerR).toFixed(2);
 ---
 <div class="season">
   <p class="season__lead">
     Before the rules, watch them work. Here is a made-up season on a real pass, priced with the
     rulebook and the operator's published prices as of July 2026, printed onto the exact
-    statement the app shares. Tap it forward.
+    statement the app shares. You pick the parks.
   </p>
 
   <div class="season__stage">
@@ -91,9 +114,9 @@ const items = [
         </div>
 
         <div class="season__items">
-          {items.map((l) => (
+          {items.map((l, i) => (
             <div class="season__item" data-step={l.step}>
-              <span class="season__itemlabel">{l.label}</span>
+              <span class="season__itemlabel" id={`sr-l${i}`}>{l.label}</span>
               <span class="season__leader"></span>
               <span class={`season__itemamt ${l.ours ? 'season__itemamt--ours' : ''}`}>{l.amt}</span>
             </div>
@@ -149,64 +172,147 @@ const items = [
     </div>
 
     <div class="season__story">
+      <svg class="season__ring" width={R_SIZE} height={R_SIZE} viewBox={`0 0 ${R_SIZE} ${R_SIZE}`} aria-hidden="true">
+        <g transform={`rotate(-90 ${rc} ${rc})`}>
+          <circle cx={rc} cy={rc} r={outerR} fill="none" stroke="rgba(27,35,48,0.10)" stroke-width={R_THICK} />
+          <circle id="sr-ring-outer" cx={rc} cy={rc} r={outerR} fill="none" stroke={ACCENT} stroke-width={R_THICK}
+            stroke-linecap="round" class="season__arc"
+            stroke-dasharray={outerC} stroke-dashoffset={outerC} />
+          <circle cx={rc} cy={rc} r={innerR} fill="none" stroke="rgba(27,35,48,0.10)" stroke-width={R_THICK} />
+          <circle id="sr-ring-inner" cx={rc} cy={rc} r={innerR} fill="none" stroke="var(--green-primary)" stroke-width={R_THICK}
+            stroke-linecap="round" class="season__arc"
+            stroke-dasharray={innerC} stroke-dashoffset={innerC} />
+          <circle id="sr-ring-outer-lap" cx={rc} cy={rc} r={outerR} fill="none" stroke="#3fc3d9" stroke-width={R_THICK}
+            stroke-linecap="round" class="season__arc season__arc--lap"
+            stroke-dasharray={outerC} stroke-dashoffset={outerC} />
+          <circle id="sr-ring-inner-lap" cx={rc} cy={rc} r={innerR} fill="none" stroke="#4a8f6d" stroke-width={R_THICK}
+            stroke-linecap="round" class="season__arc season__arc--lap"
+            stroke-dasharray={innerC} stroke-dashoffset={innerC} />
+        </g>
+        <g stroke="rgba(27,35,48,0.30)" stroke-width="1">
+          <path d={`M0 0 V${R_TICK} M0 0 H${R_TICK}`} />
+          <path d={`M${R_SIZE} 0 V${R_TICK} M${R_SIZE - R_TICK} 0 H${R_SIZE}`} />
+          <path d={`M0 ${R_SIZE - R_TICK} V${R_SIZE} M0 ${R_SIZE} H${R_TICK}`} />
+          <path d={`M${R_SIZE} ${R_SIZE - R_TICK} V${R_SIZE} M${R_SIZE - R_TICK} ${R_SIZE} H${R_SIZE}`} />
+        </g>
+      </svg>
+      <p class="season__ringlegend">Outer, everything recovered. Inner, visits alone.</p>
+
       <p class="season__cap" id="sr-cap" aria-live="polite">
         Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from
-        here is a real published price.
+        here is a real published price. Where to first?
       </p>
-      <button class="season__btn" id="sr-btn" type="button">Start the season</button>
+      <div class="season__choices">
+        <button class="season__btn" id="sr-b1" type="button">Rope-drop Studios</button>
+        <button class="season__btn" id="sr-b2" type="button">Sleep in, then Islands</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script is:inline>
   (function () {
-    var STEPS = [
-      { v: '0', avg: '—', gate: '$0.00', perks: '$0.00', worth: '$0.00', stamp: false,
-        cap: 'Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from here is a real published price.' },
-      { v: '1', avg: '$530.00', gate: '$119.00', perks: '$35.00', worth: '$154.00', stamp: false,
-        cap: 'Oct 4. First visit. The day prints at the single-day gate price, the lower one when the operator publishes a spread, and parking prints at the day’s real rate.' },
-      { v: '2', avg: '$265.00', gate: '$238.00', perks: '$79.00', worth: '$317.00', stamp: false,
-        cap: 'Nov 22. The dining discount prints what was actually saved at the register that day. Perks are receipts, not estimates.' },
-      { v: '3', avg: '$177.00', gate: '$412.00', perks: '$114.00', worth: '$526.00', stamp: false,
-        cap: 'Jan 17. Both parks, one day. That prices like the ticket you’d really have bought, the flat park-to-park bump of $55, not a second full ticket. And look how close. Four dollars short of paid off.' },
-      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', stamp: true,
-        cap: 'Feb 8 pays it off. And a paid-off pass gets what paid invoices have always gotten. The stamp.' },
-      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', stamp: true,
-        cap: 'Mar 14. Magnet day. No dollar amount, on purpose, because pricing the magnet misses the point of the magnet. That’s the season, and every line printed above follows a rule on this page.' },
+    var OUTER_C = 320.44, INNER_C = 201.06;
+    // Whole-season numbers per beat — fixed regardless of which parks are
+    // picked (both parks share the $119 gate floor, so every path prices
+    // identically; that's what makes choice safe here).
+    var NUMS = [
+      { v: '0', avg: '—', gate: '$0.00', perks: '$0.00', worth: '$0.00', outer: 0, inner: 0 },
+      { v: '1', avg: '$530.00', gate: '$119.00', perks: '$35.00', worth: '$154.00', outer: 0.2906, inner: 0.2245 },
+      { v: '2', avg: '$265.00', gate: '$238.00', perks: '$79.00', worth: '$317.00', outer: 0.5981, inner: 0.4491 },
+      { v: '3', avg: '$177.00', gate: '$412.00', perks: '$114.00', worth: '$526.00', outer: 0.9925, inner: 0.7774 },
+      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', outer: 1.283, inner: 1.0019 },
+      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', outer: 1.283, inner: 1.0019 },
     ];
-    var btn = document.getElementById('sr-btn');
-    var cap = document.getElementById('sr-cap');
-    var stamp = document.getElementById('sr-stamp');
-    var out = {
-      v: document.getElementById('sr-visits'),
-      avg: document.getElementById('sr-avg'),
-      gate: document.getElementById('sr-gate'),
-      perks: document.getElementById('sr-perks'),
-      worth: document.getElementById('sr-worth'),
-    };
-    var step = 0;
+    var el = function (id) { return document.getElementById(id); };
+    var out = { v: el('sr-visits'), avg: el('sr-avg'), gate: el('sr-gate'), perks: el('sr-perks'), worth: el('sr-worth') };
+    var ring = { o: el('sr-ring-outer'), i: el('sr-ring-inner'), ol: el('sr-ring-outer-lap'), il: el('sr-ring-inner-lap') };
+    var cap = el('sr-cap'), stamp = el('sr-stamp'), b1 = el('sr-b1'), b2 = el('sr-b2');
 
-    function render() {
-      var s = STEPS[step];
-      out.v.textContent = s.v;
-      out.avg.textContent = s.avg;
-      out.gate.textContent = s.gate;
-      out.perks.textContent = s.perks;
-      out.worth.textContent = s.worth;
-      cap.textContent = s.cap;
-      stamp.classList.toggle('season__stamp--on', s.stamp);
-      document.querySelectorAll('.season__item').forEach(function (el) {
-        el.classList.toggle('season__item--on', Number(el.getAttribute('data-step')) <= step);
-      });
-      btn.textContent = step === 0 ? 'Start the season'
-        : step < STEPS.length - 1 ? 'Next'
-        : 'Run it back';
+    var state = 0;
+    var picks = { v1: 'Studios', v2: 'Islands', hop: 'Islands → Studios', v4: 'Studios' };
+    var other = function (p) { return p === 'Studios' ? 'Islands' : 'Studios'; };
+
+    function caption() {
+      switch (state) {
+        case 0: return 'Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from here is a real published price. Where to first?';
+        case 1: return 'Oct 4. ' + picks.v1 + '. The day prints at the single-day gate price, the lower one when the operator publishes a spread, and parking prints at the day’s real rate. Where next?';
+        case 2: return 'Nov 22. ' + picks.v2 + ', plus a dining discount that prints what was actually saved at the register that day. Perks are receipts, not estimates. Feeling ambitious in January?';
+        case 3: return 'Jan 17. Both parks, one day. That prices like the ticket you’d really have bought, the flat park-to-park bump of $55, not a second full ticket. And look how close. Four dollars short of paid off. One more day does it.';
+        case 4: return 'Feb 8 at ' + picks.v4 + ' pays it off, the ring laps, and a paid-off pass gets what paid invoices have always gotten. The stamp.';
+        default: return 'Mar 14. Magnet day. No dollar amount, on purpose, because pricing the magnet misses the point of the magnet. That’s the season, and every line printed above follows a rule on this page.';
+      }
     }
 
-    btn.addEventListener('click', function () {
-      step = step < STEPS.length - 1 ? step + 1 : 0;
+    // The choices offered AT each state advance it. Labels carry the reader's
+    // agency; every branch demonstrates the same rule.
+    function choices() {
+      switch (state) {
+        case 0: return [
+          { t: 'Rope-drop Studios', f: function () { picks.v1 = 'Studios'; } },
+          { t: 'Sleep in, then Islands', f: function () { picks.v1 = 'Islands'; } },
+        ];
+        case 1: return [
+          { t: 'Back to ' + picks.v1, f: function () { picks.v2 = picks.v1; } },
+          { t: other(picks.v1) + ' this time', f: function () { picks.v2 = other(picks.v1); } },
+        ];
+        case 2: return [
+          { t: 'Islands, then Studios', f: function () { picks.hop = 'Islands → Studios'; } },
+          { t: 'Studios, then Islands', f: function () { picks.hop = 'Studios → Islands'; } },
+        ];
+        case 3: return [
+          { t: 'An evening at Studios', f: function () { picks.v4 = 'Studios'; } },
+          { t: 'An evening at Islands', f: function () { picks.v4 = 'Islands'; } },
+        ];
+        case 4: return [{ t: 'Claim the magnet', f: function () {} }];
+        default: return [{ t: 'Run it back', f: function () {} }];
+      }
+    }
+
+    function setArc(arc, lap, c, ratio) {
+      // Round line-caps paint a dot even at zero length — hide empty arcs.
+      arc.style.opacity = ratio > 0.001 ? 1 : 0;
+      arc.style.strokeDashoffset = c * (1 - Math.min(ratio, 1));
+      var extra = ratio - 1;
+      // Sub-1% laps (the inner ring clears by $1) would render as a stray dot.
+      lap.style.opacity = extra > 0.01 ? 1 : 0;
+      lap.style.strokeDashoffset = extra > 0.01 ? c * (1 - Math.min(extra, 1)) : c;
+    }
+
+    function render() {
+      var n = NUMS[state];
+      out.v.textContent = n.v;
+      out.avg.textContent = n.avg;
+      out.gate.textContent = n.gate;
+      out.perks.textContent = n.perks;
+      out.worth.textContent = n.worth;
+      setArc(ring.o, ring.ol, OUTER_C, n.outer);
+      setArc(ring.i, ring.il, INNER_C, n.inner);
+      cap.textContent = caption();
+      stamp.classList.toggle('season__stamp--on', state >= 4);
+
+      el('sr-l0').textContent = 'Oct 4 · ' + picks.v1;
+      el('sr-l2').textContent = 'Nov 22 · ' + picks.v2;
+      el('sr-l5').textContent = 'Jan 17 · ' + picks.hop;
+      el('sr-l7').textContent = 'Feb 8 · ' + picks.v4;
+      document.querySelectorAll('.season__item').forEach(function (row) {
+        row.classList.toggle('season__item--on', Number(row.getAttribute('data-step')) <= state);
+      });
+
+      var opts = choices();
+      b1.textContent = opts[0].t;
+      b2.hidden = opts.length < 2;
+      if (opts.length > 1) b2.textContent = opts[1].t;
+      b1.onclick = function () { advance(opts[0].f); };
+      b2.onclick = function () { advance(opts.length > 1 ? opts[1].f : opts[0].f); };
+    }
+
+    function advance(apply) {
+      apply();
+      state = state < NUMS.length - 1 ? state + 1 : 0;
       render();
-    });
+    }
+
     render();
   })();
 </script>
@@ -225,9 +331,13 @@ const items = [
     gap: clamp(1.4rem, 3.5vw, 2.4rem);
     align-items: center;
   }
-  .season__paperwrap {
-    max-width: 23.5rem; width: 100%;
-    filter: drop-shadow(0 14px 26px rgba(27, 35, 48, 0.16)) drop-shadow(0 3px 6px rgba(27, 35, 48, 0.10));
+  /* Shadow lives on a plain rectangle BEHIND the paper (see header note) —
+     never a drop-shadow filter on the clipped paper itself. */
+  .season__paperwrap { max-width: 23.5rem; width: 100%; position: relative; }
+  .season__paperwrap::before {
+    content: ''; position: absolute; inset: 10px 5px 10px 5px;
+    border-radius: 8px;
+    box-shadow: 0 16px 30px rgba(27, 35, 48, 0.18), 0 3px 8px rgba(27, 35, 48, 0.10);
   }
   .season__paper {
     position: relative;
@@ -364,12 +474,20 @@ const items = [
     to { opacity: 0.92; transform: rotate(8deg) scale(1); }
   }
 
-  /* Story + control — rides beside the receipt; the button stays close. */
-  .season__cap { margin: 0 !important; font-size: 0.95rem; line-height: 1.6; min-height: 6.5em; }
+  /* Story — ring, narration, park choices. Rides beside the receipt. */
+  .season__ring { display: block; }
+  .season__arc { transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1); }
+  .season__arc--lap { filter: drop-shadow(0 0 2px rgba(27, 35, 48, 0.35)); }
+  .season__ringlegend {
+    margin: 0.5rem 0 0 !important; font-size: 0.72rem; color: var(--muted) !important;
+    letter-spacing: 0.02em;
+  }
+  .season__cap { margin: 1rem 0 0 !important; font-size: 0.95rem; line-height: 1.6; min-height: 6.5em; }
+  .season__choices { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
   .season__btn {
-    margin-top: 0.7rem; padding: 0.55rem 1.3rem; border: 0; border-radius: var(--pill);
+    padding: 0.55rem 1.2rem; border: 0; border-radius: var(--pill);
     background: var(--green-accent); color: var(--green-dark);
-    font-family: var(--font-display); font-weight: 800; font-size: 0.92rem; cursor: pointer;
+    font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; cursor: pointer;
   }
   .season__btn:hover { filter: brightness(1.05); }
 
@@ -384,6 +502,7 @@ const items = [
 
   @media (prefers-reduced-motion: reduce) {
     .season__item { transition: none; }
+    .season__arc { transition: none; }
     .season__stamp--on { animation: none; opacity: 0.92; }
   }
 </style>
