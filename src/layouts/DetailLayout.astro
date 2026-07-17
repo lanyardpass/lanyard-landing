@@ -9,6 +9,8 @@
 //     <aside class="chapter__aside">…</aside>   (optional callout)
 //   </section>
 import Layout from '@/layouts/Layout.astro';
+import KenBurnsImage from '@/components/guides/KenBurnsImage.astro';
+import type { ImageMetadata } from 'astro';
 
 interface Props {
   title: string;
@@ -16,11 +18,15 @@ interface Props {
   heroKicker: string;
   heroTitle: string;
   heroSub: string;
+  /** Optional hero photo under the head — omit it and the page renders text-only. */
+  heroImage?: ImageMetadata;
+  heroImageAlt?: string;
   /** Extra belt for pages that exist ahead of their feature (e.g. /crowds pre-1.2). */
   noindex?: boolean;
 }
 
-const { title, description, heroKicker, heroTitle, heroSub, noindex } = Astro.props;
+const { title, description, heroKicker, heroTitle, heroSub, heroImage, heroImageAlt, noindex } =
+  Astro.props;
 ---
 <Layout title={title} description={description} noindex={noindex}>
   <article class="dpage">
@@ -30,6 +36,17 @@ const { title, description, heroKicker, heroTitle, heroSub, noindex } = Astro.pr
       <h1 class="display dpage__title">{heroTitle}</h1>
       <p class="dpage__sub">{heroSub}</p>
     </header>
+    {heroImage && (
+      <div class="dpage__hero">
+        <KenBurnsImage
+          src={heroImage}
+          alt={heroImageAlt ?? ''}
+          loading="eager"
+          fetchpriority="high"
+          sizes="(min-width: 960px) 46rem, 100vw"
+        />
+      </div>
+    )}
     <div class="dpage__body">
       <slot />
     </div>
@@ -52,6 +69,15 @@ const { title, description, heroKicker, heroTitle, heroSub, noindex } = Astro.pr
   .dpage__kicker { color: var(--green-primary); }
   .dpage__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
   .dpage__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+
+  /* Optional hero photo — same column as the body, quiet Ken-Burns drift. */
+  .dpage__hero {
+    max-width: 46rem;
+    margin-top: clamp(1.6rem, 4vw, 2.4rem);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
 
   .dpage__body {
     max-width: 46rem;
