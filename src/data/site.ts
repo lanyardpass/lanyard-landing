@@ -45,10 +45,23 @@ export const CTA = {
 // it would collide with the legal "Privacy Policy" link in the footer (two
 // different destinations, same word). The local-first section still lives in
 // the scroll; the footer owns the legal Privacy Policy link.
+// The details holds the nav slot, not Calculator (2026-07-17): the calculator
+// earns its traffic from search — it's the SEO hook, findable in the footer —
+// while /details is the brand argument and the surface 1.2 links into.
 export const NAV = [
   { label: 'What it does', href: '/#everything' },
   { label: 'Your pass', href: '/#coverage' },
-  { label: 'Calculator', href: '/calculator' },
+  { label: 'The details', href: '/details' },
   { label: 'Guides', href: '/guides' },
   { label: 'Pricing', href: '/#pricing' },
 ];
+
+// ---- Owned social (footer icons) ----
+// Bluesky is VERIFIED live (domain handle via the _atproto TXT record).
+// Instagram is the claimed handle from marketing/social_starter_kit.md — if
+// Dan landed a fallback handle instead, fix it here. Empty string = that
+// icon simply doesn't render.
+export const SOCIAL = {
+  instagram: 'https://www.instagram.com/lanyardpass/',
+  bluesky: 'https://bsky.app/profile/lanyardpass.com',
+};
