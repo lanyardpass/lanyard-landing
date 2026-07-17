@@ -193,15 +193,18 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
             stroke-linecap="round" class="season__arc"
             stroke-dasharray={innerC} stroke-dashoffset={innerC} />
         </g>
-        <!-- Past 100% the ring reads FULL in its own color (no tinted lap arc —
-             a second tone makes a hard seam at 12 o'clock); the lap is shown
-             the way the app's MKRingProgressView shows it, a same-color tip
-             riding over the ring with a shadow underneath. -->
+        <!-- Past 100% the ring reads FULL (no tinted lap arc — a second tone
+             makes a hard seam at 12 o'clock); the lap is shown the way the
+             app's MKRingProgressView shows it. Its arc carries a gradient, so
+             the overlapping HEAD is a visibly darker shade of the ring color
+             riding over the lighter tail, plus a shadow. The darker fill is
+             what keeps the head legible at actual size — shadow alone
+             disappears at 96px. -->
         <g id="sr-tip-outer" class="season__tip">
-          <circle cx={rc} cy={rc - outerR} r={R_THICK / 2} fill={ACCENT} />
+          <circle cx={rc} cy={rc - outerR} r={R_THICK / 2} fill="#15839A" />
         </g>
         <g id="sr-tip-inner" class="season__tip">
-          <circle cx={rc} cy={rc - innerR} r={R_THICK / 2} fill="var(--green-primary)" />
+          <circle cx={rc} cy={rc - innerR} r={R_THICK / 2} fill="#22503B" />
         </g>
         <g stroke="rgba(27,35,48,0.30)" stroke-width="1">
           <path d={`M0 0 V${R_TICK} M0 0 H${R_TICK}`} />
