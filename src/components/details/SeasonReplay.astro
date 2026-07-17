@@ -552,7 +552,11 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
     opacity: 0;
     transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
   }
-  .season__tip circle { filter: drop-shadow(0 0 4px rgba(27, 35, 48, 0.6)); }
+  /* The head must READ as a lobe riding over the ring (see the app card at
+     133%) — a tight dark edge plus a soft spread, not a faint halo. */
+  .season__tip circle {
+    filter: drop-shadow(0 0 1.5px rgba(27, 35, 48, 0.55)) drop-shadow(0 0 5px rgba(27, 35, 48, 0.5));
+  }
   .season__cardstats {
     flex: 1; min-width: 0; display: flex; flex-direction: column;
     justify-content: space-between; min-height: 96px;
