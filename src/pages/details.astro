@@ -8,14 +8,27 @@
 //      whole page (the original /details list, trimmed of entries that
 //      graduated into chapters).
 import Layout from '@/layouts/Layout.astro';
+import KenBurnsImage from '@/components/guides/KenBurnsImage.astro';
 import { SITE } from '@/data/site';
+import wizardRaw from '@/assets/parkfolk/CrowdFigureWizardAdultShape.svg?raw';
 
 export const prerender = true;
+
+// Parkfolk embedding recipe (see CrowdPlaza.astro): unit-square SVG in a
+// SQUARE box sized by registry relHeight only — never stretch by aspect.
+// Wizard adult relHeight 0.80 against a 56px unit → a little guy, not a mural.
+const wizardArt = wizardRaw
+  .replace('<svg ', `<svg width="${(0.8 * 56).toFixed(1)}" height="${(0.8 * 56).toFixed(1)}" `)
+  .replace('fill="black"', 'fill="currentColor"');
 
 const title = `The details | ${SITE.name}`;
 const description =
   'The places Lanyard cares past the point of reason. How the calendar is curated, how the payback math earns trust, why the weather on your card is real. Rigor is why it’s right. Love is why it’s opened.';
 
+// Each chapter can optionally carry `image` (ImageMetadata imported above) +
+// `imageAlt` for a photo-on-top card; without it the card renders text-only,
+// exactly as before. `figure` is inline Parkfolk art rendered small in the
+// card's corner.
 const chapters = [
   {
     kicker: 'The calendar',
@@ -32,11 +45,12 @@ const chapters = [
     cta: 'Read the chapter',
   },
   {
-    kicker: 'The sky',
-    title: 'The weather on your card is the weather at your park.',
-    body: 'Real cloud cover, wind you can see, rain that leans with the gusts, and the moon is tonight’s actual moon. No two days render alike, and neighboring parks never share clouds.',
-    href: '/blog/weather-system-nobody-asked-for',
-    cta: 'Read the story',
+    kicker: 'The crowd',
+    title: 'How we do the wizardry.',
+    body: 'Your park card carries a one-word crowd report. Quiet, Normal, or Packed, judged the only fair way, against that park\'s own history. And when the data isn\'t sure, the card says nothing at all.',
+    href: '/crowds',
+    cta: 'Read the chapter',
+    figure: wizardArt,
   },
 ];
 
@@ -79,20 +93,25 @@ const details = [
     <div class="chapters">
       {chapters.map((c) => (
         <a class="chapterCard" href={c.href}>
-          <p class="chapterCard__kicker">{c.kicker}</p>
-          <h2 class="chapterCard__title">{c.title}</h2>
-          <p class="chapterCard__body">{c.body}</p>
-          <span class="chapterCard__cta">{c.cta} &rarr;</span>
+          {c.image && (
+            <div class="chapterCard__media">
+              <KenBurnsImage
+                src={c.image}
+                alt={c.imageAlt ?? ''}
+                sizes="(min-width: 720px) 24rem, 100vw"
+                widths={[480, 800, 1200]}
+              />
+            </div>
+          )}
+          <div class="chapterCard__text">
+            <p class="chapterCard__kicker">{c.kicker}</p>
+            <h2 class="chapterCard__title">{c.title}</h2>
+            <p class="chapterCard__body">{c.body}</p>
+            <span class="chapterCard__cta">{c.cta} &rarr;</span>
+            {c.figure && <span class="chapterCard__figure" aria-hidden="true" set:html={c.figure} />}
+          </div>
         </a>
       ))}
-      <div class="chapterCard chapterCard--soon">
-        <p class="chapterCard__kicker">The crowd</p>
-        <h2 class="chapterCard__title">Coming with Crowd Intelligence.</h2>
-        <p class="chapterCard__body">
-          A chapter about knowing how a park day feels before you drive there. It arrives when the
-          feature does.
-        </p>
-      </div>
     </div>
     <h2 class="details__subhead">The small details</h2>
     <ol class="details__list">
@@ -130,16 +149,24 @@ const details = [
     display: block; text-decoration: none;
     background: #fff; border: 1px solid rgba(45, 106, 79, 0.18);
     border-radius: var(--radius);
-    padding: 1.6rem 1.6rem 1.7rem;
+    overflow: hidden;
     transition: border-color 120ms ease, box-shadow 120ms ease;
   }
   a.chapterCard:hover {
     border-color: var(--green-accent);
     box-shadow: 0 4px 18px rgba(45, 106, 79, 0.1);
   }
-  .chapterCard--soon {
-    background: transparent;
-    border-style: dashed; border-color: rgba(45, 106, 79, 0.28);
+  /* Optional photo-on-top variant — present only when a chapter passes `image`. */
+  .chapterCard__media { aspect-ratio: 16 / 9; }
+  .chapterCard__text {
+    position: relative;
+    padding: 1.6rem 1.6rem 1.7rem;
+  }
+  /* The little Parkfolk nod in the card corner — decoration, never load-bearing. */
+  .chapterCard__figure {
+    position: absolute; right: 1.2rem; bottom: 1.1rem;
+    color: rgba(45, 106, 79, 0.4);
+    pointer-events: none; line-height: 0;
   }
   .chapterCard__kicker {
     margin: 0; font-size: 0.78rem; font-weight: 700;
