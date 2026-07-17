@@ -195,16 +195,41 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
         </g>
         <!-- Past 100% the ring reads FULL (no tinted lap arc — a second tone
              makes a hard seam at 12 o'clock); the lap is shown the way the
-             app's MKRingProgressView shows it. Its arc carries a gradient, so
-             the overlapping HEAD is a visibly darker shade of the ring color
-             riding over the lighter tail, plus a shadow. The darker fill is
-             what keeps the head legible at actual size — shadow alone
-             disappears at 96px. -->
+             app's MKRingProgressView shows it. The HEAD is the end of the
+             arc, not a dot: a short segment whose gradient runs from the
+             ring's own color (trailing edge merges invisibly) down to a
+             darker tip, and the shadow is a blurred crescent painted only
+             AHEAD of the tip — the direction of travel — never behind it.
+             Each group is authored at 12 o'clock and rotated to the lap
+             angle by the script. -->
+        <defs>
+          <linearGradient id="sr-headgrad-o" gradientUnits="userSpaceOnUse" x1="27" y1="11.63" x2="48" y2="6">
+            <stop offset="0" stop-color="#1CA7C0" />
+            <stop offset="0.35" stop-color="#1CA7C0" />
+            <stop offset="1" stop-color="#15839A" />
+          </linearGradient>
+          <linearGradient id="sr-headgrad-i" gradientUnits="userSpaceOnUse" x1="35" y1="25.48" x2="48" y2="22">
+            <stop offset="0" stop-color="#2D6A4F" />
+            <stop offset="0.35" stop-color="#2D6A4F" />
+            <stop offset="1" stop-color="#22503B" />
+          </linearGradient>
+          <filter id="sr-headblur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="1.3" />
+          </filter>
+        </defs>
         <g id="sr-tip-outer" class="season__tip">
-          <circle cx={rc} cy={rc - outerR} r={R_THICK / 2} fill="#15839A" />
+          <path d="M 46.53 6.03 A 42 42 0 0 1 54.57 6.52" fill="none"
+            stroke="#1B2330" stroke-opacity="0.32" stroke-width={R_THICK}
+            filter="url(#sr-headblur)" />
+          <path d="M 27 11.63 A 42 42 0 0 1 48 6" fill="none"
+            stroke="url(#sr-headgrad-o)" stroke-width={R_THICK} stroke-linecap="round" />
         </g>
         <g id="sr-tip-inner" class="season__tip">
-          <circle cx={rc} cy={rc - innerR} r={R_THICK / 2} fill="#22503B" />
+          <path d="M 47.09 22.02 A 26 26 0 0 1 52.07 22.32" fill="none"
+            stroke="#1B2330" stroke-opacity="0.32" stroke-width={R_THICK}
+            filter="url(#sr-headblur)" />
+          <path d="M 35 25.48 A 26 26 0 0 1 48 22" fill="none"
+            stroke="url(#sr-headgrad-i)" stroke-width={R_THICK} stroke-linecap="round" />
         </g>
         <g stroke="rgba(27,35,48,0.30)" stroke-width="1">
           <path d={`M0 0 V${R_TICK} M0 0 H${R_TICK}`} />
@@ -554,11 +579,6 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
     transform-box: view-box; transform-origin: 50% 50%;
     opacity: 0;
     transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
-  }
-  /* The head must READ as a lobe riding over the ring (see the app card at
-     133%) — a tight dark edge plus a soft spread, not a faint halo. */
-  .season__tip circle {
-    filter: drop-shadow(0 0 1.5px rgba(27, 35, 48, 0.55)) drop-shadow(0 0 5px rgba(27, 35, 48, 0.5));
   }
   .season__cardstats {
     flex: 1; min-width: 0; display: flex; flex-direction: column;
