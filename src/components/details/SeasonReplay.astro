@@ -76,13 +76,17 @@ const items = [
   { step: 5, label: 'Mar 14 · Passholder magnet', amt: 'ours', ours: true },
 ];
 
-// Break-even ring geometry (PassPaybackCard's dual ring; this one laps).
-const R_SIZE = 108;
-const R_THICK = 13;
+// The live payback card beside the receipt — the calculator's PaybackReceipt
+// recreation of the app's PassPaybackCard (paper surface, tier stripe, dual
+// ring, stat stack), except this ring LAPS past 100%. Same numbers as the
+// receipt's ledger on a different surface, which is rulebook point one made
+// visible: if the two ever disagreed, one would be a bug.
+const R_SIZE = 96;
+const R_THICK = 12;
 const R_TICK = 8;
 const rc = R_SIZE / 2;
 const outerR = (R_SIZE - R_THICK) / 2;
-const innerR = outerR - (R_THICK + 5);
+const innerR = outerR - (R_THICK + 4);
 const outerC = (2 * Math.PI * outerR).toFixed(2);
 const innerC = (2 * Math.PI * innerR).toFixed(2);
 ---
@@ -172,7 +176,13 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
     </div>
 
     <div class="season__story">
-      <svg class="season__ring" width={R_SIZE} height={R_SIZE} viewBox={`0 0 ${R_SIZE} ${R_SIZE}`} aria-hidden="true">
+      <div class="season__card">
+        <div class="season__cardstripe" style={`background:${ACCENT}`}></div>
+        <div class="season__cardbody">
+          <div class="season__cardheader">Universal Orlando &nbsp;&middot;&nbsp; Preferred Pass</div>
+          <div class="season__cardsub" id="sr-pct">0% paid back</div>
+          <div class="season__cardmain">
+            <svg class="season__ring" width={R_SIZE} height={R_SIZE} viewBox={`0 0 ${R_SIZE} ${R_SIZE}`} aria-hidden="true">
         <g transform={`rotate(-90 ${rc} ${rc})`}>
           <circle cx={rc} cy={rc} r={outerR} fill="none" stroke="rgba(27,35,48,0.10)" stroke-width={R_THICK} />
           <circle id="sr-ring-outer" cx={rc} cy={rc} r={outerR} fill="none" stroke={ACCENT} stroke-width={R_THICK}
@@ -195,8 +205,40 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
           <path d={`M0 ${R_SIZE - R_TICK} V${R_SIZE} M0 ${R_SIZE} H${R_TICK}`} />
           <path d={`M${R_SIZE} ${R_SIZE - R_TICK} V${R_SIZE} M${R_SIZE - R_TICK} ${R_SIZE} H${R_SIZE}`} />
         </g>
-      </svg>
-      <p class="season__ringlegend">Outer, everything recovered. Inner, visits alone.</p>
+            </svg>
+            <div class="season__cardstats">
+              <div class="season__cardstat season__cardstat--big">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">Worth</span>
+                  <span class="season__cardstatvalue" id="sr-cworth" style={`color:${ACCENT}`}>$0</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+              <div class="season__cardstat">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">From visits</span>
+                  <span class="season__cardstatvalue season__cardstatvalue--green" id="sr-cfv">$0</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+              <div class="season__cardstat">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">Visits</span>
+                  <span class="season__cardstatvalue" id="sr-cv">0</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+              <div class="season__cardstat">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">Per visit</span>
+                  <span class="season__cardstatvalue" id="sr-cpv">&mdash;</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <p class="season__cap" id="sr-cap" aria-live="polite">
         Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from
@@ -212,20 +254,22 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
 
 <script is:inline>
   (function () {
-    var OUTER_C = 320.44, INNER_C = 201.06;
+    var OUTER_C = 263.89, INNER_C = 163.36;
     // Whole-season numbers per beat — fixed regardless of which parks are
     // picked (both parks share the $119 gate floor, so every path prices
-    // identically; that's what makes choice safe here).
+    // identically; that's what makes choice safe here). Receipt prints cents
+    // (thermal); the card shows whole dollars (the app card's formatting).
     var NUMS = [
-      { v: '0', avg: '—', gate: '$0.00', perks: '$0.00', worth: '$0.00', outer: 0, inner: 0 },
-      { v: '1', avg: '$530.00', gate: '$119.00', perks: '$35.00', worth: '$154.00', outer: 0.2906, inner: 0.2245 },
-      { v: '2', avg: '$265.00', gate: '$238.00', perks: '$79.00', worth: '$317.00', outer: 0.5981, inner: 0.4491 },
-      { v: '3', avg: '$177.00', gate: '$412.00', perks: '$114.00', worth: '$526.00', outer: 0.9925, inner: 0.7774 },
-      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', outer: 1.283, inner: 1.0019 },
-      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', outer: 1.283, inner: 1.0019 },
+      { v: '0', avg: '—', gate: '$0.00', perks: '$0.00', worth: '$0.00', cworth: '$0', cfv: '$0', cpv: '—', pct: 0, outer: 0, inner: 0 },
+      { v: '1', avg: '$530.00', gate: '$119.00', perks: '$35.00', worth: '$154.00', cworth: '$154', cfv: '$119', cpv: '$530', pct: 29, outer: 0.2906, inner: 0.2245 },
+      { v: '2', avg: '$265.00', gate: '$238.00', perks: '$79.00', worth: '$317.00', cworth: '$317', cfv: '$238', cpv: '$265', pct: 60, outer: 0.5981, inner: 0.4491 },
+      { v: '3', avg: '$177.00', gate: '$412.00', perks: '$114.00', worth: '$526.00', cworth: '$526', cfv: '$412', cpv: '$177', pct: 99, outer: 0.9925, inner: 0.7774 },
+      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', cworth: '$680', cfv: '$531', cpv: '$132', pct: 128, outer: 1.283, inner: 1.0019 },
+      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', cworth: '$680', cfv: '$531', cpv: '$132', pct: 128, outer: 1.283, inner: 1.0019 },
     ];
     var el = function (id) { return document.getElementById(id); };
     var out = { v: el('sr-visits'), avg: el('sr-avg'), gate: el('sr-gate'), perks: el('sr-perks'), worth: el('sr-worth') };
+    var card = { worth: el('sr-cworth'), fv: el('sr-cfv'), v: el('sr-cv'), pv: el('sr-cpv'), pct: el('sr-pct') };
     var ring = { o: el('sr-ring-outer'), i: el('sr-ring-inner'), ol: el('sr-ring-outer-lap'), il: el('sr-ring-inner-lap') };
     var cap = el('sr-cap'), stamp = el('sr-stamp'), b1 = el('sr-b1'), b2 = el('sr-b2');
 
@@ -286,6 +330,11 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
       out.gate.textContent = n.gate;
       out.perks.textContent = n.perks;
       out.worth.textContent = n.worth;
+      card.worth.textContent = n.cworth;
+      card.fv.textContent = n.cfv;
+      card.v.textContent = n.v;
+      card.pv.textContent = n.cpv;
+      card.pct.textContent = n.pct + '% paid back';
       setArc(ring.o, ring.ol, OUTER_C, n.outer);
       setArc(ring.i, ring.il, INNER_C, n.inner);
       cap.textContent = caption();
@@ -474,14 +523,43 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
     to { opacity: 0.92; transform: rotate(8deg) scale(1); }
   }
 
-  /* Story — ring, narration, park choices. Rides beside the receipt. */
-  .season__ring { display: block; }
+  /* Story — the live payback card, narration, park choices. The card quotes
+     the calculator's PaybackReceipt (the app card's web recreation). */
+  .season__card {
+    max-width: 21rem; background: #fbfaf4; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
+  }
+  .season__cardstripe { height: 6px; width: 100%; }
+  .season__cardbody { padding: 16px 18px 18px; }
+  .season__cardheader {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6); line-height: 1.4;
+  }
+  .season__cardsub {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6); margin-top: 3px; font-variant-numeric: tabular-nums;
+  }
+  .season__cardmain { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+  .season__ring { display: block; flex-shrink: 0; }
   .season__arc { transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1); }
   .season__arc--lap { filter: drop-shadow(0 0 2px rgba(27, 35, 48, 0.35)); }
-  .season__ringlegend {
-    margin: 0.5rem 0 0 !important; font-size: 0.72rem; color: var(--muted) !important;
-    letter-spacing: 0.02em;
+  .season__cardstats {
+    flex: 1; min-width: 0; display: flex; flex-direction: column;
+    justify-content: space-between; min-height: 96px;
   }
+  .season__cardstatrow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .season__cardstatlabel {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6);
+  }
+  .season__cardstatvalue {
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .season__cardstatvalue--green { color: var(--green-primary); }
+  .season__cardstat--big .season__cardstatvalue { font-size: 22px; font-weight: 800; }
+  .season__cardstatrule { height: 1px; background: rgba(0, 0, 0, 0.16); margin-top: 3px; }
+
   .season__cap { margin: 1rem 0 0 !important; font-size: 0.95rem; line-height: 1.6; min-height: 6.5em; }
   .season__choices { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
   .season__btn {
