@@ -1,0 +1,129 @@
+---
+// DetailLayout — shared chrome for /details/* chapter pages (the spokes off
+// the /details hub). Hero + back link + longform article shell. Prose styles
+// are :global under .dpage__body so chapter pages write plain markup:
+//   <section class="chapter">
+//     <p class="chapter__kicker">…</p>
+//     <h2>…</h2>
+//     <p>…</p>
+//     <aside class="chapter__aside">…</aside>   (optional callout)
+//   </section>
+import Layout from '@/layouts/Layout.astro';
+import KenBurnsImage from '@/components/guides/KenBurnsImage.astro';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  title: string;
+  description: string;
+  heroKicker: string;
+  heroTitle: string;
+  heroSub: string;
+  /** Optional hero photo under the head — omit it and the page renders text-only. */
+  heroImage?: ImageMetadata;
+  heroImageAlt?: string;
+  /** Extra belt for pages that exist ahead of their feature (e.g. /crowds pre-1.2). */
+  noindex?: boolean;
+}
+
+const { title, description, heroKicker, heroTitle, heroSub, heroImage, heroImageAlt, noindex } =
+  Astro.props;
+---
+<Layout title={title} description={description} noindex={noindex}>
+  <article class="dpage">
+    <header class="dpage__head">
+      <a class="dpage__back" href="/details">&larr; The details</a>
+      <p class="kicker dpage__kicker">{heroKicker}</p>
+      <h1 class="display dpage__title">{heroTitle}</h1>
+      <p class="dpage__sub">{heroSub}</p>
+    </header>
+    {heroImage && (
+      <div class="dpage__hero">
+        <KenBurnsImage
+          src={heroImage}
+          alt={heroImageAlt ?? ''}
+          loading="eager"
+          fetchpriority="high"
+          sizes="(min-width: 960px) 46rem, 100vw"
+        />
+      </div>
+    )}
+    <div class="dpage__body">
+      <slot />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .dpage {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .dpage__head { max-width: 42rem; }
+  .dpage__back {
+    display: inline-block; margin-bottom: 1.4rem;
+    color: var(--green-accent); font-weight: 600; font-size: 0.9rem;
+    text-decoration: none;
+  }
+  .dpage__back:hover { text-decoration: underline; }
+  .dpage__kicker { color: var(--green-primary); }
+  .dpage__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
+  .dpage__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+
+  /* Optional hero photo — same column as the body, quiet Ken-Burns drift. */
+  .dpage__hero {
+    max-width: 46rem;
+    margin-top: clamp(1.6rem, 4vw, 2.4rem);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .dpage__body {
+    max-width: 46rem;
+    margin-top: clamp(2rem, 5vw, 3rem);
+    display: grid; gap: 1.4rem;
+  }
+  /* Grid items default to min-width:auto, so a wide child (the events strip's
+     scroll frame) blows out the page on phones instead of scrolling inside
+     its card — Safari then zooms the whole page out to fit. Clamp it. */
+  .dpage__body > :global(*) { min-width: 0; }
+  .dpage__body :global(.chapter) {
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.6rem 1.7rem;
+  }
+  .dpage__body :global(.chapter__kicker) {
+    margin: 0; font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--green-accent);
+  }
+  .dpage__body :global(.chapter h2) {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.35rem; line-height: 1.25;
+    color: var(--green-primary); margin: 0.45rem 0 0;
+  }
+  .dpage__body :global(.chapter p:not(.chapter__kicker)) {
+    color: var(--muted); line-height: 1.65; margin: 0.8rem 0 0;
+  }
+  .dpage__body :global(.chapter ul),
+  .dpage__body :global(.chapter ol) {
+    margin: 0.8rem 0 0; padding-left: 1.15rem;
+    color: var(--muted); line-height: 1.65;
+    display: grid; gap: 0.45rem;
+  }
+  .dpage__body :global(.chapter ul strong) { color: var(--ink); font-weight: 700; }
+  .dpage__body :global(.chapter ol) { padding-left: 2.2rem; }
+  .dpage__body :global(.chapter ol li::marker) { color: var(--green-primary); font-weight: 700; }
+  .dpage__body :global(.chapter__aside) {
+    margin: 1rem 0 0; padding: 0.9rem 1.1rem;
+    background: rgba(45, 106, 79, 0.06);
+    border-left: 3px solid var(--green-accent);
+    border-radius: var(--radius-sm);
+    color: var(--ink); line-height: 1.6; font-size: 0.95rem;
+  }
+  .dpage__body :global(.chapter a) {
+    color: var(--green-primary); font-weight: 600; text-decoration: none;
+  }
+  .dpage__body :global(.chapter a:hover) { text-decoration: underline; }
+</style>

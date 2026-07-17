@@ -1,0 +1,124 @@
+---
+// /details/history — chapter page: how the payback math actually works, in
+// plain English. Facts trace to product/payback_math.md (the canonical
+// rulebook) and product_decisions.md ("Collectibles are not monetized").
+// Keep this page in step with the spec if the rules change.
+import DetailLayout from '@/layouts/DetailLayout.astro';
+import SeasonReplay from '@/components/details/SeasonReplay.astro';
+import { SITE } from '@/data/site';
+
+export const prerender = true;
+
+const title = `The history | ${SITE.name}`;
+const description =
+  'How Lanyard values a visit. Conservative gate prices, honest Park Hopper math, perk savings that never get repriced, and why collectibles never get a dollar amount.';
+---
+<DetailLayout
+  title={title}
+  description={description}
+  heroKicker="The details · The history"
+  heroTitle="Every dollar has a receipt."
+  heroSub="The whole app is anchored to one promise. Lanyard will tell you the true value of your pass. A promise like that can't run on vibes, so the payback number follows a written rulebook. This is that rulebook in plain English."
+>
+  <SeasonReplay />
+
+  <section class="chapter">
+    <p class="chapter__kicker">The rulebook</p>
+    <h2>One set of rules, applied everywhere</h2>
+    <p>
+      What a visit is worth, how a perk counts, what happens when you upgrade mid-year. All of it
+      is defined once and applied everywhere, so the number on your pass means the same thing on
+      day 4 and day 340, on the Home tab and in your history. If two screens ever disagreed, one
+      of them would be a bug by definition. The <a href="/calculator">free web calculator</a> runs
+      the same rules.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Visit value</p>
+    <h2>A day is worth what it would have cost at the gate</h2>
+    <p>
+      When you log a visit, Lanyard values that day at the real single-day gate price of the park
+      you entered. Not a made-up number, the published price of the ticket you didn't have to
+      buy. Water parks carry their own lower prices, flagship parks carry theirs, and a day with
+      multiple parks is anchored to the most expensive park you actually walked into.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Hopper days</p>
+    <h2>Park Hopper and Park-to-Park, priced honestly</h2>
+    <p>
+      Visit a second park in the same day and Lanyard adds what the operators actually charge for
+      that, the flat park-hopper increment on a single-day ticket. Not a second full ticket,
+      because that's not what a hopper day costs at the gate. A third or fourth park doesn't add
+      more, because no operator prices one. And re-entering the same park twice is one day, not
+      two. The math mirrors the ticket you'd really have bought for the day you really had.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The bias</p>
+    <h2>Conservative on purpose</h2>
+    <p>
+      When a park publishes more than one single-day price, peak versus off-peak, Lanyard records
+      the lower one. That bias always points the same direction. Your pass is worth at least this
+      much. An app that flatters you with inflated value gets caught within a season, and a
+      payback number you can't trust is worth nothing at all.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Your day</p>
+    <h2>The last word on a visit's value is yours</h2>
+    <p>
+      The defaults are careful, but they're defaults. You know what your day was actually worth.
+      Maybe it was a peak-price Saturday. Maybe the visit was your kid's, on a ticket that costs
+      less. Maybe you tapped in for one ride and left, or drove over just for the Dagwood at
+      Blondie's. And maybe you met someone in line that day who's at your dinner table now, which
+      makes that visit worth more than any ticket ever printed. Every visit's value can be
+      edited, and once you set it, your number is the truth from then on. Lanyard's job is a
+      defensible starting point, not an argument with your memory.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Perk value</p>
+    <h2>Perks are receipts, not estimates</h2>
+    <p>
+      Perk savings work differently from visits, and the difference matters. A visit's value is
+      derived from gate prices. A perk's value is recorded at the moment you save it. Free
+      parking logs the day's real parking rate. A discount asks what you actually saved.
+    </p>
+    <p>
+      And history never gets repriced. If parking goes from $35 to $40 next year, your old
+      redemptions stay at $35, because that's what you actually saved on the day you saved it.
+      Your history is a record of what happened, not a spreadsheet that drifts.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Collectibles</p>
+    <h2>Collectibles never get a dollar amount</h2>
+    <p>
+      The passholder magnet, the button, the lanyard. Lanyard tracks that you claimed them and
+      refuses to price them, on purpose. Collectibles aren't rational. We want them, we wait in
+      line for them, and we don't care what they're worth, because they're ours. Assigning $4.50
+      of "value" to a magnet would miss the entire point of the magnet.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The share</p>
+    <h2>Built to be shown</h2>
+    <p>
+      Your payback card shares as a proper receipt, a rendered image with the story attached, my
+      pass is 81% paid back. It exists because that's how passholders talk, one phone held up to
+      another in a queue line. The receipt is the brag, and every number on it traces back to the
+      rules on this page.
+    </p>
+    <p>
+      <a href="/details">&larr; Back to the details</a>
+    </p>
+  </section>
+</DetailLayout>

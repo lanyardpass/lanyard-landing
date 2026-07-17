@@ -1,0 +1,400 @@
+---
+// The plaza demo on /crowds — a hand-driven miniature of the app's crowd
+// scene. Three word-buttons (Quiet / Normal / Packed — the app's DISPLAY
+// words; internal id "steady" never appears on user surfaces) drive a
+// silhouette diorama. Figures ARRIVE the way they do in the app, per the
+// registry's gait metadata:
+//   step   → walks in: two-frame gait swap (contact/passing) while
+//            translating, settles into its standing pose on arrival
+//   skip   → hops in on the same machinery with a bounce
+//   glide  → the ECV rolls in smoothly, no frames
+//   anchored (standing couple, shoulders kid) → fades in place; these
+//            figures never walk in the app either
+// Departures WALK OFF toward their nearest edge (anchored figures fade).
+// A figure's facing follows its travel direction and persists after it
+// settles — no snapping back. Balloon shows up at Packed with the app's
+// documented 20% escape roll (rolled once per page load). The steam train
+// was removed from the web plaza 2026-07-16 — with no park context it read
+// as a non sequitur; the train is app-only (USF/IoA scenes, LAN-187).
+//
+// FIGURE ART IS THE REAL CAST: unit-square SVGs generated from the app's
+// CrowdFigures.swift by tools/dump-shape-svgs.py (lanyard-docs →
+// brand/crowd-figures/, copied into src/assets/parkfolk/ — README there).
+// SQUARE boxes sized by registry relHeight only; never stretch by aspect
+// (double-applies — the 2026-07-16 squish). Re-copy after figure changes.
+//
+// WALK_ART_FACES: the walk frames face one direction; I can't render here.
+// If walkers moonwalk on the preview, flip this constant — one boolean.
+//
+// Honesty contract: this demo NEVER shows a real crowd reading. The caption
+// says so; the finger drives it here, the evidence drives it in the app.
+import coupleRaw from '@/assets/parkfolk/CrowdFigureCoupleShape.svg?raw';
+import relaxedRaw from '@/assets/parkfolk/CrowdFigureRelaxedShape.svg?raw';
+import phoneRaw from '@/assets/parkfolk/CrowdFigurePhoneShape.svg?raw';
+import crossedRaw from '@/assets/parkfolk/CrowdFigureCrossedShape.svg?raw';
+import hipsRaw from '@/assets/parkfolk/CrowdFigureHipsShape.svg?raw';
+import walkARaw from '@/assets/parkfolk/CrowdFigureWalkAShape.svg?raw';
+import walkBRaw from '@/assets/parkfolk/CrowdFigureWalkBShape.svg?raw';
+import strollerRaw from '@/assets/parkfolk/CrowdFigureStrollerAShape.svg?raw';
+import strollerBRaw from '@/assets/parkfolk/CrowdFigureStrollerBShape.svg?raw';
+import strollerRestRaw from '@/assets/parkfolk/CrowdFigureStrollerRestShape.svg?raw';
+import coupleWalkARaw from '@/assets/parkfolk/CrowdFigureCoupleWalkAShape.svg?raw';
+import coupleWalkBRaw from '@/assets/parkfolk/CrowdFigureCoupleWalkBShape.svg?raw';
+import coupleRestRaw from '@/assets/parkfolk/CrowdFigureCoupleRestShape.svg?raw';
+import shouldersRaw from '@/assets/parkfolk/CrowdFigureShouldersShape.svg?raw';
+import skipGirlARaw from '@/assets/parkfolk/CrowdFigureSkipGirlAShape.svg?raw';
+import skipGirlBRaw from '@/assets/parkfolk/CrowdFigureSkipGirlBShape.svg?raw';
+import ecvRaw from '@/assets/parkfolk/CrowdFigureEcvShape.svg?raw';
+
+// Square boxes; relHeight values mirror the app registry.
+const U = 72;
+const art = (raw: string, relHeight: number) => {
+  const h = (relHeight * U).toFixed(1);
+  return raw
+    .replace('<svg ', `<svg width="${h}" height="${h}" `)
+    .replace('fill="black"', 'fill="currentColor"');
+};
+
+// kind → { gait, settle art, walk frames [A, B] } (frames omitted where the
+// figure doesn't walk). relHeights per frame keep the person constant
+// through swaps (wide contact frames are width-normalized; the registry
+// compensates — same numbers as the app).
+type Kind = {
+  gait: 'step' | 'skip' | 'glide' | 'anchored';
+  settle: string;
+  walk?: [string, string];
+};
+const KINDS: Record<string, Kind> = {
+  couple: { gait: 'anchored', settle: art(coupleRaw, 0.84) },
+  shoulders: { gait: 'anchored', settle: art(shouldersRaw, 1.0) },
+  relaxed: { gait: 'step', settle: art(relaxedRaw, 0.8), walk: [art(walkARaw, 0.76), art(walkBRaw, 0.77)] },
+  phone: { gait: 'step', settle: art(phoneRaw, 0.78), walk: [art(walkARaw, 0.76), art(walkBRaw, 0.77)] },
+  crossed: { gait: 'step', settle: art(crossedRaw, 0.8), walk: [art(walkARaw, 0.76), art(walkBRaw, 0.77)] },
+  hips: { gait: 'step', settle: art(hipsRaw, 0.8), walk: [art(walkARaw, 0.76), art(walkBRaw, 0.77)] },
+  walker: { gait: 'step', settle: art(walkARaw, 0.76), walk: [art(walkARaw, 0.76), art(walkBRaw, 0.77)] },
+  stroller: { gait: 'step', settle: art(strollerRestRaw, 0.77), walk: [art(strollerRaw, 0.87), art(strollerBRaw, 0.77)] },
+  coupleWalk: { gait: 'step', settle: art(coupleRestRaw, 0.84), walk: [art(coupleWalkARaw, 0.93), art(coupleWalkBRaw, 0.84)] },
+  skipKid: { gait: 'skip', settle: art(skipGirlARaw, 0.58), walk: [art(skipGirlARaw, 0.58), art(skipGirlBRaw, 0.62)] },
+  ecv: { gait: 'glide', settle: art(ecvRaw, 0.72) },
+  kid: { gait: 'step', settle: art(walkARaw, 0.55), walk: [art(walkARaw, 0.55), art(walkBRaw, 0.56)] },
+};
+
+// The cast. tier: 1 = present from Quiet, 2 = joins at Normal, 3 = Packed.
+// Density per Dan (2026-07-16): a quiet park is quiet, not abandoned —
+// Quiet seats ~5 souls, Normal ~13, Packed ~27.
+const cast = [
+  { kind: 'couple', tier: 1, left: 44, row: 'front', delay: 0 },
+  { kind: 'walker', tier: 1, left: 72, row: 'front', delay: 0.15 },
+  { kind: 'relaxed', tier: 1, left: 12, row: 'back', delay: 0.05 },
+  { kind: 'phone', tier: 1, left: 88, row: 'back', delay: 0.25 },
+  { kind: 'stroller', tier: 2, left: 57, row: 'front', delay: 0.16 },
+  { kind: 'shoulders', tier: 2, left: 28, row: 'front', delay: 0.24 },
+  { kind: 'ecv', tier: 2, left: 78, row: 'front', delay: 0.32 },
+  { kind: 'walker', tier: 2, left: 8, row: 'front', delay: 0.08 },
+  { kind: 'crossed', tier: 2, left: 34, row: 'back', delay: 0.1 },
+  { kind: 'hips', tier: 2, left: 94, row: 'back', delay: 0.2 },
+  { kind: 'walker', tier: 2, left: 70, row: 'back', delay: 0.4 },
+  { kind: 'crossed', tier: 3, left: 4, row: 'front', delay: 0.05 },
+  { kind: 'skipKid', tier: 3, left: 21, row: 'front', delay: 0.3 },
+  { kind: 'hips', tier: 3, left: 50, row: 'front', delay: 0.12 },
+  { kind: 'kid', tier: 3, left: 37, row: 'front', delay: 0.5 },
+  { kind: 'coupleWalk', tier: 3, left: 88, row: 'front', delay: 0.2 },
+  { kind: 'balloonKid', tier: 3, left: 66, row: 'front', delay: 0.45 },
+  { kind: 'phone', tier: 3, left: 2, row: 'back', delay: 0.55 },
+  { kind: 'stroller', tier: 3, left: 20, row: 'back', delay: 0.35 },
+  { kind: 'walker', tier: 3, left: 44, row: 'back', delay: 0.15 },
+  { kind: 'couple', tier: 3, left: 56, row: 'back', delay: 0.25 },
+  { kind: 'relaxed', tier: 3, left: 62, row: 'back', delay: 0.6 },
+  { kind: 'walker', tier: 3, left: 80, row: 'back', delay: 0.48 },
+];
+const kindOf = (k: string) => KINDS[k === 'balloonKid' ? 'kid' : k];
+---
+<div class="plaza-wrap">
+  <div class="plaza__words" role="group" aria-label="Set the demo crowd level">
+    <button class="plaza__btn" data-set="quiet" aria-pressed="true">Quiet</button>
+    <button class="plaza__btn" data-set="normal" aria-pressed="false">Normal</button>
+    <button class="plaza__btn" data-set="packed" aria-pressed="false">Packed</button>
+  </div>
+
+  <div class="plaza" id="crowd-plaza" data-state="quiet" aria-hidden="true">
+    {cast.map((f) => (
+      <span
+        class={`plaza__fig plaza__fig--${f.row}`}
+        data-tier={f.tier}
+        data-gait={kindOf(f.kind).gait}
+        data-delay={f.delay}
+        style={`left:${f.left}%;--s:${f.row === 'back' ? 0.8 : 1}`}
+      >
+        {f.kind === 'balloonKid' && (
+          <span class="plaza__balloon" id="plaza-balloon">
+            <svg viewBox="0 0 20 46" width="15" height="34">
+              <circle cx="10" cy="9" r="8" />
+              <path d="M10 17 q4 12 -1 28" fill="none" stroke="currentColor" stroke-width="1.4" />
+            </svg>
+          </span>
+        )}
+        {kindOf(f.kind).walk && (
+          <span class="fig__walk">
+            <span class="fig__frameA" set:html={kindOf(f.kind).walk![0]} />
+            <span class="fig__frameB" set:html={kindOf(f.kind).walk![1]} />
+          </span>
+        )}
+        <span class="fig__settle" set:html={kindOf(f.kind).settle} />
+      </span>
+    ))}
+    <div class="plaza__ground"></div>
+  </div>
+
+  <p class="plaza__readout"><b id="plaza-word">QUIET</b> <span id="plaza-sentence">Short waits. Room to breathe.</span></p>
+  <p class="plaza__truth">
+    Here, your finger sets the crowd. In the app, more than ten thousand park-days of evidence do.
+  </p>
+</div>
+
+<script is:inline>
+  (function () {
+    var plaza = document.getElementById('crowd-plaza');
+    var wordEl = document.getElementById('plaza-word');
+    var sentEl = document.getElementById('plaza-sentence');
+    var balloon = document.getElementById('plaza-balloon');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // If walkers moonwalk, flip this (walk-frame art faces one way; verify
+    // on the preview — flip-and-confirm). Standing art faces right too, so
+    // the same flip persists through settle: facing follows travel.
+    var WALK_ART_FACES_RIGHT = true;
+
+    var STATES = {
+      quiet: { word: 'QUIET', s: 'Short waits. Room to breathe.', tier: 1 },
+      normal: { word: 'NORMAL', s: 'A typical day for this park.', tier: 2 },
+      packed: { word: 'PACKED', s: "Waits are running well above this park's normal.", tier: 3 },
+    };
+
+    var figs = Array.prototype.slice.call(plaza.querySelectorAll('.plaza__fig'));
+    var balloonEscapes = Math.random() < 0.2;
+    var balloonDone = false;
+    var stepTicker = null;
+
+    function ensureTicker() {
+      if (stepTicker) return;
+      stepTicker = setInterval(function () {
+        var walking = plaza.querySelectorAll('.fig--walking');
+        if (!walking.length) { clearInterval(stepTicker); stepTicker = null; return; }
+        walking.forEach(function (f) { f.classList.toggle('fig--stepB'); });
+      }, 210);
+    }
+
+    function clearMotion(f) {
+      clearTimeout(f._motionT);
+      f._motionT = null;
+      f.classList.remove('fig--walking', 'fig--gliding', 'fig--skip', 'fig--stepB', 'fig--leaving');
+    }
+
+    function arrive(f) {
+      var gait = f.getAttribute('data-gait');
+      var delay = parseFloat(f.getAttribute('data-delay')) * 1000;
+      if (reduce || gait === 'anchored') {
+        f.style.transitionDelay = reduce ? '0s' : delay / 1000 + 's';
+        f.classList.add('fig--in', 'fig--settled');
+        return;
+      }
+      setTimeout(function () {
+        if (!f.classList.contains('fig--due') || f.classList.contains('fig--in')) return;
+        var fromLeft = parseFloat(f.style.left) < 50;
+        var dist = 90 + Math.random() * 70;
+        var travelingRight = fromLeft;
+        f.classList.toggle('fig--flip', travelingRight !== WALK_ART_FACES_RIGHT);
+        f.style.transition = 'none';
+        f.style.setProperty('--tx', (fromLeft ? -dist : dist).toFixed(0) + 'px');
+        f.classList.add('fig--in', gait === 'glide' ? 'fig--gliding' : 'fig--walking');
+        if (gait === 'skip') f.classList.add('fig--skip');
+        void f.offsetWidth;
+        var dur = (gait === 'glide' ? 1600 : 1400) + dist * 9;
+        f.style.transition = 'transform ' + dur + 'ms cubic-bezier(0.25, 0.6, 0.35, 1)';
+        f.style.setProperty('--tx', '0px');
+        if (gait !== 'glide') ensureTicker();
+        f._motionT = setTimeout(function () {
+          clearMotion(f);
+          f.classList.add('fig--settled');
+          f.style.transition = '';
+        }, dur + 30);
+      }, delay);
+    }
+
+    function depart(f) {
+      var gait = f.getAttribute('data-gait');
+      if (reduce || gait === 'anchored') {
+        clearMotion(f);
+        f.classList.remove('fig--due', 'fig--in', 'fig--settled', 'fig--flip');
+        f.style.transition = '';
+        f.style.removeProperty('--tx');
+        return;
+      }
+      var w = plaza.clientWidth;
+      var x = (parseFloat(f.style.left) / 100) * w;
+      var exitLeft = x < w / 2;
+      var dist = (exitLeft ? x : w - x) + 100;
+      var travelingRight = !exitLeft;
+      f.classList.toggle('fig--flip', travelingRight !== WALK_ART_FACES_RIGHT);
+      f.classList.remove('fig--settled');
+      f.classList.add('fig--leaving', gait === 'glide' ? 'fig--gliding' : 'fig--walking');
+      if (gait === 'skip') f.classList.add('fig--skip');
+      if (gait !== 'glide') ensureTicker();
+      var dur = 1200 + dist * 7;
+      f.style.transition = 'transform ' + dur + 'ms cubic-bezier(0.45, 0.05, 0.85, 0.5)';
+      f.style.setProperty('--tx', (exitLeft ? -dist : dist).toFixed(0) + 'px');
+      f._motionT = setTimeout(function () {
+        clearMotion(f);
+        f.classList.remove('fig--due', 'fig--in', 'fig--flip');
+        f.style.transition = 'none';
+        f.style.removeProperty('--tx');
+        void f.offsetWidth;
+        f.style.transition = '';
+      }, dur + 30);
+    }
+
+    function recall(f) {
+      // Re-summoned mid-departure: turn around and walk back to the spot.
+      clearMotion(f);
+      f.classList.add('fig--walking');
+      var backDur = 900;
+      f.style.transition = 'transform ' + backDur + 'ms ease-out';
+      f.style.setProperty('--tx', '0px');
+      if (f.getAttribute('data-gait') !== 'glide') ensureTicker();
+      f._motionT = setTimeout(function () {
+        clearMotion(f);
+        f.classList.add('fig--settled');
+        f.style.transition = '';
+      }, backDur + 30);
+    }
+
+    function setState(s) {
+      plaza.setAttribute('data-state', s);
+      wordEl.textContent = STATES[s].word;
+      sentEl.textContent = STATES[s].s;
+      var tier = STATES[s].tier;
+      document.querySelectorAll('.plaza__btn').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-set') === s));
+      });
+
+      figs.forEach(function (f) {
+        var due = parseInt(f.getAttribute('data-tier'), 10) <= tier;
+        var here = f.classList.contains('fig--in');
+        var leaving = f.classList.contains('fig--leaving');
+        if (due && !here) {
+          f.classList.add('fig--due');
+          arrive(f);
+        } else if (due && leaving) {
+          f.classList.add('fig--due');
+          recall(f);
+        } else if (!due && here && !leaving) {
+          depart(f);
+        } else if (due) {
+          f.classList.add('fig--due');
+        }
+      });
+
+      if (s === 'packed' && balloonEscapes && !balloonDone && !reduce) {
+        setTimeout(function () {
+          if (plaza.getAttribute('data-state') === 'packed' && !balloonDone) {
+            balloonDone = true;
+            balloon.classList.add('plaza__balloon--fly');
+          }
+        }, 5000 + Math.random() * 4000);
+      }
+    }
+
+    document.querySelectorAll('.plaza__btn').forEach(function (b) {
+      b.addEventListener('click', function () { setState(b.getAttribute('data-set')); });
+    });
+
+    // Quiet's tier-1 residents are present from load.
+    figs.forEach(function (f) {
+      if (parseInt(f.getAttribute('data-tier'), 10) === 1) {
+        f.classList.add('fig--due', 'fig--in', 'fig--settled');
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  .plaza-wrap { margin-top: 1.1rem; }
+  .plaza__words { display: flex; gap: 6px; }
+  .plaza__btn {
+    flex: 1; padding: 0.5rem 0; border-radius: 999px;
+    border: 1px solid rgba(45, 106, 79, 0.3); background: #fff;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.85rem;
+    letter-spacing: 0.04em; color: var(--green-primary); cursor: pointer;
+  }
+  .plaza__btn[aria-pressed='true'] { background: var(--green-primary); color: #fff; border-color: var(--green-primary); }
+
+  .plaza {
+    position: relative; height: 200px; margin-top: 0.9rem;
+    border: 1px solid rgba(45, 106, 79, 0.14); border-radius: var(--radius-sm);
+    background: rgba(45, 106, 79, 0.04); overflow: hidden;
+  }
+  .plaza__ground {
+    position: absolute; left: 0; right: 0; bottom: 22px;
+    border-bottom: 2px solid rgba(27, 67, 50, 0.25);
+  }
+  .plaza__fig {
+    position: absolute; bottom: 24px; color: #1b4332;
+    /* Zero-width anchor: the figure centers ON its left% mark instead of
+       hanging rightward from it (the mobile right-skew, 2026-07-16). Motion
+       stays on transform; centering is pure layout. */
+    width: 0; display: flex; justify-content: center; align-items: flex-end;
+    transform: translateX(var(--tx, 0)) scale(calc(var(--s, 1) * var(--m, 1)));
+    transform-origin: bottom center;
+    opacity: 0;
+  }
+  .plaza__fig--back { bottom: 78px; color: #4a6e5c; z-index: 1; }
+  .plaza__fig--front { z-index: 3; }
+  @media (max-width: 560px) {
+    .plaza { height: 168px; --m: 0.72; }
+    .plaza__fig--back { bottom: 64px; }
+  }
+  .plaza__fig.fig--in { opacity: 1; }
+  .plaza__fig:not(.fig--in) { transition: opacity 0.5s ease; }
+  .plaza__fig[data-gait='anchored'] { transition: opacity 0.55s ease; }
+
+  /* Frame plumbing: walking shows frame A (or B on tick), settled shows the
+     standing pose. Bottoms align (the dump bottom-aligns), so swaps don't
+     hop. */
+  .fig__walk, .fig__frameB { display: none; }
+  .fig__walk { vertical-align: bottom; }
+  .fig__walk span { display: inline-block; vertical-align: bottom; }
+  .fig--walking .fig__walk, .fig--skip .fig__walk { display: inline-block; }
+  .fig--walking .fig__settle { display: none; }
+  .fig--walking .fig__frameA { display: inline-block; }
+  .fig--walking .fig__frameB { display: none; }
+  .fig--walking.fig--stepB .fig__frameA { display: none; }
+  .fig--walking.fig--stepB .fig__frameB { display: inline-block; }
+  /* Facing follows travel and PERSISTS after settle (standing art faces the
+     same way as the walk art, so a right-entering figure keeps facing left). */
+  .fig--flip .fig__walk, .fig--flip .fig__settle { transform: scaleX(-1); }
+  .fig--skip.fig--stepB .fig__walk { transform: translateY(-5px); }
+  .fig--flip.fig--skip.fig--stepB .fig__walk { transform: scaleX(-1) translateY(-5px); }
+  .fig__settle { display: inline-block; vertical-align: bottom; }
+
+  .plaza__balloon {
+    position: absolute; top: -30px; left: 4px; color: #c65f34;
+    transition: transform 6s ease-in, opacity 6s ease-in;
+  }
+  .plaza__balloon--fly { transform: translateY(-190px) translateX(24px); opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .plaza__fig { transition: none !important; }
+    .plaza__balloon { transition: none; }
+  }
+
+  .plaza__readout { margin: 0.9rem 0 0 !important; font-size: 0.95rem; }
+  .plaza__readout b {
+    font-family: var(--font-display); font-weight: 800; letter-spacing: 0.08em;
+    color: var(--green-primary); margin-right: 8px;
+  }
+  .plaza__readout span { color: var(--muted); }
+  .plaza__truth {
+    margin: 0.7rem 0 0 !important; font-size: 0.85rem !important;
+    color: var(--muted) !important; font-style: italic;
+  }
+</style>

@@ -1,0 +1,226 @@
+---
+// /details — the hub of the details section. Two layers:
+//   1. Chapters — deep-dive pages (/details/*) that show the rigor behind a
+//      surface, plus the weather story on the blog. Chapters ship one at a
+//      time; gated features (Crowd Intelligence, event passes) join when
+//      their feature is public.
+//   2. The small details — the short quiet-obsession cards that don't need a
+//      whole page (the original /details list, trimmed of entries that
+//      graduated into chapters).
+import Layout from '@/layouts/Layout.astro';
+import KenBurnsImage from '@/components/guides/KenBurnsImage.astro';
+import { SITE } from '@/data/site';
+import wizardRaw from '@/assets/parkfolk/CrowdFigureWizardAdultShape.svg?raw';
+
+export const prerender = true;
+
+// Parkfolk embedding recipe (see CrowdPlaza.astro): unit-square SVG in a
+// SQUARE box sized by registry relHeight only — never stretch by aspect.
+// Wizard adult relHeight 0.80 against a 56px unit → a little guy, not a mural.
+const wizardArt = wizardRaw
+  .replace('<svg ', `<svg width="${(0.8 * 56).toFixed(1)}" height="${(0.8 * 56).toFixed(1)}" `)
+  .replace('fill="black"', 'fill="currentColor"');
+
+const title = `The details | ${SITE.name}`;
+const description =
+  'The places Lanyard cares past the point of reason. How the calendar is curated, how the payback math earns trust, why the weather on your card is real. Rigor is why it’s right. Love is why it’s opened.';
+
+// Each chapter can optionally carry `image` (ImageMetadata imported above) +
+// `imageAlt` for a photo-on-top card; without it the card renders text-only,
+// exactly as before. `figure` is inline Parkfolk art rendered small in the
+// card's corner.
+const chapters = [
+  {
+    kicker: 'The calendar',
+    title: 'Ninety days you can plan on.',
+    body: 'Park hours pulled from the operators twice a week, an early-close watch that catches quiet buyouts, and events sorted the way a passholder thinks. No rumors, no placeholder dates.',
+    href: '/details/calendar',
+    cta: 'Read the chapter',
+  },
+  {
+    kicker: 'The history',
+    title: 'Every dollar has a receipt.',
+    body: 'The payback number follows a written rulebook. What a day is really worth, how a hopper day prices, why perk savings never get repriced, and why a magnet never gets a dollar amount.',
+    href: '/details/history',
+    cta: 'Read the chapter',
+  },
+  {
+    kicker: 'The crowd',
+    title: 'How we do the wizardry.',
+    body: 'Your park card carries a one-word crowd report. Quiet, Normal, or Packed, judged the only fair way, against that park\'s own history. And when the data isn\'t sure, the card says nothing at all.',
+    href: '/crowds',
+    cta: 'Read the chapter',
+    figure: wizardArt,
+  },
+];
+
+const details = [
+  {
+    kicker: 'The names',
+    title: 'Parks are called what you call them',
+    body: 'Nobody says "Universal Studios Florida" out loud, they say Studios. Every park in Lanyard carries two names, the official one for when there\'s room and the one passholders actually use for when there isn\'t. It\'s a tiny rule that makes every screen read like it was written by someone who goes.',
+  },
+  {
+    kicker: 'The data',
+    title: 'Blockout dates are treated like they cost money, because they do',
+    body: 'A wrong blockout date sends someone to a gate they can\'t get through. So every calendar in Lanyard is checked against the operators and run through layered validation before it reaches your phone, and if anything ever looks off, the app falls back to known-good data instead of guessing.',
+    link: { href: '/details/calendar', label: 'How the calendar is made' },
+  },
+  {
+    kicker: 'The ring',
+    title: 'Break-even keeps going past 100%',
+    body: 'When your pass pays for itself, the ring doesn\'t stop, it laps, the way a closed Activity ring keeps going. Your second hundred percent is the fun part, and the app treats it that way.',
+  },
+  {
+    kicker: 'The trust',
+    title: 'There is nothing to log into',
+    body: 'No account, no sync, no tracking. Your passes, visits, and history live on your phone and nowhere else. This isn\'t a missing feature, it\'s the design, and it\'s why the app works in a dead zone in the middle of a park.',
+    link: { href: '/privacy', label: 'The privacy promise' },
+  },
+];
+---
+<Layout title={title} description={description}>
+  <section class="details">
+    <header class="details__head">
+      <p class="kicker">The details</p>
+      <h1 class="display details__title">Why it feels different.</h1>
+      <p class="details__sub">
+        Lanyard is built by one Orlando passholder who cares past the point of reason. Rigor is
+        why it&rsquo;s right. Love is why it&rsquo;s opened. These chapters show both.
+      </p>
+    </header>
+
+    <div class="chapters">
+      {chapters.map((c) => (
+        <a class="chapterCard" href={c.href}>
+          {c.image && (
+            <div class="chapterCard__media">
+              <KenBurnsImage
+                src={c.image}
+                alt={c.imageAlt ?? ''}
+                sizes="(min-width: 720px) 24rem, 100vw"
+                widths={[480, 800, 1200]}
+              />
+            </div>
+          )}
+          <div class="chapterCard__text">
+            <p class="chapterCard__kicker">{c.kicker}</p>
+            <h2 class="chapterCard__title">{c.title}</h2>
+            <p class="chapterCard__body">{c.body}</p>
+            <span class="chapterCard__cta">{c.cta} &rarr;</span>
+            {c.figure && <span class="chapterCard__figure" aria-hidden="true" set:html={c.figure} />}
+          </div>
+        </a>
+      ))}
+    </div>
+    <h2 class="details__subhead">The small details</h2>
+    <ol class="details__list">
+      {details.map((d) => (
+        <li class="detail">
+          <p class="detail__kicker">{d.kicker}</p>
+          <h3 class="detail__title">{d.title}</h3>
+          <p class="detail__body">{d.body}</p>
+          {d.link && <a class="detail__link" href={d.link.href}>{d.link.label} &rarr;</a>}
+        </li>
+      ))}
+    </ol>
+  </section>
+</Layout>
+
+<style>
+  .details {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+    background: var(--off-white);
+  }
+  .details__head { max-width: 40rem; }
+  .details__head .kicker { color: var(--green-primary); }
+  .details__title { font-size: clamp(2rem, 6vw, 3.2rem); margin-top: 0.5rem; color: var(--ink); }
+  .details__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
+
+  /* Chapters — the deep dives */
+  .chapters {
+    margin-top: clamp(2rem, 5vw, 3rem);
+    display: grid; gap: 1.4rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(21rem, 100%), 1fr));
+    max-width: 46rem;
+  }
+  .chapterCard {
+    display: block; text-decoration: none;
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.18);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+  a.chapterCard:hover {
+    border-color: var(--green-accent);
+    box-shadow: 0 4px 18px rgba(45, 106, 79, 0.1);
+  }
+  /* Optional photo-on-top variant — present only when a chapter passes `image`. */
+  .chapterCard__media { aspect-ratio: 16 / 9; }
+  .chapterCard__text {
+    position: relative;
+    padding: 1.6rem 1.6rem 1.7rem;
+  }
+  /* The little Parkfolk nod in the card corner — decoration, never load-bearing. */
+  .chapterCard__figure {
+    position: absolute; right: 1.2rem; bottom: 1.1rem;
+    color: rgba(45, 106, 79, 0.4);
+    pointer-events: none; line-height: 0;
+  }
+  .chapterCard__kicker {
+    margin: 0; font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--green-accent);
+  }
+  .chapterCard__title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.3rem; line-height: 1.25;
+    color: var(--green-primary); margin: 0.45rem 0 0;
+  }
+  .chapterCard__body { color: var(--muted); line-height: 1.6; margin: 0.7rem 0 0; }
+  .chapterCard__cta {
+    display: inline-block; margin-top: 0.9rem;
+    color: var(--green-primary); font-weight: 600;
+  }
+  /* The small details — the original quiet-obsession list */
+  .details__subhead {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.4rem; color: var(--ink);
+    margin: clamp(2.4rem, 6vw, 3.4rem) 0 0;
+  }
+  .details__list {
+    list-style: none; counter-reset: detail;
+    margin: 1.4rem 0 0; padding: 0;
+    display: grid; gap: 1.4rem; max-width: 46rem;
+  }
+  .detail {
+    counter-increment: detail;
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.6rem 1.6rem;
+    position: relative;
+  }
+  .detail::after {
+    content: counter(detail, decimal-leading-zero);
+    position: absolute; top: 1.3rem; right: 1.5rem;
+    font-family: var(--font-display); font-weight: 900;
+    font-size: 1.05rem; color: rgba(45, 106, 79, 0.22);
+  }
+  .detail__kicker {
+    margin: 0; font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--green-accent);
+  }
+  .detail__title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.25rem; line-height: 1.25;
+    color: var(--green-primary); margin: 0.45rem 2.4rem 0 0;
+  }
+  .detail__body { color: var(--muted); line-height: 1.6; margin: 0.7rem 0 0; }
+  .detail__link {
+    display: inline-block; margin-top: 0.8rem;
+    color: var(--green-primary); font-weight: 600; text-decoration: none;
+  }
+  .detail__link:hover { text-decoration: underline; }
+</style>

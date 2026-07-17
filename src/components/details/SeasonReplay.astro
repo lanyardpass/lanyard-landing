@@ -1,0 +1,638 @@
+---
+// The season replay on /details/history — a made-up passholder season priced
+// with the real rulebook (product/payback_math.md) and printed, beat by beat,
+// onto a faithful web recreation of the app's share receipt (ReceiptCard.swift;
+// locked visual reference design-system/project/explorations/share_card/).
+// The payoff beat is the app's rubber stamp slamming onto the paper, masked by
+// the REAL grunge texture (public/details/receipt-stamp-grunge.png, downscaled
+// from the app's ReceiptStampGrunge asset).
+//
+// The reader steers: each beat offers a park choice ("Rope-drop Studios" /
+// "Sleep in, then Islands") that decides what prints on the receipt. The
+// MATH is fixed — every path demonstrates the same rulebook beats (gate-price
+// day, recorded discount, park-to-park increment, payoff stamp, unpriced
+// magnet) — only the labels follow the reader's picks. Choice without letting
+// the exhibit become a tool (that's /calculator's job).
+//
+// Prices mirror the calculator snapshot (src/data/calculator.ts): Universal
+// Preferred, FL resident, two parks $529.99; one-park gate floor $119;
+// park-to-park increment $55; free self-parking $35. Ledger: visits
+// 119+119+174+119 = $531, perks 35×4+9 = $149, worth $680 → 128%. If the
+// price snapshot changes, re-check the arithmetic in the NUMS table below.
+//
+// Shadow note: the paper's shadow is a plain box-shadow on a ::before
+// rectangle BEHIND the paper, deliberately not a drop-shadow filter — the
+// filter re-rasterizes the whole clipped paper on every DOM change inside it
+// (visible flicker per tap) and draws tooth-shaped shadow ghosts under the
+// zigzag that read as a bad cut.
+import LanyardLogo from '@/components/LanyardLogo.astro';
+
+// Receipt palette — Color+Brand.swift receiptPaper/receiptInk. (No receiptMat
+// here: the dark mat exists so the share image survives an iMessage bubble;
+// on the page the paper sits directly on the off-white.)
+const PAPER = '#FBF6EC';
+const INK = '#1B2330';
+const INK_SOFT = 'rgba(27,35,48,0.55)';
+// Preferred two-park accent #1CA7C0 through receiptStampInk's algorithmic
+// darken (luminance → 0.30, hue preserved) = the printed tier ink.
+const STAMP_INK = '#116472';
+const ACCENT = '#1CA7C0';
+
+// Zigzag perforation — ZigzagPaperShape, 30 teeth, scaled depth.
+const TEETH = 30;
+const DEPTH = 8;
+const zigzagTop: string[] = [];
+const zigzagBottom: string[] = [];
+for (let i = 0; i <= TEETH * 2; i++) {
+  const x = ((i * 100) / (TEETH * 2)).toFixed(3) + '%';
+  zigzagTop.push(`${x} ${i % 2 ? `${DEPTH}px` : '0px'}`);
+  zigzagBottom.unshift(`${x} ${i % 2 ? `calc(100% - ${DEPTH}px)` : '100%'}`);
+}
+const ZIGZAG = `polygon(${zigzagTop.join(', ')}, ${zigzagBottom.join(', ')})`;
+
+// Deterministic faux barcode (receipt.jsx FauxBarcode, scaled).
+const CODE = 'LY-2026-A1-128';
+let seed = [...CODE].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const next = () => { seed = (seed * 1103515245 + 12345) >>> 0; return seed; };
+const bars = Array.from({ length: 64 }, () => ({
+  w: (0.5 + ((next() % 100) / 100) * 1.6).toFixed(2),
+  tall: next() % 11 > 0,
+  gap: (0.5 + ((next() % 100) / 100) * 0.8).toFixed(2),
+}));
+
+// Receipt line skeletons, revealed by step. Visit labels are placeholders —
+// the script rewrites them from the reader's park picks. Amounts never change
+// (the math is the exhibit). money2 cents — the thermal look.
+const items = [
+  { step: 1, label: 'Oct 4 · Studios', amt: '+$119.00' },
+  { step: 1, label: 'Free self-parking', amt: '+$35.00' },
+  { step: 2, label: 'Nov 22 · Islands', amt: '+$119.00' },
+  { step: 2, label: 'Free self-parking', amt: '+$35.00' },
+  { step: 2, label: 'Dining discount', amt: '+$9.00' },
+  { step: 3, label: 'Jan 17 · Islands → Studios', amt: '+$174.00' },
+  { step: 3, label: 'Free self-parking', amt: '+$35.00' },
+  { step: 4, label: 'Feb 8 · Studios', amt: '+$119.00' },
+  { step: 4, label: 'Free self-parking', amt: '+$35.00' },
+  { step: 5, label: 'Mar 14 · Passholder magnet', amt: 'ours', ours: true },
+];
+
+// The live payback card beside the receipt — the calculator's PaybackReceipt
+// recreation of the app's PassPaybackCard (paper surface, tier stripe, dual
+// ring, stat stack), except this ring LAPS past 100%. Same numbers as the
+// receipt's ledger on a different surface, which is rulebook point one made
+// visible: if the two ever disagreed, one would be a bug.
+const R_SIZE = 96;
+const R_THICK = 12;
+const R_TICK = 8;
+const rc = R_SIZE / 2;
+const outerR = (R_SIZE - R_THICK) / 2;
+const innerR = outerR - (R_THICK + 4);
+const outerC = (2 * Math.PI * outerR).toFixed(2);
+const innerC = (2 * Math.PI * innerR).toFixed(2);
+---
+<div class="season">
+  <p class="season__lead">
+    Before the rules, watch them work. Here is a made-up season on a real pass, priced with the
+    rulebook and the operator's published prices as of July 2026, printed onto the exact
+    statement the app shares. You pick the parks.
+  </p>
+
+  <div class="season__stage">
+    <div class="season__paperwrap">
+      <div class="season__paper">
+        <header class="season__head">
+          <span class="season__badge" aria-hidden="true">
+            <i class="season__badgeslot"></i>
+            <b>Y</b>
+          </span>
+          <div class="season__co">★&ensp;Lanyard Co.&ensp;★</div>
+          <div class="season__title">Pass Payback Statement</div>
+          <div class="season__ref">Season 2026&ensp;·&ensp;Stmt A1/2026</div>
+        </header>
+
+        <div class="season__dashed"></div>
+
+        <div class="season__identity">
+          <div class="season__tier">Preferred Pass · 2026</div>
+          <div class="season__operator">Universal Orlando</div>
+        </div>
+
+        <div class="season__items">
+          {items.map((l, i) => (
+            <div class="season__item" data-step={l.step}>
+              <span class="season__itemlabel" id={`sr-l${i}`}>{l.label}</span>
+              <span class="season__leader"></span>
+              <span class={`season__itemamt ${l.ours ? 'season__itemamt--ours' : ''}`}>{l.amt}</span>
+            </div>
+          ))}
+        </div>
+
+        <div class="season__ledger">
+          <div class="season__row">
+            <span>Pass cost</span><span class="season__leader"></span><span>$529.99</span>
+          </div>
+          <div class="season__row">
+            <span>Visits logged</span><span class="season__leader"></span><span id="sr-visits">0</span>
+          </div>
+          <div class="season__row">
+            <span>Avg cost / visit</span><span class="season__leader"></span><span id="sr-avg">—</span>
+          </div>
+          <div class="season__rowgap"></div>
+          <div class="season__row">
+            <span>Gate value</span><span class="season__leader"></span><span id="sr-gate">$0.00</span>
+          </div>
+          <div class="season__row">
+            <span>Perk savings</span><span class="season__leader"></span><span id="sr-perks">$0.00</span>
+          </div>
+          <div class="season__total">
+            <div class="season__row season__row--total">
+              <span>Total worth</span><span class="season__leader"></span><span id="sr-worth">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="season__dashed"></div>
+
+        <footer class="season__foot">
+          <div class="season__thanks">Thank you for your business.</div>
+          <div class="season__tagline">&ldquo;You shall pass.&rdquo;</div>
+          <div class="season__barcode" aria-hidden="true">
+            {bars.map((b) => (
+              <i style={`width:${b.w}px;height:${b.tall ? 26 : 22}px;margin-right:${b.gap}px`}></i>
+            ))}
+          </div>
+          <div class="season__code">{CODE}</div>
+          <div class="season__anchor">
+            <LanyardLogo width={84} color={'#2D6A4F'} label="" />
+            <div class="season__url">
+              <span>Track yours at</span>
+              <b>lanyardpass.com</b>
+            </div>
+          </div>
+        </footer>
+
+        <div class="season__stamp" id="sr-stamp" aria-hidden="true">128% PAID BACK</div>
+      </div>
+    </div>
+
+    <div class="season__story">
+      <div class="season__card">
+        <div class="season__cardstripe" style={`background:${ACCENT}`}></div>
+        <div class="season__cardbody">
+          <div class="season__cardheader">Universal &nbsp;&middot;&nbsp; Preferred Pass</div>
+          <div class="season__cardsub" id="sr-pct">0% paid back</div>
+          <div class="season__cardmain">
+            <svg class="season__ring" width={R_SIZE} height={R_SIZE} viewBox={`0 0 ${R_SIZE} ${R_SIZE}`} aria-hidden="true">
+        <g transform={`rotate(-90 ${rc} ${rc})`}>
+          <circle cx={rc} cy={rc} r={outerR} fill="none" stroke="rgba(27,35,48,0.10)" stroke-width={R_THICK} />
+          <circle id="sr-ring-outer" cx={rc} cy={rc} r={outerR} fill="none" stroke={ACCENT} stroke-width={R_THICK}
+            stroke-linecap="round" class="season__arc"
+            stroke-dasharray={outerC} stroke-dashoffset={outerC} />
+          <circle cx={rc} cy={rc} r={innerR} fill="none" stroke="rgba(27,35,48,0.10)" stroke-width={R_THICK} />
+          <circle id="sr-ring-inner" cx={rc} cy={rc} r={innerR} fill="none" stroke="var(--green-primary)" stroke-width={R_THICK}
+            stroke-linecap="round" class="season__arc"
+            stroke-dasharray={innerC} stroke-dashoffset={innerC} />
+        </g>
+        <!-- Past 100% the ring reads FULL (no tinted lap arc — a second tone
+             makes a hard seam at 12 o'clock); the lap is shown the way the
+             app's MKRingProgressView shows it. The HEAD is the end of the
+             arc, not a dot: a short segment whose gradient runs from the
+             ring's own color (trailing edge merges invisibly) down to a
+             darker tip, and the shadow is a blurred crescent painted only
+             AHEAD of the tip — the direction of travel — never behind it.
+             Each group is authored at 12 o'clock and rotated to the lap
+             angle by the script. -->
+        <defs>
+          <!-- Head brightens toward the tip (the app's read: bright tip over
+               the ring, dark shadow beneath it — NOT a darker tip). -->
+          <linearGradient id="sr-headgrad-o" gradientUnits="userSpaceOnUse" x1="27" y1="11.63" x2="48" y2="6">
+            <stop offset="0" stop-color="#1CA7C0" />
+            <stop offset="0.35" stop-color="#1CA7C0" />
+            <stop offset="1" stop-color="#46C2DA" />
+          </linearGradient>
+          <linearGradient id="sr-headgrad-i" gradientUnits="userSpaceOnUse" x1="35" y1="25.48" x2="48" y2="22">
+            <stop offset="0" stop-color="#2D6A4F" />
+            <stop offset="0.35" stop-color="#2D6A4F" />
+            <stop offset="1" stop-color="#4A8F6D" />
+          </linearGradient>
+          <!-- Shadow fades to nothing along its own length so the crescent
+               dies out softly — a uniform stroke ends in a visible smudge. -->
+          <linearGradient id="sr-headshadow-o" gradientUnits="userSpaceOnUse" x1="46.53" y1="6.03" x2="54.57" y2="6.52">
+            <stop offset="0" stop-color="#1B2330" stop-opacity="0.72" />
+            <stop offset="0.55" stop-color="#1B2330" stop-opacity="0.45" />
+            <stop offset="1" stop-color="#1B2330" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="sr-headshadow-i" gradientUnits="userSpaceOnUse" x1="47.09" y1="22.02" x2="52.07" y2="22.32">
+            <stop offset="0" stop-color="#1B2330" stop-opacity="0.72" />
+            <stop offset="0.55" stop-color="#1B2330" stop-opacity="0.45" />
+            <stop offset="1" stop-color="#1B2330" stop-opacity="0" />
+          </linearGradient>
+          <filter id="sr-headblur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="1.3" />
+          </filter>
+        </defs>
+        <g id="sr-tip-outer" class="season__tip">
+          <path d="M 46.53 6.03 A 42 42 0 0 1 54.57 6.52" fill="none"
+            stroke="url(#sr-headshadow-o)" stroke-width={R_THICK}
+            filter="url(#sr-headblur)" />
+          <path d="M 27 11.63 A 42 42 0 0 1 48 6" fill="none"
+            stroke="url(#sr-headgrad-o)" stroke-width={R_THICK} stroke-linecap="round" />
+        </g>
+        <g id="sr-tip-inner" class="season__tip">
+          <path d="M 47.09 22.02 A 26 26 0 0 1 52.07 22.32" fill="none"
+            stroke="url(#sr-headshadow-i)" stroke-width={R_THICK}
+            filter="url(#sr-headblur)" />
+          <path d="M 35 25.48 A 26 26 0 0 1 48 22" fill="none"
+            stroke="url(#sr-headgrad-i)" stroke-width={R_THICK} stroke-linecap="round" />
+        </g>
+        <g stroke="rgba(27,35,48,0.30)" stroke-width="1">
+          <path d={`M0 0 V${R_TICK} M0 0 H${R_TICK}`} />
+          <path d={`M${R_SIZE} 0 V${R_TICK} M${R_SIZE - R_TICK} 0 H${R_SIZE}`} />
+          <path d={`M0 ${R_SIZE - R_TICK} V${R_SIZE} M0 ${R_SIZE} H${R_TICK}`} />
+          <path d={`M${R_SIZE} ${R_SIZE - R_TICK} V${R_SIZE} M${R_SIZE - R_TICK} ${R_SIZE} H${R_SIZE}`} />
+        </g>
+            </svg>
+            <div class="season__cardstats">
+              <div class="season__cardstat season__cardstat--big">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">Worth</span>
+                  <span class="season__cardstatvalue" id="sr-cworth" style={`color:${ACCENT}`}>$0</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+              <div class="season__cardstat">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">From visits</span>
+                  <span class="season__cardstatvalue season__cardstatvalue--green" id="sr-cfv">$0</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+              <div class="season__cardstat">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">Visits</span>
+                  <span class="season__cardstatvalue" id="sr-cv">0</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+              <div class="season__cardstat">
+                <div class="season__cardstatrow">
+                  <span class="season__cardstatlabel">Per visit</span>
+                  <span class="season__cardstatvalue" id="sr-cpv">&mdash;</span>
+                </div>
+                <div class="season__cardstatrule"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="season__cap" id="sr-cap" aria-live="polite">
+        Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from
+        here is a real published price. Where to first?
+      </p>
+      <div class="season__choices">
+        <button class="season__btn" id="sr-b1" type="button">Rope-drop Studios</button>
+        <button class="season__btn" id="sr-b2" type="button">Sleep in, then Islands</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var OUTER_C = 263.89, INNER_C = 163.36;
+    // Whole-season numbers per beat — fixed regardless of which parks are
+    // picked (both parks share the $119 gate floor, so every path prices
+    // identically; that's what makes choice safe here). Receipt prints cents
+    // (thermal); the card shows whole dollars (the app card's formatting).
+    var NUMS = [
+      { v: '0', avg: '—', gate: '$0.00', perks: '$0.00', worth: '$0.00', cworth: '$0', cfv: '$0', cpv: '—', pct: 0, outer: 0, inner: 0 },
+      { v: '1', avg: '$530.00', gate: '$119.00', perks: '$35.00', worth: '$154.00', cworth: '$154', cfv: '$119', cpv: '$530', pct: 29, outer: 0.2906, inner: 0.2245 },
+      { v: '2', avg: '$265.00', gate: '$238.00', perks: '$79.00', worth: '$317.00', cworth: '$317', cfv: '$238', cpv: '$265', pct: 60, outer: 0.5981, inner: 0.4491 },
+      { v: '3', avg: '$177.00', gate: '$412.00', perks: '$114.00', worth: '$526.00', cworth: '$526', cfv: '$412', cpv: '$177', pct: 99, outer: 0.9925, inner: 0.7774 },
+      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', cworth: '$680', cfv: '$531', cpv: '$132', pct: 128, outer: 1.283, inner: 1.0019 },
+      { v: '4', avg: '$132.00', gate: '$531.00', perks: '$149.00', worth: '$680.00', cworth: '$680', cfv: '$531', cpv: '$132', pct: 128, outer: 1.283, inner: 1.0019 },
+    ];
+    var el = function (id) { return document.getElementById(id); };
+    var out = { v: el('sr-visits'), avg: el('sr-avg'), gate: el('sr-gate'), perks: el('sr-perks'), worth: el('sr-worth') };
+    var card = { worth: el('sr-cworth'), fv: el('sr-cfv'), v: el('sr-cv'), pv: el('sr-cpv'), pct: el('sr-pct') };
+    var ring = { o: el('sr-ring-outer'), i: el('sr-ring-inner'), ot: el('sr-tip-outer'), it: el('sr-tip-inner') };
+    var cap = el('sr-cap'), stamp = el('sr-stamp'), b1 = el('sr-b1'), b2 = el('sr-b2');
+
+    var state = 0;
+    var picks = { v1: 'Studios', v2: 'Islands', hop: 'Islands → Studios', v4: 'Studios' };
+    var other = function (p) { return p === 'Studios' ? 'Islands' : 'Studios'; };
+
+    function caption() {
+      switch (state) {
+        case 0: return 'Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from here is a real published price. Where to first?';
+        case 1: return 'Oct 4. ' + picks.v1 + '. The day prints at the single-day gate price, the lower one when the operator publishes a spread, and parking prints at the day’s real rate. Where next?';
+        case 2: return 'Nov 22. ' + picks.v2 + ', plus a dining discount that prints what was actually saved at the register that day. Perks are receipts, not estimates. Feeling ambitious in January?';
+        case 3: return 'Jan 17. Both parks, one day. That prices like the ticket you’d really have bought, the flat park-to-park bump of $55, not a second full ticket. And look how close. Four dollars short of paid off. One more day does it.';
+        case 4: return 'Feb 8 at ' + picks.v4 + ' pays it off, the ring laps, and a paid-off pass gets what paid invoices have always gotten. The stamp.';
+        default: return 'Mar 14. Magnet day. No dollar amount, on purpose, because pricing the magnet misses the point of the magnet. That’s the season, and every line printed above follows a rule on this page.';
+      }
+    }
+
+    // The choices offered AT each state advance it. Labels carry the reader's
+    // agency; every branch demonstrates the same rule.
+    function choices() {
+      switch (state) {
+        case 0: return [
+          { t: 'Rope-drop Studios', f: function () { picks.v1 = 'Studios'; } },
+          { t: 'Sleep in, then Islands', f: function () { picks.v1 = 'Islands'; } },
+        ];
+        case 1: return [
+          { t: 'Back to ' + picks.v1, f: function () { picks.v2 = picks.v1; } },
+          { t: other(picks.v1) + ' this time', f: function () { picks.v2 = other(picks.v1); } },
+        ];
+        case 2: return [
+          { t: 'Islands, then Studios', f: function () { picks.hop = 'Islands → Studios'; } },
+          { t: 'Studios, then Islands', f: function () { picks.hop = 'Studios → Islands'; } },
+        ];
+        case 3: return [
+          { t: 'An evening at Studios', f: function () { picks.v4 = 'Studios'; } },
+          { t: 'An evening at Islands', f: function () { picks.v4 = 'Islands'; } },
+        ];
+        case 4: return [{ t: 'Claim the magnet', f: function () {} }];
+        default: return [{ t: 'Run it back', f: function () {} }];
+      }
+    }
+
+    function setArc(arc, tip, c, ratio) {
+      // Round line-caps paint a dot even at zero length — hide empty arcs.
+      arc.style.opacity = ratio > 0.001 ? 1 : 0;
+      arc.style.strokeDashoffset = c * (1 - Math.min(ratio, 1));
+      var extra = ratio - 1;
+      // Sub-1% laps (the inner ring clears by $1) stay tipless — a shadowed
+      // dot sitting at 12 o'clock would read as a glitch, not a lap.
+      tip.style.opacity = extra > 0.01 ? 1 : 0;
+      tip.style.transform = 'rotate(' + (extra > 0.01 ? extra * 360 : 0) + 'deg)';
+    }
+
+    function render() {
+      var n = NUMS[state];
+      out.v.textContent = n.v;
+      out.avg.textContent = n.avg;
+      out.gate.textContent = n.gate;
+      out.perks.textContent = n.perks;
+      out.worth.textContent = n.worth;
+      card.worth.textContent = n.cworth;
+      card.fv.textContent = n.cfv;
+      card.v.textContent = n.v;
+      card.pv.textContent = n.cpv;
+      card.pct.textContent = n.pct + '% paid back';
+      setArc(ring.o, ring.ot, OUTER_C, n.outer);
+      setArc(ring.i, ring.it, INNER_C, n.inner);
+      cap.textContent = caption();
+      stamp.classList.toggle('season__stamp--on', state >= 4);
+
+      el('sr-l0').textContent = 'Oct 4 · ' + picks.v1;
+      el('sr-l2').textContent = 'Nov 22 · ' + picks.v2;
+      el('sr-l5').textContent = 'Jan 17 · ' + picks.hop;
+      el('sr-l7').textContent = 'Feb 8 · ' + picks.v4;
+      document.querySelectorAll('.season__item').forEach(function (row) {
+        row.classList.toggle('season__item--on', Number(row.getAttribute('data-step')) <= state);
+      });
+
+      var opts = choices();
+      b1.textContent = opts[0].t;
+      b2.hidden = opts.length < 2;
+      if (opts.length > 1) b2.textContent = opts[1].t;
+      b1.onclick = function () { advance(opts[0].f); };
+      b2.onclick = function () { advance(opts.length > 1 ? opts[1].f : opts[0].f); };
+    }
+
+    function advance(apply) {
+      apply();
+      state = state < NUMS.length - 1 ? state + 1 : 0;
+      render();
+    }
+
+    render();
+  })();
+</script>
+
+<style define:vars={{ paper: PAPER, ink: INK, inkSoft: INK_SOFT, stampInk: STAMP_INK, zigzag: ZIGZAG }}>
+  .season { margin-top: 1.1rem; --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace; }
+  .season__lead { color: var(--muted); font-size: 0.92rem; line-height: 1.55; margin: 0 0 1rem; }
+
+  /* The stage — receipt beside its narration on desktop, stacked on phones.
+     No mat here: the app's share image needs the dark surround to survive an
+     iMessage bubble, but on the page the paper sits directly on the off-white
+     and the shadow does the separating. */
+  .season__stage {
+    display: grid;
+    grid-template-columns: minmax(0, 23.5rem) minmax(0, 1fr);
+    gap: clamp(1.4rem, 3.5vw, 2.4rem);
+    align-items: center;
+  }
+  /* Shadow lives on a plain rectangle BEHIND the paper (see header note) —
+     never a drop-shadow filter on the clipped paper itself. */
+  .season__paperwrap { max-width: 23.5rem; width: 100%; position: relative; }
+  .season__paperwrap::before {
+    content: ''; position: absolute; inset: 10px 5px 10px 5px;
+    border-radius: 8px;
+    box-shadow: 0 16px 30px rgba(27, 35, 48, 0.18), 0 3px 8px rgba(27, 35, 48, 0.10);
+  }
+  .season__paper {
+    position: relative;
+    background: var(--paper);
+    background-image:
+      radial-gradient(rgba(180, 160, 120, 0.06) 1px, transparent 1px),
+      radial-gradient(rgba(120, 90, 40, 0.05) 1px, transparent 1px);
+    background-size: 5px 5px, 9px 9px;
+    background-position: 0 0, 2px 4px;
+    clip-path: var(--zigzag);
+    padding: 20px 22px 22px;
+    color: var(--ink);
+  }
+
+  /* Header */
+  .season__head { text-align: center; }
+  .season__badge {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 34px; border-radius: 3px; background: #1b4332;
+    transform: rotate(12deg); margin-bottom: 7px;
+  }
+  .season__badgeslot {
+    position: absolute; top: 3px; left: 50%; transform: translateX(-50%);
+    width: 7px; height: 2px; border-radius: 999px; background: #52b788;
+  }
+  .season__badge b {
+    font-family: var(--font-display); font-weight: 900; font-size: 21px; line-height: 1;
+    color: var(--paper); padding-top: 3px; letter-spacing: -0.04em;
+  }
+  .season__co {
+    font-family: var(--mono); font-size: 8px; font-weight: 700;
+    letter-spacing: 0.42em; text-transform: uppercase; color: var(--inkSoft);
+    margin-bottom: 3px;
+  }
+  .season__title {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--ink);
+  }
+  .season__ref {
+    font-family: var(--mono); font-size: 8px; font-weight: 500;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--inkSoft); margin-top: 4px;
+  }
+
+  .season__dashed {
+    height: 2px; margin: 10px 0;
+    background-image: linear-gradient(to right, var(--inkSoft) 50%, transparent 50%);
+    background-size: 9px 2px; background-repeat: repeat-x;
+  }
+
+  /* Identity */
+  .season__identity { padding: 2px 0 4px; }
+  .season__tier { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+  .season__operator {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--stampInk); margin-top: 2px;
+  }
+
+  /* Season line items — space reserved up front; lines "print" into it. */
+  .season__items { margin-top: 6px; }
+  .season__item {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-size: 10.5px; line-height: 1.6; font-weight: 500;
+    visibility: hidden; opacity: 0; transform: translateY(3px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .season__item--on { visibility: visible; opacity: 1; transform: none; }
+  .season__itemlabel { text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink); }
+  .season__itemamt { font-weight: 600; color: var(--stampInk); font-variant-numeric: tabular-nums; }
+  .season__itemamt--ours { font-style: italic; text-transform: none; color: var(--inkSoft); }
+
+  /* Ledger */
+  .season__ledger { margin-top: 12px; }
+  .season__row {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-size: 12px; line-height: 1.55; font-weight: 500; color: var(--ink);
+  }
+  .season__row > span:first-child { text-transform: uppercase; }
+  .season__row > span:last-child { font-variant-numeric: tabular-nums; }
+  .season__rowgap { height: 6px; }
+  .season__leader {
+    position: relative; top: -3px;
+    border-bottom: 2px dotted rgba(27, 35, 48, 0.42);
+  }
+  .season__total { border-top: 2px solid var(--ink); margin-top: 4px; padding-top: 3px; }
+  .season__row--total { font-size: 16px; font-weight: 700; }
+  .season__row--total > span:last-child { color: var(--stampInk); font-weight: 800; }
+
+  /* Footer */
+  .season__foot { text-align: center; padding-top: 2px; }
+  .season__thanks {
+    font-family: var(--mono); font-size: 8.5px; font-weight: 700;
+    letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink);
+  }
+  .season__tagline { font-style: italic; font-size: 11px; font-weight: 600; color: var(--stampInk); margin-top: 2px; }
+  .season__barcode { display: flex; align-items: flex-end; justify-content: center; height: 26px; margin-top: 12px; }
+  .season__barcode i { display: block; background: var(--ink); }
+  .season__code {
+    font-family: var(--mono); font-size: 7px; font-weight: 600;
+    letter-spacing: 0.3em; text-transform: uppercase; color: var(--inkSoft); margin-top: 3px;
+  }
+  .season__anchor { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 10px; }
+  .season__url { display: flex; flex-direction: column; align-items: flex-end; font-family: var(--mono); }
+  .season__url span {
+    font-size: 7px; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase; color: var(--inkSoft);
+  }
+  .season__url b { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); margin-top: 2px; }
+
+  /* The stamp — slapped on over the identity, kicked right, +8° like the app.
+     Double-ruled box, tier ink, masked by the app's real grunge texture. */
+  .season__stamp {
+    position: absolute; top: 108px; right: 12px;
+    font-family: var(--font-display); font-weight: 900; font-size: 24px;
+    letter-spacing: -0.01em; white-space: nowrap; color: var(--stampInk);
+    padding: 8px 12px;
+    border: 3px solid var(--stampInk); border-radius: 6px;
+    transform: rotate(8deg);
+    -webkit-mask-image: url('/details/receipt-stamp-grunge.png');
+    mask-image: url('/details/receipt-stamp-grunge.png');
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .season__stamp::after {
+    content: ''; position: absolute; inset: 3px;
+    border: 1.5px solid var(--stampInk); border-radius: 3px;
+  }
+  .season__stamp--on {
+    visibility: visible;
+    animation: season-slam 0.32s cubic-bezier(0.2, 1.2, 0.4, 1) forwards;
+  }
+  @keyframes season-slam {
+    from { opacity: 0; transform: rotate(8deg) scale(1.8); }
+    60% { opacity: 0.96; }
+    to { opacity: 0.92; transform: rotate(8deg) scale(1); }
+  }
+
+  /* Story — the live payback card, narration, park choices. The card quotes
+     the calculator's PaybackReceipt (the app card's web recreation). */
+  .season__card {
+    max-width: 21rem; background: #fbfaf4; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
+  }
+  .season__cardstripe { height: 6px; width: 100%; }
+  .season__cardbody { padding: 16px 18px 18px; }
+  .season__cardheader {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6); line-height: 1.4;
+  }
+  .season__cardsub {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6); margin-top: 3px; font-variant-numeric: tabular-nums;
+  }
+  .season__cardmain { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+  .season__ring { display: block; flex-shrink: 0; }
+  .season__arc { transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1); }
+  .season__tip {
+    transform-box: view-box; transform-origin: 50% 50%;
+    opacity: 0;
+    transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+  }
+  .season__cardstats {
+    flex: 1; min-width: 0; display: flex; flex-direction: column;
+    justify-content: space-between; min-height: 96px;
+  }
+  .season__cardstatrow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .season__cardstatlabel {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: rgba(20, 53, 42, 0.6);
+  }
+  .season__cardstatvalue {
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .season__cardstatvalue--green { color: var(--green-primary); }
+  .season__cardstat--big .season__cardstatvalue { font-size: 22px; font-weight: 800; }
+  .season__cardstatrule { height: 1px; background: rgba(0, 0, 0, 0.16); margin-top: 3px; }
+
+  .season__cap { margin: 1rem 0 0 !important; font-size: 0.95rem; line-height: 1.6; min-height: 6.5em; }
+  .season__choices { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+  .season__btn {
+    padding: 0.55rem 1.2rem; border: 0; border-radius: var(--pill);
+    background: var(--green-accent); color: var(--green-dark);
+    font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; cursor: pointer;
+  }
+  .season__btn:hover { filter: brightness(1.05); }
+
+  @media (max-width: 720px) {
+    .season__stage { grid-template-columns: 1fr; }
+    .season__cap { min-height: 4.7em; }
+  }
+
+  @media (max-width: 420px) {
+    .season__stamp { font-size: 19px; top: 114px; right: 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .season__item { transition: none; }
+    .season__arc { transition: none; }
+    .season__tip { transition: none; }
+    .season__stamp--on { animation: none; opacity: 0.92; }
+  }
+</style>

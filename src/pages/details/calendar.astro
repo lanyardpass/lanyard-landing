@@ -1,0 +1,136 @@
+---
+// /details/calendar — chapter page: how the calendar (park hours + events) is
+// actually made. The rigor half of the details story, told in public terms.
+// Facts trace to product/data/runbooks/{hours_refresh,events_check}.md and
+// events_calendar_spec.md §3.5 — keep this page in step with those if the
+// pipeline rules change.
+import DetailLayout from '@/layouts/DetailLayout.astro';
+import EventsStrip from '@/components/details/EventsStrip.astro';
+import EarlyCloseReplay from '@/components/details/EarlyCloseReplay.astro';
+import { SITE } from '@/data/site';
+
+export const prerender = true;
+
+const title = `The calendar | ${SITE.name}`;
+const description =
+  'How Lanyard builds the calendar. Park hours pulled from the operators twice a week, an early-close watch, and events that have to earn their place. No rumors, no placeholder dates.';
+---
+<DetailLayout
+  title={title}
+  description={description}
+  heroKicker="The details · The calendar"
+  heroTitle="Ninety days you can plan on."
+  heroSub="The calendar looks simple. The next ninety days across every park you hold, with hours, events, and blockout dates filtered to your passes. Underneath it is the most carefully curated data in the app. Here is how it gets made."
+>
+  <EventsStrip />
+
+  <section class="chapter">
+    <p class="chapter__kicker">Park hours</p>
+    <h2>Hours come from the operators, twice a week</h2>
+    <p>
+      Lanyard reads park hours directly from each operator's own calendar, not from a third-party
+      aggregator, and refreshes them twice a week. The midweek pull is timed so fresh hours land
+      before the weekend, when visits actually happen.
+    </p>
+    <p>
+      Every incoming change is classified before it ships. New days and later closes flow through
+      quietly, because operators extend hours far more often than they shorten them. Anything that
+      shortens a day, truncates a calendar, or just looks implausible gets held and investigated
+      before it reaches your phone.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The early-close watch</p>
+    <h2>How Lanyard catches early closures</h2>
+    <p>
+      Every close time is compared against that park's normal pattern for that day of the week.
+      A park closing hours earlier than usual, with no event to explain it, is a red flag. It
+      usually means a private buyout, the kind of corporate event that quietly shortens a summer
+      evening at EPCOT.
+    </p>
+    <p>
+      Here's the part most people don't know. Those closures aren't sudden. A buyout takes months
+      of catering and staffing lead time, so operators post the shortened day weeks or months
+      ahead, and the "park SUDDENLY closing early TODAY" headlines you see are day-of reminders
+      of an old change. Lanyard catches the change when it's first published, checks it against
+      known events, and puts it on your calendar so you're never the one finding out at the gate.
+    </p>
+    <p>
+      Party nights work the same way. When a park closes early for a ticketed event, the early
+      close comes from that event's own published night list, so every affected date is covered,
+      not just the ones inside the current hours window.
+    </p>
+    <EarlyCloseReplay />
+    <aside class="chapter__aside">
+      One more quiet rule. Once a day has passed, its hours are frozen as a receipt of what
+      Lanyard showed you that day. If an operator back-fills a change nobody could have acted on,
+      your history doesn't rewrite itself.
+    </aside>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">Events</p>
+    <h2>Sorted the way a passholder thinks</h2>
+    <p>
+      Every operator's event calendar gets read top to bottom, and each event that makes the cut
+      is classified into a type a passholder would actually recognize. The strip at the top of
+      this page is what came out of that reading, and these are the types it's sorted into.
+    </p>
+    <ul style="list-style:none;padding-left:0">
+      <li><i class="strip__swatch strip__swatch--spectacular"></i> <strong>Spectaculars</strong> — fireworks and nighttime shows worth planning an evening around.</li>
+      <li><i class="strip__swatch strip__swatch--celebration"></i> <strong>Celebrations</strong> — holidays, anniversaries, park-wide seasons.</li>
+      <li><i class="strip__swatch strip__swatch--festival"></i><i class="strip__swatch strip__swatch--food_festival" style="margin-left:2px"></i> <strong>Festivals and food festivals</strong> — the eat-and-drink-around-the-park circuit.</li>
+      <li><i class="strip__swatch strip__swatch--concert_series"></i> <strong>Concert series</strong> — the shows that come with your day.</li>
+      <li><i class="strip__swatch strip__swatch--ride_event"></i> <strong>Ride events</strong> — openings, previews, and last-chance farewells.</li>
+      <li><i class="strip__swatch strip__swatch--race_weekend"></i> <strong>Race weekends</strong> — the mornings the parks belong to runners.</li>
+      <li><i class="strip__swatch strip__swatch--hard_ticket_event"></i> <strong>Ticketed event nights</strong> — the hard-ticket nights that reshape park hours.</li>
+      <li><i class="strip__swatch strip__swatch--passholder_event"></i> <strong>Passholder events</strong> — the ones that exist only because you hold a pass.</li>
+    </ul>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The bar</p>
+    <h2>Four questions decide what gets in</h2>
+    <p>
+      An event earns a place on your calendar by doing at least one of four things.
+    </p>
+    <ol>
+      <li>It closes a park.</li>
+      <li>It changes park hours.</li>
+      <li>It's included with your pass.</li>
+      <li>It exists only for passholders.</li>
+    </ol>
+    <p>
+      Everything else is noise, and noise is the enemy of a calendar you check at a glance.
+      An after-hours event that never touches your daytime visit doesn't clutter the calendar,
+      but if your pass gets a ticket discount for it, that discount shows up where it belongs,
+      as a perk.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The dates</p>
+    <h2>No rumors</h2>
+    <p>
+      When an operator teases "select nights this fall," that event is acknowledged, not dated.
+      Lanyard doesn't guess, doesn't publish fan-blog speculation, and doesn't put placeholder
+      dates on your calendar. Every date you see is one the operator published. If a date isn't
+      certain, it isn't there.
+    </p>
+  </section>
+
+  <section class="chapter">
+    <p class="chapter__kicker">The pipeline</p>
+    <h2>Fresh between releases, safe by default</h2>
+    <p>
+      Calendar data updates over the air between App Store releases, so an announced event or a
+      changed close doesn't wait weeks for an app update. Before anything ships it passes layered
+      validation, and if the data on the wire ever fails those checks, the app quietly falls back
+      to the known-good copy it carries with it. Degraded beats wrong, every time.
+    </p>
+    <p>
+      <a href="/details">&larr; Back to the details</a>
+    </p>
+  </section>
+</DetailLayout>
