@@ -192,12 +192,16 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
           <circle id="sr-ring-inner" cx={rc} cy={rc} r={innerR} fill="none" stroke="var(--green-primary)" stroke-width={R_THICK}
             stroke-linecap="round" class="season__arc"
             stroke-dasharray={innerC} stroke-dashoffset={innerC} />
-          <circle id="sr-ring-outer-lap" cx={rc} cy={rc} r={outerR} fill="none" stroke="#3fc3d9" stroke-width={R_THICK}
-            stroke-linecap="round" class="season__arc season__arc--lap"
-            stroke-dasharray={outerC} stroke-dashoffset={outerC} />
-          <circle id="sr-ring-inner-lap" cx={rc} cy={rc} r={innerR} fill="none" stroke="#4a8f6d" stroke-width={R_THICK}
-            stroke-linecap="round" class="season__arc season__arc--lap"
-            stroke-dasharray={innerC} stroke-dashoffset={innerC} />
+        </g>
+        <!-- Past 100% the ring reads FULL in its own color (no tinted lap arc —
+             a second tone makes a hard seam at 12 o'clock); the lap is shown
+             the way the app's MKRingProgressView shows it, a same-color tip
+             riding over the ring with a shadow underneath. -->
+        <g id="sr-tip-outer" class="season__tip">
+          <circle cx={rc} cy={rc - outerR} r={R_THICK / 2} fill={ACCENT} />
+        </g>
+        <g id="sr-tip-inner" class="season__tip">
+          <circle cx={rc} cy={rc - innerR} r={R_THICK / 2} fill="var(--green-primary)" />
         </g>
         <g stroke="rgba(27,35,48,0.30)" stroke-width="1">
           <path d={`M0 0 V${R_TICK} M0 0 H${R_TICK}`} />
@@ -270,7 +274,7 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
     var el = function (id) { return document.getElementById(id); };
     var out = { v: el('sr-visits'), avg: el('sr-avg'), gate: el('sr-gate'), perks: el('sr-perks'), worth: el('sr-worth') };
     var card = { worth: el('sr-cworth'), fv: el('sr-cfv'), v: el('sr-cv'), pv: el('sr-cpv'), pct: el('sr-pct') };
-    var ring = { o: el('sr-ring-outer'), i: el('sr-ring-inner'), ol: el('sr-ring-outer-lap'), il: el('sr-ring-inner-lap') };
+    var ring = { o: el('sr-ring-outer'), i: el('sr-ring-inner'), ot: el('sr-tip-outer'), it: el('sr-tip-inner') };
     var cap = el('sr-cap'), stamp = el('sr-stamp'), b1 = el('sr-b1'), b2 = el('sr-b2');
 
     var state = 0;
@@ -313,14 +317,15 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
       }
     }
 
-    function setArc(arc, lap, c, ratio) {
+    function setArc(arc, tip, c, ratio) {
       // Round line-caps paint a dot even at zero length — hide empty arcs.
       arc.style.opacity = ratio > 0.001 ? 1 : 0;
       arc.style.strokeDashoffset = c * (1 - Math.min(ratio, 1));
       var extra = ratio - 1;
-      // Sub-1% laps (the inner ring clears by $1) would render as a stray dot.
-      lap.style.opacity = extra > 0.01 ? 1 : 0;
-      lap.style.strokeDashoffset = extra > 0.01 ? c * (1 - Math.min(extra, 1)) : c;
+      // Sub-1% laps (the inner ring clears by $1) stay tipless — a shadowed
+      // dot sitting at 12 o'clock would read as a glitch, not a lap.
+      tip.style.opacity = extra > 0.01 ? 1 : 0;
+      tip.style.transform = 'rotate(' + (extra > 0.01 ? extra * 360 : 0) + 'deg)';
     }
 
     function render() {
@@ -335,8 +340,8 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
       card.v.textContent = n.v;
       card.pv.textContent = n.cpv;
       card.pct.textContent = n.pct + '% paid back';
-      setArc(ring.o, ring.ol, OUTER_C, n.outer);
-      setArc(ring.i, ring.il, INNER_C, n.inner);
+      setArc(ring.o, ring.ot, OUTER_C, n.outer);
+      setArc(ring.i, ring.it, INNER_C, n.inner);
       cap.textContent = caption();
       stamp.classList.toggle('season__stamp--on', state >= 4);
 
@@ -542,7 +547,12 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
   .season__cardmain { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
   .season__ring { display: block; flex-shrink: 0; }
   .season__arc { transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1); }
-  .season__arc--lap { filter: drop-shadow(0 0 2px rgba(27, 35, 48, 0.35)); }
+  .season__tip {
+    transform-box: view-box; transform-origin: 50% 50%;
+    opacity: 0;
+    transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+  }
+  .season__tip circle { filter: drop-shadow(0 0 4px rgba(27, 35, 48, 0.6)); }
   .season__cardstats {
     flex: 1; min-width: 0; display: flex; flex-direction: column;
     justify-content: space-between; min-height: 96px;
@@ -581,6 +591,7 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
   @media (prefers-reduced-motion: reduce) {
     .season__item { transition: none; }
     .season__arc { transition: none; }
+    .season__tip { transition: none; }
     .season__stamp--on { animation: none; opacity: 0.92; }
   }
 </style>
