@@ -17,8 +17,9 @@
 // (that's /calculator's job).
 import LanyardLogo from '@/components/LanyardLogo.astro';
 
-// Receipt palette — Color+Brand.swift receiptMat/receiptPaper/receiptInk.
-const MAT = '#0C0C0C';
+// Receipt palette — Color+Brand.swift receiptPaper/receiptInk. (No receiptMat
+// here: the dark mat exists so the share image survives an iMessage bubble;
+// on the page the paper sits directly on the off-white.)
 const PAPER = '#FBF6EC';
 const INK = '#1B2330';
 const INK_SOFT = 'rgba(27,35,48,0.55)';
@@ -69,7 +70,7 @@ const items = [
     statement the app shares. Tap it forward.
   </p>
 
-  <div class="season__mat">
+  <div class="season__stage">
     <div class="season__paperwrap">
       <div class="season__paper">
         <header class="season__head">
@@ -146,14 +147,14 @@ const items = [
         <div class="season__stamp" id="sr-stamp" aria-hidden="true">128% PAID BACK</div>
       </div>
     </div>
-  </div>
 
-  <div class="season__story">
-    <p class="season__cap" id="sr-cap" aria-live="polite">
-      Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from here
-      is a real published price.
-    </p>
-    <button class="season__btn" id="sr-btn" type="button">Start the season</button>
+    <div class="season__story">
+      <p class="season__cap" id="sr-cap" aria-live="polite">
+        Sept 12. The pass. Preferred, Florida resident, two parks, $529.99. Every number from
+        here is a real published price.
+      </p>
+      <button class="season__btn" id="sr-btn" type="button">Start the season</button>
+    </div>
   </div>
 </div>
 
@@ -210,20 +211,23 @@ const items = [
   })();
 </script>
 
-<style define:vars={{ mat: MAT, paper: PAPER, ink: INK, inkSoft: INK_SOFT, stampInk: STAMP_INK, zigzag: ZIGZAG }}>
+<style define:vars={{ paper: PAPER, ink: INK, inkSoft: INK_SOFT, stampInk: STAMP_INK, zigzag: ZIGZAG }}>
   .season { margin-top: 1.1rem; --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace; }
   .season__lead { color: var(--muted); font-size: 0.92rem; line-height: 1.55; margin: 0 0 1rem; }
 
-  /* The mat — near-black surface with a dim halftone, receiptMat. */
-  .season__mat {
-    max-width: 25.5rem; padding: 16px 14px 18px;
-    background: var(--mat);
-    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 4px 4px;
-    border-radius: 10px;
+  /* The stage — receipt beside its narration on desktop, stacked on phones.
+     No mat here: the app's share image needs the dark surround to survive an
+     iMessage bubble, but on the page the paper sits directly on the off-white
+     and the shadow does the separating. */
+  .season__stage {
+    display: grid;
+    grid-template-columns: minmax(0, 23.5rem) minmax(0, 1fr);
+    gap: clamp(1.4rem, 3.5vw, 2.4rem);
+    align-items: center;
   }
   .season__paperwrap {
-    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+    max-width: 23.5rem; width: 100%;
+    filter: drop-shadow(0 14px 26px rgba(27, 35, 48, 0.16)) drop-shadow(0 3px 6px rgba(27, 35, 48, 0.10));
   }
   .season__paper {
     position: relative;
@@ -360,15 +364,19 @@ const items = [
     to { opacity: 0.92; transform: rotate(8deg) scale(1); }
   }
 
-  /* Story + control */
-  .season__story { max-width: 25.5rem; margin-top: 0.9rem; }
-  .season__cap { margin: 0 !important; font-size: 0.88rem; line-height: 1.55; min-height: 4.7em; }
+  /* Story + control — rides beside the receipt; the button stays close. */
+  .season__cap { margin: 0 !important; font-size: 0.95rem; line-height: 1.6; min-height: 6.5em; }
   .season__btn {
     margin-top: 0.7rem; padding: 0.55rem 1.3rem; border: 0; border-radius: var(--pill);
     background: var(--green-accent); color: var(--green-dark);
     font-family: var(--font-display); font-weight: 800; font-size: 0.92rem; cursor: pointer;
   }
   .season__btn:hover { filter: brightness(1.05); }
+
+  @media (max-width: 720px) {
+    .season__stage { grid-template-columns: 1fr; }
+    .season__cap { min-height: 4.7em; }
+  }
 
   @media (max-width: 420px) {
     .season__stamp { font-size: 19px; top: 114px; right: 8px; }
