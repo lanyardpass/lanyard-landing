@@ -203,15 +203,29 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
              Each group is authored at 12 o'clock and rotated to the lap
              angle by the script. -->
         <defs>
+          <!-- Head brightens toward the tip (the app's read: bright tip over
+               the ring, dark shadow beneath it — NOT a darker tip). -->
           <linearGradient id="sr-headgrad-o" gradientUnits="userSpaceOnUse" x1="27" y1="11.63" x2="48" y2="6">
             <stop offset="0" stop-color="#1CA7C0" />
             <stop offset="0.35" stop-color="#1CA7C0" />
-            <stop offset="1" stop-color="#15839A" />
+            <stop offset="1" stop-color="#46C2DA" />
           </linearGradient>
           <linearGradient id="sr-headgrad-i" gradientUnits="userSpaceOnUse" x1="35" y1="25.48" x2="48" y2="22">
             <stop offset="0" stop-color="#2D6A4F" />
             <stop offset="0.35" stop-color="#2D6A4F" />
-            <stop offset="1" stop-color="#22503B" />
+            <stop offset="1" stop-color="#4A8F6D" />
+          </linearGradient>
+          <!-- Shadow fades to nothing along its own length so the crescent
+               dies out softly — a uniform stroke ends in a visible smudge. -->
+          <linearGradient id="sr-headshadow-o" gradientUnits="userSpaceOnUse" x1="46.53" y1="6.03" x2="54.57" y2="6.52">
+            <stop offset="0" stop-color="#1B2330" stop-opacity="0.55" />
+            <stop offset="0.55" stop-color="#1B2330" stop-opacity="0.3" />
+            <stop offset="1" stop-color="#1B2330" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="sr-headshadow-i" gradientUnits="userSpaceOnUse" x1="47.09" y1="22.02" x2="52.07" y2="22.32">
+            <stop offset="0" stop-color="#1B2330" stop-opacity="0.55" />
+            <stop offset="0.55" stop-color="#1B2330" stop-opacity="0.3" />
+            <stop offset="1" stop-color="#1B2330" stop-opacity="0" />
           </linearGradient>
           <filter id="sr-headblur" x="-60%" y="-60%" width="220%" height="220%">
             <feGaussianBlur stdDeviation="1.3" />
@@ -219,14 +233,14 @@ const innerC = (2 * Math.PI * innerR).toFixed(2);
         </defs>
         <g id="sr-tip-outer" class="season__tip">
           <path d="M 46.53 6.03 A 42 42 0 0 1 54.57 6.52" fill="none"
-            stroke="#1B2330" stroke-opacity="0.32" stroke-width={R_THICK}
+            stroke="url(#sr-headshadow-o)" stroke-width={R_THICK}
             filter="url(#sr-headblur)" />
           <path d="M 27 11.63 A 42 42 0 0 1 48 6" fill="none"
             stroke="url(#sr-headgrad-o)" stroke-width={R_THICK} stroke-linecap="round" />
         </g>
         <g id="sr-tip-inner" class="season__tip">
           <path d="M 47.09 22.02 A 26 26 0 0 1 52.07 22.32" fill="none"
-            stroke="#1B2330" stroke-opacity="0.32" stroke-width={R_THICK}
+            stroke="url(#sr-headshadow-i)" stroke-width={R_THICK}
             filter="url(#sr-headblur)" />
           <path d="M 35 25.48 A 26 26 0 0 1 48 22" fill="none"
             stroke="url(#sr-headgrad-i)" stroke-width={R_THICK} stroke-linecap="round" />
