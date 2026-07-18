@@ -79,7 +79,7 @@ export const NEW_FEATURE_BEAT: Act & { cta: { label: string; href: string } } = 
   kicker: 'New in 1.2',
   headline: 'Crowd Intelligence is here.',
   body:
-    'Every park on your Home screen now wears one of three honest words. Quiet, normal, or packed, judged against that park’s own typical day and updated live. No fake-precise number, no doom meter. When the day is ordinary, Lanyard says nothing at all.',
+    'Every park on your Home screen now wears one of three honest words. Quiet, normal, or packed, judged against that park’s own typical day and updated live. One glance tells you how the day will feel before you commit to the drive.',
   screen: '/assets/screen-home.webp',
   screenAlt:
     'Lanyard home screen at night showing crowd words under each park: Magic Kingdom packed, Epcot normal, Hollywood Studios quiet.',
