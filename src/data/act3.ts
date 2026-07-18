@@ -63,15 +63,26 @@ export const PRIVACY_POINTS = [
 ];
 
 // ---- 5. Social proof ----
-// Real beta-tester quotes (verbatim, lightly punctuated for readability; "…"
-// marks omitted middle). Kept ANONYMOUS for now so they can go live without
-// waiting on permission — attach first names later if/when testers approve.
+// Real quotes only, verbatim (lightly punctuated for readability; "…" marks
+// omitted middle). Beta quotes stay ANONYMOUS (permission never requested);
+// App Store reviews are PUBLIC under the reviewer's own handle, so they get
+// full attribution + stars — quote a PORTION, never the whole review, and
+// never edit words inside the quoted spans.
 export interface Quote {
   text: string;
   attribution: string;
+  /** 1–5 → renders a star row above the quote (App Store reviews). */
+  stars?: number;
   placeholder?: boolean;
 }
 export const QUOTES: Quote[] = [
+  {
+    // App Store review "Theme park enthusiasts best friend!", 2026-07 —
+    // the origin story IS the target persona (the messy-note passholder).
+    text: 'I started recording my park visits and passholder savings in a note on my phone, but it quickly became messy… When I found Lanyard it felt like a dream come true!',
+    attribution: 'RachaelQK · App Store review',
+    stars: 5,
+  },
   {
     text: 'It’s such a W. It’s so clean and easy to navigate. You’re doing an amazing job on it!',
     attribution: 'Beta tester',
