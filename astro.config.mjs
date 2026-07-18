@@ -36,11 +36,9 @@ export default defineConfig({
     // Google Search Console — the robots.txt is Cloudflare-managed, so we
     // don't reference it there.
     sitemap({
-      // /crowds is dark-launched until Crowd Intelligence ships (1.2) — the
-      // page carries noindex AND stays out of the sitemap. ⚠ 1.2 GATE: remove
-      // the /crowds exclusion (and the page's noindex) when the feature goes
-      // live.
-      filter: (page) => !page.includes('/admin') && !page.includes('/crowds'),
+      // /crowds un-darked 2026-07-18 with the 1.2.1 submission (noindex
+      // removed in crowds.astro the same commit) — public at promotion.
+      filter: (page) => !page.includes('/admin'),
     }),
   ],
 });
