@@ -11,17 +11,22 @@ interface Props {
   screenAlt: string;
   side?: 'left' | 'right';
   dark?: boolean;
+  /** Render the kicker as a solid accent pill — the new-feature announcement slot. */
+  pill?: boolean;
+  /** Optional ghost-button link under the body (e.g. a deep-dive page). */
+  cta?: { label: string; href: string };
 }
-const { id, kicker, headline, body, screen, screenAlt, side = 'right', dark = false } = Astro.props;
+const { id, kicker, headline, body, screen, screenAlt, side = 'right', dark = false, pill = false, cta } = Astro.props;
 // Lean the phone toward the copy (opposite the side it sits on).
 const lean = side === 'left' ? 'right' : 'left';
 ---
 <section id={id} class={`section spotlight${dark ? ' section--dark' : ''} spotlight--phone-${side}`}>
   <div class="container spotlight__inner">
     <div class="spotlight__text">
-      <p class="kicker">{kicker}</p>
+      <p class={pill ? 'kicker kicker--pill' : 'kicker'}>{kicker}</p>
       <h2 class="display spotlight__title">{headline}</h2>
       <p class="spotlight__body">{body}</p>
+      {cta && <a class="btn btn--ghost spotlight__cta" href={cta.href}>{cta.label}</a>}
     </div>
     <div class="spotlight__device">
       <DeviceFrame src={screen} alt={screenAlt} lean={lean} />
@@ -49,6 +54,18 @@ const lean = side === 'left' ? 'right' : 'left';
   }
   .section--dark .spotlight__body { color: var(--on-dark-muted); }
   .spotlight__device { justify-self: center; width: min(290px, 78%); }
+  /* New-feature pill kicker — solid accent so it reads at a scroll-by glance;
+     tighter tracking than the bare kicker (pill supplies the emphasis). */
+  .kicker--pill {
+    display: inline-block;
+    background: var(--green-accent);
+    color: var(--ink);
+    padding: 0.32rem 0.8rem;
+    border-radius: var(--pill);
+    letter-spacing: 0.12em;
+  }
+  .section--dark .kicker--pill { color: var(--ink); }
+  .spotlight__cta { margin-top: 1.5rem; }
   @media (max-width: 760px) {
     .spotlight__inner { grid-template-columns: 1fr; gap: clamp(1.5rem, 6vw, 2.5rem); text-align: center; }
     .spotlight--phone-left .spotlight__text,

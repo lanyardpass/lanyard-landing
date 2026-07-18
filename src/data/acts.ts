@@ -32,10 +32,10 @@ export const ACTS: Act[] = [
     kicker: 'Open the app, look outside',
     headline: 'Your annual pass companion.',
     body:
-      'Make every park day worth it. Blockouts, perks, events, and payback for Disney, Universal, and SeaWorld. One glance reads the whole day.',
+      'Make every park day worth it. Blockouts, perks, events, crowds, and payback for Disney, Universal, and SeaWorld. One glance reads the whole day.',
     screen: '/assets/screen-home.webp',
     screenAlt:
-      'Lanyard home screen: a parallax window onto your parks with live sky, weather, park hours and good-to-go status.',
+      'Lanyard home screen at night: fireworks over your parks with live sky, weather, park hours, crowd words and good-to-go status.',
   },
   {
     id: 'payback',
@@ -67,4 +67,21 @@ export const PERKS_BEAT: Act = {
     'Track the discounts, parking and freebies you actually use, and what they’ve saved you.',
   screen: '/assets/screen-perks.webp',
   screenAlt: 'Lanyard perks screen listing passholder discounts and the value each one has saved.',
+};
+
+// The "New in Lanyard" green band between Capabilities and the Perks
+// spotlight — the standing slot where the newest headline feature gets its
+// announcement. Swap the content here when the next big feature ships; the
+// version in the kicker is deliberate, so a reader still on the previous
+// build understands why their app doesn't show it yet.
+export const NEW_FEATURE_BEAT: Act & { cta: { label: string; href: string } } = {
+  id: 'crowd-intelligence',
+  kicker: 'New in 1.2',
+  headline: 'Crowd Intelligence is here.',
+  body:
+    'Every park on your Home screen now wears one of three honest words. Quiet, normal, or packed, judged against that park’s own typical day and updated live. No fake-precise number, no doom meter. When the day is ordinary, Lanyard says nothing at all.',
+  screen: '/assets/screen-home.webp',
+  screenAlt:
+    'Lanyard home screen at night showing crowd words under each park: Magic Kingdom packed, Epcot normal, Hollywood Studios quiet.',
+  cta: { label: 'See how it works', href: '/crowds' },
 };

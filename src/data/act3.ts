@@ -10,6 +10,7 @@ export interface Capability {
   body: string;
   pro?: boolean; // true = Pro-only feature; renders a "Pro" pill on the card
   soon?: boolean; // true = in development; renders a dashed "Coming soon" pill (never combine with pro)
+  newIn?: string; // version string (e.g. '1.2') — renders a solid "New in X" pill; use one of pro/soon/newIn
 }
 export const CAPABILITIES: Capability[] = [
   { icon: '🎟️', title: 'Every pass in one vault', body: 'Your passes and add-ons across Universal, Disney and United Parks, held in one place.' },
@@ -22,7 +23,7 @@ export const CAPABILITIES: Capability[] = [
   { icon: '📍', title: 'Arrival detection', body: 'Reach a park and Lanyard offers to log your visit. Opt-in, and all on your phone.' },
   { icon: '📓', title: 'Visit history', body: 'A clean record of every visit, so the cost-per-visit math is always honest.' },
   { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more — tracked alongside your everyday pass.', pro: true },
-  { icon: '👥', title: 'Crowd Intelligence', body: 'Quiet, normal, or packed: how each park day will actually feel, before you commit to the drive.', soon: true },
+  { icon: '👥', title: 'Crowd Intelligence', body: 'Quiet, normal, or packed: how each park day will actually feel, before you commit to the drive.', newIn: '1.2' },
 ];
 
 // ---- 2. Works with your pass (coverage) ----

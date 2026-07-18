@@ -9,7 +9,7 @@ import { CAPABILITIES } from '@/data/act3';
     </header>
     <ul class="cap__grid" role="list">
       {CAPABILITIES.map((c) => (
-        <li class={`cap__card${c.soon ? ' cap__card--soon' : ''}`}>
+        <li class={`cap__card${c.soon || c.newIn ? ' cap__card--soon' : ''}`}>
           <span class="cap__icon" aria-hidden="true">{c.icon}</span>
           <div class="cap__text">
             <h3 class="cap__name">{c.title}</h3>
@@ -17,6 +17,7 @@ import { CAPABILITIES } from '@/data/act3';
           </div>
           {c.pro && <span class="cap__pro">Pro</span>}
           {c.soon && <span class="cap__soon">Coming soon</span>}
+          {c.newIn && <span class="cap__new">New in {c.newIn}</span>}
         </li>
       ))}
     </ul>
@@ -87,8 +88,26 @@ import { CAPABILITIES } from '@/data/act3';
     padding: 0.18rem 0.5rem;
     border-radius: var(--pill);
   }
-  /* Wider corner pill needs a wider title reserve on that card only. */
+  /* Wider corner pill needs a wider title reserve on that card only.
+     (Shared by Coming-soon and New-in cards — both wear wide pills.) */
   .cap__card--soon .cap__name { padding-right: 6.2rem; }
+
+  /* New-in pill — solid accent, the loudest of the three corner badges:
+     a just-shipped feature outranks Pro's tint and soon's dashes. */
+  .cap__new {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--green-accent);
+    padding: 0.18rem 0.5rem;
+    border-radius: var(--pill);
+  }
 
   /* Corner badge — maps to PerkRow's top-trailing state pill slot. */
   .cap__pro {
