@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import Callout from '@/components/guides/Callout.astro';
 
 // Press kit — facts, story angles, downloadable assets. Angles follow the
 // canonical positioning (product_decisions.md → Brand voice & positioning):
@@ -52,7 +53,11 @@ const SCREENSHOTS = [
       <p>Lanyard is the annual pass companion. An independent iOS app that puts a passholder's blockout dates, perks, events, park hours, and pass payback in one place, across Walt Disney World, Universal Orlando, SeaWorld, and Busch Gardens. Free for your first pass, no account required, and nothing attributed to you, ever. Built in Orlando by a passholder. <em>You shall pass.</em></p>
 
       <h2>New in 1.2: Crowd Intelligence</h2>
-      <p>Lanyard 1.2 adds Crowd Intelligence. Every park on the home screen wears one of three honest words. Quiet, normal, or packed, judged against that park's own typical day and updated live through the day. There's no fake-precise crowd score and no doom meter, and when the data isn't sure, Lanyard would rather say nothing than guess. Restraint is the feature. The full methodology, including what the words mean and when they stay silent, is at <a href="/crowds">lanyardpass.com/crowds</a>.</p>
+      {/* The guides Callout (tip variant) — the green box makes the current
+          version's news pop out of the prose wall; swap contents each cut. */}
+      <Callout variant="tip">
+        <p>Lanyard 1.2 adds Crowd Intelligence. Every park on the home screen wears one of three honest words. Quiet, normal, or packed, judged against that park's own typical day and updated live through the day. There's no fake-precise crowd score and no doom meter, and when the data isn't sure, Lanyard would rather say nothing than guess. Restraint is the feature. The full methodology, including what the words mean and when they stay silent, is at <a href="/crowds">lanyardpass.com/crowds</a>.</p>
+      </Callout>
 
       <h2>Fact sheet</h2>
       <dl class="facts">
