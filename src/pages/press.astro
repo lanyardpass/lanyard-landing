@@ -20,7 +20,9 @@ const FACTS: Array<[string, string]> = [
 ];
 
 const ASSETS: Array<{ label: string; detail: string; href: string }> = [
-  { label: 'Full press kit (.zip)', detail: 'Everything below in one download, ~22 MB', href: '/press/lanyard-press-kit.zip' },
+  { label: 'Full press kit (.zip)', detail: 'Everything below in one download, ~27 MB', href: '/press/lanyard-press-kit.zip' },
+  { label: 'House Tracker demo — GIF', detail: 'The HHN house checklist in motion, 15s loop, ~4 MB — previewed in the box above', href: '/press/lanyard-house-tracker.gif' },
+  { label: 'House Tracker demo — MP4', detail: 'Same clip for video embeds, 720×1488, ~1.3 MB', href: '/press/lanyard-house-tracker.mp4' },
   { label: 'Wordmark (green) — SVG', detail: 'Vector, for light backgrounds', href: '/press/lanyard-wordmark.svg' },
   { label: 'Wordmark (green) — PNG', detail: 'Transparent, 2240×540, for light backgrounds', href: '/press/lanyard-wordmark.png' },
   { label: 'Wordmark (white) — SVG', detail: 'Vector, for dark backgrounds', href: '/press/lanyard-wordmark-white.svg' },
@@ -58,7 +60,13 @@ const SCREENSHOTS = [
           cut. */}
       <Callout variant="tip">
         <h2 class="newin__title">New: Halloween Horror Nights pass tracking</h2>
-        <p>Halloween Horror Nights passes dropped, and Lanyard is ready. Add your Frequent Fear, see every night it covers, and watch it pay for itself night by night. And on event nights the House Tracker keeps your score. Check off each house as you walk it, see your season at a glance, rate the houses if you feel like it.</p>
+        {/* Thumb joins the lightbox cycle (it's first in the anchor collection);
+            the gif animates natively in the lightbox <img>. No-JS fallback:
+            href opens the gif in the tab. Full files ride the assets list. */}
+        <a class="newin__demo" href="/press/lanyard-house-tracker.gif">
+          <img src="/press/lanyard-house-tracker-thumb.webp" alt="Animated demo of Lanyard's House Tracker: the ten HHN 35 houses being stamped off one by one, night badges filling the grid" loading="lazy" decoding="async" width="400" height="826" />
+        </a>
+        <p>Halloween Horror Nights passes dropped, and Lanyard is ready. Add your Frequent Fear, see every night it covers, and watch it pay for itself night by night. And on event nights the House Tracker keeps your score. Check off each house as you walk it, see your season at a glance, rate the houses if you feel like it. Tap the preview for the 15-second demo.</p>
       </Callout>
 
       <h2>Fact sheet</h2>
@@ -150,7 +158,9 @@ const SCREENSHOTS = [
   });
 
   // ---- Lightbox ---------------------------------------------------------
-  const shots = Array.from(document.querySelectorAll<HTMLAnchorElement>('.shots a'));
+  // The callout's demo thumb rides the same collection (DOM-first, so it's
+  // index 0); the gif animates natively inside the lightbox <img>.
+  const shots = Array.from(document.querySelectorAll<HTMLAnchorElement>('.newin__demo, .shots a'));
   const lb = document.getElementById('lightbox');
   if (lb && shots.length) {
     const img = lb.querySelector<HTMLImageElement>('.lightbox__img')!;
@@ -234,6 +244,18 @@ const SCREENSHOTS = [
     margin-bottom: 0.2rem;
     color: var(--green-primary);
   }
+  /* Demo thumb in the New-in box — floats beside the copy, opens the lightbox. */
+  .newin__demo {
+    float: right;
+    width: clamp(88px, 24%, 118px);
+    margin: 0.2rem 0 0.5rem 0.9rem;
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    cursor: zoom-in;
+  }
+  .newin__demo img { width: 100%; height: auto; display: block; }
   .legal p {
     color: var(--muted);
     font-size: 1rem;
