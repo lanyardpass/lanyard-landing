@@ -63,10 +63,12 @@ const SCREENSHOTS = [
         {/* Thumb joins the lightbox cycle (it's first in the anchor collection);
             the gif animates natively in the lightbox <img>. No-JS fallback:
             href opens the gif in the tab. Full files ride the assets list. */}
-        <a class="newin__demo" href="/press/lanyard-house-tracker.gif">
-          <img src="/press/lanyard-house-tracker-thumb.webp" alt="Animated demo of Lanyard's House Tracker: the ten HHN 35 houses being stamped off one by one, night badges filling the grid" loading="lazy" decoding="async" width="400" height="826" />
-        </a>
-        <p>Halloween Horror Nights passes dropped, and Lanyard is ready. Add your Frequent Fear, see every night it covers, and watch it pay for itself night by night. And on event nights the House Tracker keeps your score. Check off each house as you walk it, see your season at a glance, rate the houses if you feel like it. Tap the preview for the 15-second demo.</p>
+        <div class="newin__row">
+          <p>Halloween Horror Nights passes dropped, and Lanyard is ready. Add your Frequent Fear, see every night it covers, and watch it pay for itself night by night. And on event nights the House Tracker keeps your score. Check off each house as you walk it, see your season at a glance, rate the houses if you feel like it. Tap the preview for the 15-second demo.</p>
+          <a class="newin__demo" href="/press/lanyard-house-tracker.gif">
+            <img src="/press/lanyard-house-tracker-thumb.webp" alt="Animated demo of Lanyard's House Tracker: the ten HHN 35 houses being stamped off one by one, night badges filling the grid" loading="lazy" decoding="async" width="400" height="826" />
+          </a>
+        </div>
       </Callout>
 
       <h2>Fact sheet</h2>
@@ -244,11 +246,12 @@ const SCREENSHOTS = [
     margin-bottom: 0.2rem;
     color: var(--green-primary);
   }
-  /* Demo thumb in the New-in box — floats beside the copy, opens the lightbox. */
+  /* Demo thumb in the New-in box — flex row keeps it INSIDE the callout
+     (a float escapes the box; earned 2026-07-21). */
+  .newin__row { display: flex; gap: 1rem; align-items: flex-start; }
+  .newin__row p { flex: 1; margin-bottom: 0; }
   .newin__demo {
-    float: right;
-    width: clamp(88px, 24%, 118px);
-    margin: 0.2rem 0 0.5rem 0.9rem;
+    flex: 0 0 clamp(96px, 22%, 132px);
     display: block;
     border-radius: 10px;
     overflow: hidden;
