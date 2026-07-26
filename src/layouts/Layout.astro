@@ -129,10 +129,14 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
       <style is:global>
         /* House transition speed — 0.5s (Dan's call, 2026-07-26): the browser's
            0.25s default read as too quick for the card→hero morph to register.
-           Applies to the morphing groups and the root crossfade alike. */
+           EVERY layer must share the clock — group (position/size), image-pair,
+           and the old/new snapshots' crossfade. Covering only the group leaves
+           the inner crossfade at the 0.25s default, so the destination's
+           rounded corners land mid-glide and pop (seen on review). */
         ::view-transition-group(*),
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
+        ::view-transition-image-pair(*),
+        ::view-transition-old(*),
+        ::view-transition-new(*) {
           animation-duration: 0.5s;
         }
       </style>
