@@ -1,0 +1,65 @@
+---
+// The 404 — the one page where the tagline gets to invert. Netlify serves the
+// prerendered 404.html (with a real 404 status) for any unmatched route, so
+// this replaces Astro's stock gray page. Keep the links to evergreen surfaces
+// only; a dead link on the dead-link page would be a bit much.
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = true;
+---
+<Layout title="404 — You shall not pass | Lanyard" description="This page doesn't exist." noindex={true}>
+  <section class="nf">
+    <p class="nf__code" aria-hidden="true">404</p>
+    <h1 class="nf__title display">You shall not pass.</h1>
+    <p class="nf__sub">
+      This page doesn't exist. Either the URL has a typo, or whatever lived here
+      has been blocked out for everyone, forever, no calendar exceptions.
+    </p>
+    <nav class="nf__links" aria-label="Places that do exist">
+      <a class="nf__cta" href="/">Back to the entrance</a>
+      <div class="nf__row">
+        <a href="/guides">Guides</a>
+        <a href="/details">The details</a>
+        <a href="/calculator">Calculator</a>
+      </div>
+    </nav>
+  </section>
+</Layout>
+
+<style>
+  .nf {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(4rem, 12vw, 8rem) var(--gutter) clamp(5rem, 14vw, 9rem);
+    text-align: center; background: var(--off-white);
+  }
+  .nf__code {
+    margin: 0; font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(4.5rem, 16vw, 8rem); line-height: 1;
+    color: rgba(45, 106, 79, 0.14); letter-spacing: 0.04em;
+  }
+  .nf__title {
+    margin: 0.2rem 0 0; color: var(--ink);
+    font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.12;
+  }
+  .nf__sub {
+    max-width: 32rem; margin: 1.1rem auto 0;
+    color: var(--muted); font-size: var(--fs-lead); line-height: 1.6;
+  }
+  .nf__links { margin-top: 2.2rem; }
+  .nf__cta {
+    display: inline-block; padding: 0.8rem 1.6rem; border-radius: 999px;
+    background: var(--green-primary); color: #fff; text-decoration: none;
+    font-family: var(--font-display); font-weight: 800;
+    transition: background 0.15s ease;
+  }
+  .nf__cta:hover { background: var(--green-dark); }
+  .nf__row {
+    display: flex; justify-content: center; gap: 1.4rem; flex-wrap: wrap;
+    margin-top: 1.2rem;
+  }
+  .nf__row a {
+    color: var(--green-primary); font-weight: 600; text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .nf__row a:hover { color: var(--green-dark); }
+</style>
