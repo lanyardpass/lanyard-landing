@@ -42,7 +42,8 @@ const {
 } = Astro.props;
 
 const pageTitle = seoTitle ?? `${title} | ${SITE.name}`;
-const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/', Astro.site).href;
+// Same normalization as Layout.astro — including the Astro 7 `/index` strip.
+const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/+$/, '') || '/', Astro.site).href;
 const ogAbs = new URL((ogImage ?? hero).src, Astro.site).href;
 
 // Article schema — dates drive "freshness" signals; author + publisher named.
