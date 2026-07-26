@@ -7,7 +7,11 @@ import PostLayout from '@/layouts/PostLayout.astro';
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  // Drafts get real pages everywhere EXCEPT production (see blog/index.astro).
+  // On production builds a draft simply doesn't exist; elsewhere it renders
+  // with noindex + a draft banner so it can be reviewed on a branch deploy.
+  const showDrafts = process.env.CONTEXT !== 'production';
+  const posts = await getCollection('posts', ({ data }) => showDrafts || !data.draft);
   return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
@@ -31,6 +35,7 @@ const d = entry.data;
   heroAlt={d.heroAlt}
   ogImage={d.ogImage}
   readingTime={readingTime}
+  draft={d.draft}
 >
   <Content />
 </PostLayout>

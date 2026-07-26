@@ -100,6 +100,38 @@
   border: 0; height: 1px; background: rgba(45, 106, 79, 0.14); margin-block: 2.4rem;
 }
 
+/* Raw markdown tables (quick facts inline in prose — TierTable stays the
+   component for real comparisons; it collapses to cards on mobile, this
+   doesn't). Kept at the measure like running text. */
+.guide-prose > table {
+  max-width: var(--measure); margin-inline: auto;
+  width: 100%; border-collapse: collapse;
+  font-size: 0.95rem; font-variant-numeric: tabular-nums;
+}
+.guide-prose > table th {
+  text-align: left; font-family: var(--font-display); font-weight: 800;
+  font-size: 0.85rem; color: var(--green-primary);
+  padding: 0.5rem 0.8rem; border-bottom: 2px solid rgba(45, 106, 79, 0.25);
+}
+.guide-prose > table td {
+  padding: 0.5rem 0.8rem; border-bottom: 1px solid rgba(45, 106, 79, 0.12);
+  color: var(--ink);
+}
+
+/* Fenced code blocks (Shiki supplies the syntax colors inline; we supply the
+   frame). Inline code gets a quiet tint. */
+.guide-prose > pre {
+  max-width: var(--measure); margin-inline: auto;
+  padding: 1.1rem 1.2rem; border-radius: var(--radius-sm);
+  overflow-x: auto; font-size: 0.88rem; line-height: 1.6;
+}
+.guide-prose > p code,
+.guide-prose > ul code,
+.guide-prose > ol code {
+  background: rgba(45, 106, 79, 0.08); border-radius: 5px;
+  padding: 0.1em 0.35em; font-size: 0.88em;
+}
+
 /* ---------- Breadcrumb ---------- */
 .guide-crumbs {
   font-size: 0.85rem; color: var(--muted); font-weight: 600;

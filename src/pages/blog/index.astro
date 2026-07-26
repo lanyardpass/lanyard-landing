@@ -10,7 +10,13 @@ import { SITE } from '@/data/site';
 
 export const prerender = true;
 
-const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+// Drafts are visible everywhere EXCEPT production (Netlify sets CONTEXT to
+// "production" only on main deploys; branch deploys / previews / local dev all
+// show drafts, wearing a DRAFT chip). This is how reference and WIP posts ride
+// a branch deploy for review without ever shipping to lanyardpass.com.
+const showDrafts = process.env.CONTEXT !== 'production';
+
+const posts = (await getCollection('posts', ({ data }) => showDrafts || !data.draft)).sort(
   (a, b) => b.data.published.valueOf() - a.data.published.valueOf()
 );
 
@@ -24,7 +30,7 @@ const listSchema = {
   name: `${SITE.name} Blog`,
   description,
   url: new URL('/blog', Astro.site).href,
-  blogPost: posts.map((p) => ({
+  blogPost: posts.filter((p) => !p.data.draft).map((p) => ({
     '@type': 'BlogPosting',
     headline: p.data.title,
     url: new URL(`/blog/${p.id}`, Astro.site).href,
@@ -75,6 +81,7 @@ const fmt = (d: Date) =>
                 <time class="post-card__date" datetime={p.data.published.toISOString()}>
                   {fmt(p.data.published)}
                 </time>
+                {p.data.draft && <span class="post-card__draft">DRAFT</span>}
                 <h2 class="post-card__title">{p.data.title}</h2>
                 <p class="post-card__dek">{p.data.dek}</p>
               </div>
@@ -126,6 +133,12 @@ const fmt = (d: Date) =>
   }
   .post-card__body { padding: 1.1rem 1.2rem 1.3rem; }
   .post-card__date { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.02em; }
+  .post-card__draft {
+    margin-left: 0.6rem; padding: 0.1rem 0.5rem; border-radius: 999px;
+    border: 1px dashed rgba(180, 130, 20, 0.5); background: rgba(240, 200, 90, 0.14);
+    color: #8a6410; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
   .post-card__title {
     font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
     color: var(--green-primary); line-height: 1.22; margin: 0.35rem 0 0;
