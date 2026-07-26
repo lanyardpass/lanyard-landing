@@ -72,6 +72,11 @@ const appSchema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   publisher: { '@type': 'Organization', name: SITE.name, url: new URL('/', Astro.site).href },
   ...(APP_STORE_ID ? { downloadUrl: APP_STORE_URL, installUrl: APP_STORE_URL } : {}),
+  // REAL App Store numbers (5.0 across 5 US ratings as of 2026-07-26) — this
+  // field stayed out until genuine ratings existed (fabricated review markup
+  // is a Google penalty). MAINTENANCE: hand-updated; refresh alongside release
+  // marketing passes so it never drifts far from the store.
+  aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', ratingCount: '5' },
 };
 
 // TelemetryDeck "Lanyard Web" app (privacy-first, cookieless, no IP storage).
