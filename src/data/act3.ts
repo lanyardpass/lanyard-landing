@@ -84,11 +84,15 @@ export const QUOTES: Quote[] = [
     stars: 5,
   },
   {
-    text: 'It’s such a W. It’s so clean and easy to navigate. You’re doing an amazing job on it!',
-    attribution: 'Beta tester',
+    // App Store review "A must for Orlando theme park fans", 2026-07-22 —
+    // an Orlando local naming the exact pillars (hours + perks in one place,
+    // perk discovery, payback satisfaction). Trimmed with marked elisions.
+    text: 'As an Orlando local, I find myself constantly shuffling through park apps to find hours, and park perks. Lanyard puts that all into one app… It is also incredibly satisfying to see the value of your pass increase with every visit.',
+    attribution: 'Bchappell101 · App Store review',
+    stars: 5,
   },
   {
-    text: 'First of all, this is incredible! … overall the app looks great.',
+    text: 'It’s such a W. It’s so clean and easy to navigate. You’re doing an amazing job on it!',
     attribution: 'Beta tester',
   },
 ];
