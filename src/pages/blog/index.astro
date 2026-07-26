@@ -154,8 +154,13 @@ const fmt = (d: Date) =>
   @media (min-width: 900px) {
     .feat { grid-template-columns: 1.25fr 1fr; align-items: center; }
   }
-  .feat__media { background: rgba(45, 106, 79, 0.06); height: 100%; }
-  .feat__img, .feat__panel { width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 16 / 10; }
+  /* The FRAME owns the aspect ratio; the image just fills and crops. This is
+     what makes any source safe, including tall phone screenshots (a 1320x2868
+     hero blew the layout apart when the img owned its own height). */
+  .feat__media { background: rgba(45, 106, 79, 0.06); aspect-ratio: 16 / 10; overflow: hidden; }
+  @media (min-width: 900px) { .feat__media { aspect-ratio: auto; height: 100%; min-height: 20rem; position: relative; } }
+  .feat__img, .feat__panel { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  @media (min-width: 900px) { .feat__img { position: absolute; inset: 0; } }
   .feat__panel {
     display: grid; place-items: center;
     background: radial-gradient(130% 100% at 72% 32%, #2a5b44 0%, var(--green-dark, #1B4332) 60%);
@@ -190,8 +195,8 @@ const fmt = (d: Date) =>
   }
   .pcard:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
   .pcard__link { display: block; text-decoration: none; color: inherit; }
-  .pcard__media { background: rgba(45, 106, 79, 0.06); }
-  .pcard__img, .pcard__panel { width: 100%; object-fit: cover; object-position: top; display: block; aspect-ratio: 16 / 10; }
+  .pcard__media { background: rgba(45, 106, 79, 0.06); aspect-ratio: 16 / 10; overflow: hidden; }
+  .pcard__img, .pcard__panel { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
   .pcard__panel {
     display: grid; place-items: center; height: auto;
     background: radial-gradient(130% 100% at 72% 32%, #2a5b44 0%, var(--green-dark, #1B4332) 60%);
