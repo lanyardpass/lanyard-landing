@@ -145,7 +145,7 @@ const articleSchema = {
     font-size: 0.78rem; font-weight: 800; letter-spacing: 0.05em;
   }
   .post-head {
-    max-width: 44rem; margin-inline: auto;
+    max-width: 48rem; margin-inline: auto;
     padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) 0;
   }
   .post-head .kicker a { color: var(--green-primary); text-decoration: none; }
@@ -158,7 +158,7 @@ const articleSchema = {
   .post-head__meta { color: var(--muted); font-size: 0.9rem; margin: 1.1rem 0 0; }
 
   .post-hero {
-    max-width: 44rem; margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
+    max-width: 48rem; margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
     padding: 0 var(--gutter);
   }
   .post-hero__img {
@@ -167,11 +167,16 @@ const articleSchema = {
   }
 
   .post-body {
-    max-width: 44rem; margin-inline: auto;
+    max-width: 48rem; margin-inline: auto;
     padding: clamp(1.6rem, 4vw, 2.4rem) var(--gutter) 0;
+    /* The running-text cap (guides.css sets 40rem for guides). 42rem ≈ 672px
+       ≈ 64–66 characters per line — Medium's measure. Blog-only override. */
+    --measure: 42rem;
   }
-  /* Three width tiers (house rule, decided 2026-07-26): TEXT stays at the
-     44rem measure (66–70ch — don't widen it); rich MEDIA breathes one tier
+  /* Three width tiers (house rule, decided 2026-07-26): TEXT at the 48rem
+     box (~672px of prose after gutters ≈ 64–66 characters per line, matched
+     to Medium's measure at Dan's request — was 44rem/58ch); rich MEDIA
+     breathes one tier
      wider (~1.3× measure) so the step up to the rare FULL-BLEED (--wide
      variants, untouched here) isn't a 2× jump. Small inline blocks (callouts,
      capture chips, audio, sidenote targets) stay on the text measure. */

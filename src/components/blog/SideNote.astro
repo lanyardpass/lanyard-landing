@@ -51,7 +51,9 @@ const { n } = Astro.props;
   }
 
   /* Wide (room beyond the measure): always-visible floated margin note. */
-  @media (min-width: 1160px) {
+  /* Breakpoint tracks the 48rem post column: the floated note needs
+     ~14.5rem of right margin, which exists from ~1260px up. */
+  @media (min-width: 1260px) {
     .sidenote .sidenote__note,
     .sidenote.is-open .sidenote__note {
       display: block; float: right; clear: right;
