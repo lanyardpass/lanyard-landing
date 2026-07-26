@@ -139,8 +139,10 @@ const R = 52, C = 2 * Math.PI * R;
 
   @media (max-width: 700px) {
     .sstory { grid-template-columns: 1fr; }
-    .sstory__pin { position: sticky; top: 0; z-index: 2; }
-    .sstory__visual { position: static; border-radius: 0 0 var(--radius) var(--radius); padding: 0.9rem; }
+    /* Stop the pinned card just below the sticky site header (64px min-height)
+       instead of sliding behind it. */
+    .sstory__pin { position: sticky; top: calc(64px + 0.6rem); z-index: 2; }
+    .sstory__visual { position: static; padding: 0.9rem; }
     .sstory__ring { width: 110px; }
     .sstory__steps { gap: 30vh; }
   }
