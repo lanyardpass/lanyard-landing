@@ -68,6 +68,12 @@ const posts = defineCollection({
 
       byline: z.string().default('By Dan, Orlando passholder'),
 
+      // Category kicker. The blog is broader than the build log (Dan,
+      // 2026-07-26): "From the workbench" is construction notes, "Field notes"
+      // is lived passholder writing, "The numbers" is data stories. Free-form
+      // string so new categories don't need a schema change.
+      kicker: z.string().default('From the workbench'),
+
       hero: image().optional(),
       heroAlt: z.string().optional(),
       ogImage: image().optional(),

@@ -26,9 +26,9 @@ const posts = (await getCollection('posts', ({ data }) => showDrafts || !data.dr
 // the featured row — and scales to a full magazine front as the archive grows.
 const [featured, ...rest] = posts;
 
-const title = `Blog — From the workbench | ${SITE.name}`;
+const title = `Blog — Notes from the parks and the workbench | ${SITE.name}`;
 const description =
-  'Notes from building Lanyard — the annual pass companion. What got built, why it got built that way, and the details most apps would skip.';
+  'The Lanyard blog. Build notes, passholder field notes, and the numbers underneath the parks, written by the passholder who builds the annual pass companion.';
 
 const listSchema = {
   '@context': 'https://schema.org',
@@ -54,11 +54,12 @@ const fmt = (d: Date) =>
 
   <section class="blog-index">
     <header class="blog-index__head">
-      <p class="kicker">From the workbench</p>
-      <h1 class="display blog-index__title">Notes from building Lanyard.</h1>
+      <p class="kicker">The Lanyard blog</p>
+      <h1 class="display blog-index__title">Notes from the parks and the workbench.</h1>
       <p class="blog-index__sub">
-        What got built, why it got built that way, and the details most apps would skip.
-        Written by the passholder who builds it.
+        Some posts explain what got built and why. Some are field notes from a life spent
+        holding a pass. All of it comes from the passholder who builds Lanyard, and none
+        of it is filler.
       </p>
     </header>
 
@@ -83,6 +84,7 @@ const fmt = (d: Date) =>
           </div>
           <div class="feat__body">
             <p class="feat__meta">
+              <span class="meta-kicker">{featured.data.kicker}</span> ·{' '}
               <time datetime={featured.data.published.toISOString()}>{fmt(featured.data.published)}</time>
               {featured.data.draft && <span class="chip-draft">DRAFT</span>}
             </p>
@@ -113,6 +115,7 @@ const fmt = (d: Date) =>
                   </div>
                   <div class="pcard__body">
                     <p class="pcard__meta">
+                      <span class="meta-kicker">{p.data.kicker}</span> ·{' '}
                       <time datetime={p.data.published.toISOString()}>{fmt(p.data.published)}</time>
                       {p.data.draft && <span class="chip-draft">DRAFT</span>}
                     </p>
@@ -210,6 +213,11 @@ const fmt = (d: Date) =>
     color: var(--green-primary); line-height: 1.22; margin: 0.35rem 0 0;
   }
   .pcard__dek { color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; font-size: 0.95rem; }
+
+  .meta-kicker {
+    color: var(--green-primary); font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.72rem;
+  }
 
   /* Shared DRAFT chip (preview deploys only). */
   .chip-draft {
