@@ -125,18 +125,6 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
     <Font cssVariable="--font-montserrat" preload />
 
     {viewTransitions && <ClientRouter />}
-    {viewTransitions && (
-      <style is:global>
-        /* TEMP — REVERT BEFORE PROMOTION: view transitions slowed ~5x so the
-           morph is unmissable during review. Normal speed is the browser
-           default (~0.25s); delete this block to restore it. */
-        ::view-transition-group(*),
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-          animation-duration: 1.3s !important;
-        }
-      </style>
-    )}
 
     {/* Privacy-first web analytics. Fires one pageView per load; ?src=… rides
         in the URL for channel attribution. Excluded from /admin (own layout).
