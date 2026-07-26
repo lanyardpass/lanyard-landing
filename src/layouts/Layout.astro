@@ -1,6 +1,7 @@
 ---
 import '@/styles/global.css';
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import { SITE, APP_STORE_ID, APP_STORE_URL } from '@/data/site';
@@ -12,6 +13,14 @@ interface Props {
   noindex?: boolean;
   /** Absolute URL to override the sitewide social card (e.g. a guide's hero). */
   ogImage?: string;
+  /**
+   * Opt this page into client-side routing + view transitions (guides and
+   * details surfaces). Navigations between two opted-in pages morph/crossfade;
+   * links to non-opted pages fall back to normal full loads. Any page setting
+   * this MUST register its per-page scripts via onPageReady (src/lib/vt.ts) —
+   * module scripts do not re-run after a client-side swap.
+   */
+  viewTransitions?: boolean;
 }
 
 const {
@@ -22,6 +31,7 @@ const {
   // The most-recent branch deploy is otherwise indexable by default, so this
   // keeps WIP out of search engines while production stays indexable.
   noindex = import.meta.env.PUBLIC_NOINDEX === 'true',
+  viewTransitions = false,
 } = Astro.props;
 
 // Launch link-preview card sitewide (built by scripts/og.html ?v=launch).
@@ -114,6 +124,8 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
 
     <Font cssVariable="--font-montserrat" preload />
 
+    {viewTransitions && <ClientRouter />}
+
     {/* Privacy-first web analytics. Fires one pageView per load; ?src=… rides
         in the URL for channel attribution. Excluded from /admin (own layout).
         Injected at runtime so test mode can be decided by HOSTNAME (see the
@@ -124,6 +136,21 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
       td.dataset.appId = TD_APP_ID;
       if (tdTestMode || window.location.hostname !== PROD_HOST) td.dataset.isTestMode = 'true';
       document.head.appendChild(td);
+    </script>
+
+    <script>
+      // SPA pageviews under the ClientRouter. The websdk above fires its one
+      // pageView on the initial full load; each client-side navigation after
+      // that sends an identical pageView via the shim (spaPageView docs that
+      // contract). astro:page-load never fires without the router, so this is
+      // inert on plain MPA pages — and its first firing (initial load) is
+      // skipped because the websdk already covered it.
+      import { spaPageView } from '@/lib/telemetry';
+      let prev: string | null = null;
+      document.addEventListener('astro:page-load', () => {
+        if (prev !== null) spaPageView(prev);
+        prev = window.location.href;
+      });
     </script>
 
     {/* Per-page <head> extras (e.g. a guide's Article + FAQPage JSON-LD). */}

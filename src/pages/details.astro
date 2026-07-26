@@ -79,7 +79,7 @@ const details = [
   },
 ];
 ---
-<Layout title={title} description={description}>
+<Layout title={title} description={description} viewTransitions>
   <section class="details">
     <header class="details__head">
       <p class="kicker">The details</p>
@@ -105,7 +105,7 @@ const details = [
           )}
           <div class="chapterCard__text">
             <p class="chapterCard__kicker">{c.kicker}</p>
-            <h2 class="chapterCard__title">{c.title}</h2>
+            <h2 class="chapterCard__title" transition:name={`detail-title-${c.href.split('/').filter(Boolean).pop()}`}>{c.title}</h2>
             <p class="chapterCard__body">{c.body}</p>
             <span class="chapterCard__cta">{c.cta} &rarr;</span>
             {c.figure && <span class="chapterCard__figure" aria-hidden="true" set:html={c.figure} />}

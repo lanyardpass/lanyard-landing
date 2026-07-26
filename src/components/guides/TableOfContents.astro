@@ -26,7 +26,14 @@ const items = headings.filter((h) => h.depth === 2);
 <script>
   // Highlight the section currently in view. Observes each h2 target and marks
   // the matching TOC link. Cheap, dependency-free, and reduced-motion-safe (it
-  // toggles a class; no animation involved).
+  // toggles a class; no animation involved). Re-inits per pageview
+  // (onPageReady); the previous page's observer is disconnected so it can't
+  // pin its detached headings in memory.
+  import { onPageReady } from '@/lib/vt';
+  let prevIo: IntersectionObserver | null = null;
+  onPageReady(() => {
+  prevIo?.disconnect();
+  prevIo = null;
   const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
   if (links.length) {
     const bySlug = new Map(links.map((l) => [l.dataset.tocLink!, l]));
@@ -54,7 +61,9 @@ const items = headings.filter((h) => h.depth === 2);
       { rootMargin: '-15% 0px -70% 0px', threshold: 0 }
     );
     targets.forEach((t) => io.observe(t));
+    prevIo = io;
   }
+  });
 </script>
 
 <style>

@@ -30,16 +30,13 @@ const sizes = '(min-width: 960px) 700px, 100vw';
   // Crossfade each ChronosDissolve based on how far it has traveled through the
   // viewport. Progress 0 (entering, bottom) → 1 (leaving, top); the night layer's
   // opacity tracks it. One rAF loop drives all instances on the page.
-  const blocks = Array.from(document.querySelectorAll<HTMLElement>('[data-chronos]'));
+  // Items re-collect per pageview (onPageReady) so client-side navigation picks
+  // up the new page's dissolves; the window listeners wire once per session.
+  import { onPageReady } from '@/lib/vt';
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (blocks.length && !reduce) {
-    const items = blocks.map((el) => ({
-      el,
-      night: el.querySelector<HTMLElement>('[data-chronos-night]'),
-      phase: el.querySelector<HTMLElement>('[data-chronos-phase]'),
-    }));
-
+  let items: { el: HTMLElement; night: HTMLElement | null; phase: HTMLElement | null }[] = [];
+  let wired = false;
+  {
     let ticking = false;
     const update = () => {
       ticking = false;
@@ -63,9 +60,21 @@ const sizes = '(min-width: 960px) 700px, 100vw';
     const onScroll = () => {
       if (!ticking) { ticking = true; requestAnimationFrame(update); }
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    update();
+    onPageReady(() => {
+      const blocks = Array.from(document.querySelectorAll<HTMLElement>('[data-chronos]'));
+      if (!blocks.length || reduce) { items = []; return; }
+      items = blocks.map((el) => ({
+        el,
+        night: el.querySelector<HTMLElement>('[data-chronos-night]'),
+        phase: el.querySelector<HTMLElement>('[data-chronos-phase]'),
+      }));
+      if (!wired) {
+        wired = true;
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+      }
+      update();
+    });
   }
 </script>
 

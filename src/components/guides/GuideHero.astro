@@ -16,6 +16,10 @@ interface Props {
   heroAlt: string;
 }
 const { title, dek, byline, readingTime, lastVerified, hero, heroAlt } = Astro.props;
+
+// View-transition morph target: the guides-index card media carries the same
+// `guide-hero-<slug>` name, so tapping a card morphs it into this hero.
+const slug = Astro.url.pathname.match(/\/guides\/([^/]+)/)?.[1] ?? 'guide';
 ---
 <header class="guide-hero">
   <div class="guide-hero__inner">
@@ -36,7 +40,7 @@ const { title, dek, byline, readingTime, lastVerified, hero, heroAlt } = Astro.p
     </div>
   </div>
 
-  <div class="guide-hero__media">
+  <div class="guide-hero__media" transition:name={`guide-hero-${slug}`}>
     <KenBurnsImage
       src={hero}
       alt={heroAlt}

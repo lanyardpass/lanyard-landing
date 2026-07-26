@@ -35,13 +35,18 @@ const { src, poster, label, caption, wide = false } = Astro.props;
 <script>
   // Play in-view, pause out-of-view. Skip autoplay entirely under reduced-motion
   // or data-saver — the poster carries it. Never throws (autoplay can reject).
-  const vids = Array.from(document.querySelectorAll<HTMLVideoElement>('[data-inview-video]'));
+  // Re-observes per pageview (onPageReady) so client-side navigation picks up
+  // the new page's videos; one observer per session.
+  import { onPageReady } from '@/lib/vt';
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const conn = (navigator as any).connection;
   const saveData = !!(conn && conn.saveData);
+  let io: IntersectionObserver | null = null;
 
-  if (vids.length && !reduce && !saveData) {
-    const io = new IntersectionObserver(
+  onPageReady(() => {
+    const vids = Array.from(document.querySelectorAll<HTMLVideoElement>('[data-inview-video]:not([data-vt-observed])'));
+    if (!vids.length || reduce || saveData) return;
+    io ??= new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           const v = e.target as HTMLVideoElement;
@@ -51,8 +56,8 @@ const { src, poster, label, caption, wide = false } = Astro.props;
       },
       { threshold: 0.35 }
     );
-    vids.forEach((v) => io.observe(v));
-  }
+    vids.forEach((v) => { v.dataset.vtObserved = '1'; io!.observe(v); });
+  });
 </script>
 
 <style>

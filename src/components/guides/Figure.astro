@@ -56,29 +56,39 @@ const widths = [480, 800, 1200, 1600, 2000];
     // Drift each [data-parallax] image slower than the scroll. One rAF loop for
     // all instances. The image overscans the frame (height > 100%); we translate
     // it within that overscan so it always covers. Skipped under reduced-motion
-    // (CSS resets it to a static cover image).
-    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('[data-parallax]'));
+    // (CSS resets it to a static cover image). Items re-collect per pageview
+    // (onPageReady) so client-side navigation picks up the new page's images;
+    // the window listeners wire once per session.
+    import { onPageReady } from '@/lib/vt';
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (imgs.length && !reduce) {
-      const items = imgs.map((img) => ({ img, frame: img.parentElement as HTMLElement }));
-      let ticking = false;
-      const update = () => {
-        ticking = false;
-        const vh = window.innerHeight;
-        for (const { img, frame } of items) {
-          const r = frame.getBoundingClientRect();
-          if (r.bottom < 0 || r.top > vh) continue;
-          const extra = img.offsetHeight - frame.offsetHeight; // overscan to play with
-          // 0 as the frame enters from the bottom → 1 as it exits the top.
-          const prog = (vh - r.top) / (vh + r.height);
-          img.style.transform = `translate3d(0, ${(-extra * prog).toFixed(1)}px, 0)`;
-        }
-      };
-      const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
+    let items: { img: HTMLImageElement; frame: HTMLElement }[] = [];
+    let wired = false;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      for (const { img, frame } of items) {
+        if (!frame.isConnected) continue;
+        const r = frame.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) continue;
+        const extra = img.offsetHeight - frame.offsetHeight; // overscan to play with
+        // 0 as the frame enters from the bottom → 1 as it exits the top.
+        const prog = (vh - r.top) / (vh + r.height);
+        img.style.transform = `translate3d(0, ${(-extra * prog).toFixed(1)}px, 0)`;
+      }
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    onPageReady(() => {
+      const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('[data-parallax]'));
+      if (!imgs.length || reduce) { items = []; return; }
+      items = imgs.map((img) => ({ img, frame: img.parentElement as HTMLElement }));
+      if (!wired) {
+        wired = true;
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+      }
       update();
-    }
+    });
   </script>
 )}
 

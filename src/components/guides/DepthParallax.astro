@@ -146,21 +146,38 @@ const { src, depth, alt, caption, wide = false, ratio = '16 / 9' } = Astro.props
     }, { rootMargin: '100px' });
     io.observe(frame);
     window.addEventListener('resize', resize, { passive: true });
+
+    // Client-side navigation tears this page's DOM out from under us — release
+    // the window listeners, observer, and rAF so per-banner state can't
+    // accumulate across visits. (A revisit re-inits from scratch.)
+    document.addEventListener('astro:before-swap', () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      if (finePointer) window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('resize', resize);
+    }, { once: true });
   }
 
-  const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-depth-parallax]'));
+  // Re-observes per pageview (onPageReady) so client-side navigation picks up
+  // the new page's banners; each banner still lazily inits its own WebGL when
+  // near the viewport, exactly once (data-vt-observed guard).
+  import { onPageReady } from '@/lib/vt';
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const conn = (navigator as any).connection;
   const saveData = !!(conn && conn.saveData);
-  if (frames.length && !reduce && !saveData) {
+  let io: IntersectionObserver | null = null;
+  onPageReady(() => {
+    const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-depth-parallax]:not([data-vt-observed])'));
+    if (!frames.length || reduce || saveData) return;
     // Lazily init each banner only when it's near the viewport.
-    const io = new IntersectionObserver((es, obs) => {
+    io ??= new IntersectionObserver((es, obs) => {
       for (const e of es) {
         if (e.isIntersecting) { obs.unobserve(e.target); init(e.target as HTMLElement); }
       }
     }, { rootMargin: '300px' });
-    frames.forEach((f) => io.observe(f));
-  }
+    frames.forEach((f) => { f.dataset.vtObserved = '1'; io!.observe(f); });
+  });
 </script>
 
 <style>

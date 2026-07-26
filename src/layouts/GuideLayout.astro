@@ -73,7 +73,7 @@ const faqSchema = faq.length
     }
   : null;
 ---
-<Layout title={pageTitle} description={description} ogImage={ogAbs}>
+<Layout title={pageTitle} description={description} ogImage={ogAbs} viewTransitions>
   <Fragment slot="head">
     <meta property="og:type" content="article" />
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
@@ -117,12 +117,16 @@ const faqSchema = faq.length
 
   <script>
     // Reveal-on-scroll for every [data-reveal] block (Figure, ScrollReveal,
-    // InViewVideoLoop). One observer, added once per page. Reduced-motion users
-    // get everything shown immediately (handled in each component's CSS), so we
-    // still mark them in-view here as a belt-and-braces.
-    const reveals = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
-    if (reveals.length) {
-      const io = new IntersectionObserver(
+    // InViewVideoLoop). One lazy observer for the whole session; each pageview
+    // (initial or client-side swap) observes that page's fresh elements.
+    // Reduced-motion users get everything shown immediately (handled in each
+    // component's CSS), so we still mark them in-view here as a belt-and-braces.
+    import { onPageReady } from '@/lib/vt';
+    let io: IntersectionObserver | null = null;
+    onPageReady(() => {
+      const reveals = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-in)'));
+      if (!reveals.length) return;
+      io ??= new IntersectionObserver(
         (entries, obs) => {
           for (const e of entries) {
             if (e.isIntersecting) { e.target.classList.add('is-in'); obs.unobserve(e.target); }
@@ -130,45 +134,63 @@ const faqSchema = faq.length
         },
         { rootMargin: '0px 0px -8% 0px', threshold: 0.1 }
       );
-      reveals.forEach((el) => io.observe(el));
-    }
+      reveals.forEach((el) => io!.observe(el));
+    });
   </script>
 
   <script>
     // Read-depth + dwell telemetry (anonymous, aggregate, matches the site's
     // privacy posture). Answers "do people actually read the guide, and how far."
+    // Per-PAGE state (guide slug, milestones, dwell clock) lives in `page` and
+    // is rebuilt on every pageview; window/document listeners are wired once
+    // per session. Under the ClientRouter, navigating away flushes the dwell
+    // (astro:before-preparation) exactly like a pagehide would.
     import { track } from '@/lib/telemetry';
-    const guide = location.pathname.match(/\/guides\/([^/]+)/)?.[1] || 'guides';
+    import { onPageReady } from '@/lib/vt';
 
-    // Scroll milestones, fired once each as the reader reaches them. The 75 and
-    // 100 rates are the real "did they read it" signal.
-    const hit = new Set<number>();
+    let page: { guide: string; hit: Set<number>; start: number; sent: boolean } | null = null;
+
     function checkDepth() {
+      if (!page) return;
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       if (scrollable <= 0) return;
       const pct = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
       for (const m of [25, 50, 75, 100]) {
-        if (pct >= m && !hit.has(m)) { hit.add(m); track('Guide.Read', { guide, depth: String(m) }); }
+        if (pct >= m && !page.hit.has(m)) { page.hit.add(m); track('Guide.Read', { guide: page.guide, depth: String(m) }); }
       }
     }
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) { ticking = true; requestAnimationFrame(() => { checkDepth(); ticking = false; }); }
-    }, { passive: true });
-    checkDepth();
 
-    // Best-effort dwell bucket, sent when the tab is hidden or closed. Approximate
-    // (on-exit sends aren't guaranteed), so lean on Guide.Read for read-through.
-    const start = performance.now();
-    let sent = false;
+    // Best-effort dwell bucket, sent when the tab is hidden/closed or the
+    // reader client-routes away. Approximate (on-exit sends aren't guaranteed),
+    // so lean on Guide.Read for read-through.
     function sendDwell() {
-      if (sent) return; sent = true;
-      const s = Math.round((performance.now() - start) / 1000);
+      if (!page || page.sent) return;
+      page.sent = true;
+      const s = Math.round((performance.now() - page.start) / 1000);
       const bucket = s < 15 ? '0-15s' : s < 60 ? '15-60s' : s < 180 ? '1-3m' : s < 360 ? '3-6m' : '6m+';
-      track('Guide.Dwell', { guide, bucket });
+      track('Guide.Dwell', { guide: page.guide, bucket });
     }
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendDwell(); });
-    window.addEventListener('pagehide', sendDwell);
+
+    let wired = false;
+    onPageReady(() => {
+      page = {
+        guide: location.pathname.match(/\/guides\/([^/]+)/)?.[1] || 'guides',
+        hit: new Set<number>(),
+        start: performance.now(),
+        sent: false,
+      };
+      if (!wired) {
+        wired = true;
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+          if (!ticking) { ticking = true; requestAnimationFrame(() => { checkDepth(); ticking = false; }); }
+        }, { passive: true });
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendDwell(); });
+        window.addEventListener('pagehide', sendDwell);
+        document.addEventListener('astro:before-preparation', sendDwell);
+      }
+      checkDepth();
+    });
   </script>
 </Layout>
 

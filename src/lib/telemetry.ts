@@ -63,6 +63,38 @@ function channel(): string {
 }
 
 /**
+ * SPA pageview — the ClientRouter companion to the websdk's auto pageView.
+ *
+ * The websdk (cdn.telemetrydeck.com/websdk 1.1.0) fires exactly ONE pageView
+ * per full page load, at script eval, with no API to call again — so client-side
+ * navigations would send nothing. This replicates its POST byte-for-byte (same
+ * endpoint, same payload shape, same client-version string so dashboards see
+ * one uniform pageView population), with `referrer` set to the previous
+ * internal URL, which is what a full load would have reported. If the websdk
+ * changes its payload, update this to match (checked against 1.1.0).
+ */
+export function spaPageView(referrer: string): void {
+  try {
+    const payload: Record<string, unknown> = {
+      appID: APP_ID,
+      url: window.location.href,
+      referrer,
+      telemetryClientVersion: 'WebSDK 1.1.0',
+      locale: navigator.language,
+    };
+    if (isTestMode()) payload.isTestMode = true;
+    void fetch('https://nom.telemetrydeck.com/v2/w/', {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  } catch {
+    /* analytics must never break the UI */
+  }
+}
+
+/**
  * Fire-and-forget custom signal. `value` becomes the single numeric floatValue
  * (TelemetryDeck allows exactly one per signal); everything in `dimensions` is a
  * string the TQL loop can group and count by. Never throws — analytics must

@@ -28,12 +28,12 @@ interface Props {
 const { title, description, heroKicker, heroTitle, heroSub, heroImage, heroImageAlt, noindex } =
   Astro.props;
 ---
-<Layout title={title} description={description} noindex={noindex}>
+<Layout title={title} description={description} noindex={noindex} viewTransitions>
   <article class="dpage">
     <header class="dpage__head">
       <a class="dpage__back" href="/details">&larr; The details</a>
       <p class="kicker dpage__kicker">{heroKicker}</p>
-      <h1 class="display dpage__title">{heroTitle}</h1>
+      <h1 class="display dpage__title" transition:name={`detail-title-${Astro.url.pathname.split('/').filter(Boolean).pop()}`}>{heroTitle}</h1>
       <p class="dpage__sub">{heroSub}</p>
     </header>
     {heroImage && (

@@ -154,8 +154,15 @@ const clientEvents = groups.flatMap((g) =>
   </div>
 </section>
 
-<script is:inline define:vars={{ EVENTS: clientEvents, SNAP: snapshot.snapshot_date, DAYS: days }}>
+{/* Data rides a JSON element (not define:vars) because define:vars strips
+    data-astro-rerun from the emitted tag — and without rerun, a client-routed
+    REVISIT of this page leaves the strip dead (inline scripts dedupe per
+    session). Discovered empirically on the view-transitions pass. */}
+<script type="application/json" id="strip-data" set:html={JSON.stringify({ EVENTS: clientEvents, SNAP: snapshot.snapshot_date, DAYS: days })} />
+<script is:inline data-astro-rerun>
   (function () {
+    var DATA = JSON.parse(document.getElementById('strip-data').textContent);
+    var EVENTS = DATA.EVENTS, SNAP = DATA.SNAP, DAYS = DATA.DAYS;
     var MS = 86400000;
     var start = new Date(SNAP + 'T00:00:00');
     var scrub = document.getElementById('strip-scrub');
