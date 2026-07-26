@@ -125,6 +125,18 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
     <Font cssVariable="--font-montserrat" preload />
 
     {viewTransitions && <ClientRouter />}
+    {viewTransitions && (
+      <style is:global>
+        /* House transition speed — 0.5s (Dan's call, 2026-07-26): the browser's
+           0.25s default read as too quick for the card→hero morph to register.
+           Applies to the morphing groups and the root crossfade alike. */
+        ::view-transition-group(*),
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation-duration: 0.5s;
+        }
+      </style>
+    )}
 
     {/* Privacy-first web analytics. Fires one pageView per load; ?src=… rides
         in the URL for channel attribution. Excluded from /admin (own layout).
