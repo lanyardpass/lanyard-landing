@@ -20,6 +20,12 @@ const posts = (await getCollection('posts', ({ data }) => showDrafts || !data.dr
   (a, b) => b.data.published.valueOf() - a.data.published.valueOf()
 );
 
+// Publication landing shape (Medium pattern, adopted 2026-07-26): the newest
+// post gets the FEATURED treatment (big media + headline row), the rest fall
+// into a card grid. Degrades honestly at low volume — one post renders as just
+// the featured row — and scales to a full magazine front as the archive grows.
+const [featured, ...rest] = posts;
+
 const title = `Blog — From the workbench | ${SITE.name}`;
 const description =
   'Notes from building Lanyard — the annual pass companion. What got built, why it got built that way, and the details most apps would skip.';
@@ -59,36 +65,66 @@ const fmt = (d: Date) =>
     {posts.length === 0 ? (
       <p class="blog-index__empty">First post is on the way.</p>
     ) : (
-      <ul class="blog-index__list">
-        {posts.map((p) => (
-          <li class="post-card">
-            <a href={`/blog/${p.id}`} class="post-card__link">
-              <div class="post-card__media">
-                {p.data.hero ? (
-                  <Image
-                    src={p.data.hero}
-                    alt={p.data.heroAlt ?? ''}
-                    widths={[320, 480, 720]}
-                    sizes="(min-width: 720px) 300px, 100vw"
-                    loading="lazy"
-                    class="post-card__img"
-                  />
-                ) : (
-                  <div class="post-card__panel" aria-hidden="true">L</div>
-                )}
-              </div>
-              <div class="post-card__body">
-                <time class="post-card__date" datetime={p.data.published.toISOString()}>
-                  {fmt(p.data.published)}
-                </time>
-                {p.data.draft && <span class="post-card__draft">DRAFT</span>}
-                <h2 class="post-card__title">{p.data.title}</h2>
-                <p class="post-card__dek">{p.data.dek}</p>
-              </div>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <>
+        <a href={`/blog/${featured.id}`} class="feat">
+          <div class="feat__media">
+            {featured.data.hero ? (
+              <Image
+                src={featured.data.hero}
+                alt={featured.data.heroAlt ?? ''}
+                widths={[480, 720, 960, 1400]}
+                sizes="(min-width: 900px) 640px, 100vw"
+                loading="eager"
+                class="feat__img"
+              />
+            ) : (
+              <div class="feat__panel" aria-hidden="true">L</div>
+            )}
+          </div>
+          <div class="feat__body">
+            <p class="feat__meta">
+              <time datetime={featured.data.published.toISOString()}>{fmt(featured.data.published)}</time>
+              {featured.data.draft && <span class="chip-draft">DRAFT</span>}
+            </p>
+            <h2 class="feat__title">{featured.data.title}</h2>
+            <p class="feat__dek">{featured.data.dek}</p>
+            <span class="feat__cta">Read it &rarr;</span>
+          </div>
+        </a>
+
+        {rest.length > 0 && (
+          <ul class="pgrid">
+            {rest.map((p) => (
+              <li class="pcard">
+                <a href={`/blog/${p.id}`} class="pcard__link">
+                  <div class="pcard__media">
+                    {p.data.hero ? (
+                      <Image
+                        src={p.data.hero}
+                        alt={p.data.heroAlt ?? ''}
+                        widths={[320, 480, 720]}
+                        sizes="(min-width: 720px) 380px, 100vw"
+                        loading="lazy"
+                        class="pcard__img"
+                      />
+                    ) : (
+                      <div class="pcard__panel" aria-hidden="true">L</div>
+                    )}
+                  </div>
+                  <div class="pcard__body">
+                    <p class="pcard__meta">
+                      <time datetime={p.data.published.toISOString()}>{fmt(p.data.published)}</time>
+                      {p.data.draft && <span class="chip-draft">DRAFT</span>}
+                    </p>
+                    <h2 class="pcard__title">{p.data.title}</h2>
+                    <p class="pcard__dek">{p.data.dek}</p>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
     )}
   </section>
 </Layout>
@@ -105,43 +141,76 @@ const fmt = (d: Date) =>
   .blog-index__sub { color: var(--muted); font-size: var(--fs-lead); margin-top: 1rem; line-height: 1.6; }
   .blog-index__empty { color: var(--muted); margin-top: 2rem; }
 
-  .blog-index__list {
-    list-style: none; margin: clamp(2rem, 5vw, 3rem) 0 0; padding: 0;
-    display: grid; gap: 1.4rem; max-width: 46rem;
+  /* ---- Featured row (newest post): big media left, headline right ---- */
+  .feat {
+    display: grid; gap: clamp(1.2rem, 3vw, 2.2rem);
+    margin-top: clamp(2rem, 5vw, 3rem);
+    text-decoration: none; color: inherit;
+    border-radius: var(--radius); overflow: hidden;
+    background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
-  .post-card {
+  .feat:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
+  @media (min-width: 900px) {
+    .feat { grid-template-columns: 1.25fr 1fr; align-items: center; }
+  }
+  .feat__media { background: rgba(45, 106, 79, 0.06); height: 100%; }
+  .feat__img, .feat__panel { width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 16 / 10; }
+  .feat__panel {
+    display: grid; place-items: center;
+    background: radial-gradient(130% 100% at 72% 32%, #2a5b44 0%, var(--green-dark, #1B4332) 60%);
+    color: rgba(255, 255, 255, 0.85);
+    font-family: var(--font-display); font-weight: 900; font-size: 4rem;
+  }
+  .feat__body { padding: clamp(1.2rem, 3vw, 2rem); }
+  .feat__meta { margin: 0; color: var(--muted); font-size: 0.85rem; }
+  .feat__title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.5rem, 3.2vw, 2.2rem); line-height: 1.15;
+    color: var(--ink); margin: 0.6rem 0 0;
+  }
+  .feat:hover .feat__title { color: var(--green-primary); }
+  .feat__dek { color: var(--muted); line-height: 1.55; margin: 0.8rem 0 0; font-size: 1.05rem; }
+  .feat__cta {
+    display: inline-block; margin-top: 1.1rem;
+    color: var(--green-primary); font-family: var(--font-display); font-weight: 800;
+  }
+
+  /* ---- The rest: magazine card grid ---- */
+  .pgrid {
+    list-style: none; padding: 0;
+    margin: clamp(1.4rem, 3vw, 2rem) 0 0;
+    display: grid; gap: 1.4rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .pcard {
     background: #fff; border: 1px solid rgba(45, 106, 79, 0.12);
     border-radius: var(--radius); overflow: hidden;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
-  .post-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
-  .post-card__link {
-    display: grid; text-decoration: none; color: inherit;
-  }
-  @media (min-width: 640px) {
-    .post-card__link { grid-template-columns: 220px 1fr; }
-  }
-  .post-card__media { background: rgba(45, 106, 79, 0.06); min-height: 100%; }
-  .post-card__img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; aspect-ratio: 16/10; }
-  @media (min-width: 640px) { .post-card__img { aspect-ratio: auto; } }
-  .post-card__panel {
-    width: 100%; height: 100%; min-height: 8rem;
-    display: grid; place-items: center;
+  .pcard:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--green-accent); }
+  .pcard__link { display: block; text-decoration: none; color: inherit; }
+  .pcard__media { background: rgba(45, 106, 79, 0.06); }
+  .pcard__img, .pcard__panel { width: 100%; object-fit: cover; object-position: top; display: block; aspect-ratio: 16 / 10; }
+  .pcard__panel {
+    display: grid; place-items: center; height: auto;
     background: radial-gradient(130% 100% at 72% 32%, #2a5b44 0%, var(--green-dark, #1B4332) 60%);
     color: rgba(255, 255, 255, 0.85);
     font-family: var(--font-display); font-weight: 900; font-size: 2.6rem;
   }
-  .post-card__body { padding: 1.1rem 1.2rem 1.3rem; }
-  .post-card__date { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.02em; }
-  .post-card__draft {
+  .pcard__body { padding: 1.1rem 1.2rem 1.3rem; }
+  .pcard__meta { margin: 0; color: var(--muted); font-size: 0.82rem; }
+  .pcard__title {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
+    color: var(--green-primary); line-height: 1.22; margin: 0.35rem 0 0;
+  }
+  .pcard__dek { color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; font-size: 0.95rem; }
+
+  /* Shared DRAFT chip (preview deploys only). */
+  .chip-draft {
     margin-left: 0.6rem; padding: 0.1rem 0.5rem; border-radius: 999px;
     border: 1px dashed rgba(180, 130, 20, 0.5); background: rgba(240, 200, 90, 0.14);
     color: #8a6410; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em;
     vertical-align: middle;
   }
-  .post-card__title {
-    font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;
-    color: var(--green-primary); line-height: 1.22; margin: 0.35rem 0 0;
-  }
-  .post-card__dek { color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; font-size: 0.95rem; }
 </style>
