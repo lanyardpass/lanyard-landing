@@ -9,7 +9,8 @@
 // JSON-LD, the byline, the verified date) live in frontmatter. Components are
 // passed in by the page template, so a content file stays editable as prose.
 
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const guides = defineCollection({

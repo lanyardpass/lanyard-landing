@@ -1,7 +1,8 @@
 ---
 import { QUOTES } from '@/data/act3';
-// NOTE: QUOTES are flagged placeholders. Real, attributed quotes must replace
-// them before launch — never ship fabricated testimonials (website_plan §4).
+// All quotes are REAL (beta quotes anonymous; App Store reviews attributed
+// with stars) — never ship fabricated testimonials (website_plan §4). The
+// placeholder machinery below stays for any future draft-in-progress state.
 ---
 <section id="proof" class="section proof">
   <div class="container">
@@ -12,6 +13,11 @@ import { QUOTES } from '@/data/act3';
     <div class="proof__wall">
       {QUOTES.map((q) => (
         <figure class={`quote${q.placeholder ? ' quote--placeholder' : ''}`}>
+          {q.stars && (
+            <p class="quote__stars" aria-label={`${q.stars} out of 5 stars`}>
+              {'★'.repeat(q.stars)}
+            </p>
+          )}
           <blockquote>{q.text}</blockquote>
           <figcaption>— {q.attribution}</figcaption>
           {q.placeholder && <span class="quote__flag">Placeholder · replace before launch</span>}
@@ -28,6 +34,7 @@ import { QUOTES } from '@/data/act3';
   .proof__wall { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); max-width: 860px; margin-inline: auto; }
   .quote { background: #fff; border: 1px solid rgba(20, 53, 42, 0.08); border-radius: var(--radius); padding: 1.8rem; box-shadow: var(--shadow-card); margin: 0; }
   .quote blockquote { font-size: 1.15rem; line-height: 1.5; margin: 0 0 1rem; }
+  .quote__stars { color: var(--green-primary); letter-spacing: 0.15em; font-size: 1rem; margin: 0 0 0.7rem; }
   .quote figcaption { color: var(--muted); font-weight: 600; }
   .quote--placeholder { border-style: dashed; border-color: rgba(82, 183, 136, 0.5); }
   .quote--placeholder blockquote { color: var(--muted); font-style: italic; }

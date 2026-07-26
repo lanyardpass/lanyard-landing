@@ -13,7 +13,8 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # Astro 7 requires Node 22+.
+  NODE_VERSION = "22"
 
 # /beta and /privacy are Astro pages now — no redirects needed.
 

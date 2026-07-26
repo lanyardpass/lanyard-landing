@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import Callout from '@/components/guides/Callout.astro';
 
 // Press kit — facts, story angles, downloadable assets. Angles follow the
 // canonical positioning (product_decisions.md → Brand voice & positioning):
@@ -8,7 +9,7 @@ import Layout from '@/layouts/Layout.astro';
 export const prerender = true;
 
 const FACTS: Array<[string, string]> = [
-  ['What', 'An iOS companion app for theme park annual passholders. Blockout dates, perks, events, park hours, and pass payback in one place.'],
+  ['What', 'An iOS companion app for theme park annual passholders. Blockout dates, perks, events, park hours, crowds, and pass payback in one place.'],
   ['Who', 'Dan Seals, solo founder. Works in information security by day. Lanyard LLC, Winter Garden, Florida (metro Orlando).'],
   ['Parks covered', 'Walt Disney World, Universal Orlando, SeaWorld Orlando, and Busch Gardens Tampa, plus their water parks.'],
   ['Price', 'Free with every feature for one pass. Lanyard Pro ($29.99/yr or $3.49/mo) adds unlimited passes and special-event pass types; Family Sharing included.'],
@@ -19,7 +20,9 @@ const FACTS: Array<[string, string]> = [
 ];
 
 const ASSETS: Array<{ label: string; detail: string; href: string }> = [
-  { label: 'Full press kit (.zip)', detail: 'Everything below in one download, ~18 MB', href: '/press/lanyard-press-kit.zip' },
+  { label: 'Full press kit (.zip)', detail: 'Everything below in one download, ~27 MB', href: '/press/lanyard-press-kit.zip' },
+  { label: 'House Tracker demo — GIF', detail: 'The HHN house checklist in motion, 15s loop, ~4 MB — previewed in the box above', href: '/press/lanyard-house-tracker.gif' },
+  { label: 'House Tracker demo — MP4', detail: 'Same clip for video embeds, 720×1488, ~1.3 MB', href: '/press/lanyard-house-tracker.mp4' },
   { label: 'Wordmark (green) — SVG', detail: 'Vector, for light backgrounds', href: '/press/lanyard-wordmark.svg' },
   { label: 'Wordmark (green) — PNG', detail: 'Transparent, 2240×540, for light backgrounds', href: '/press/lanyard-wordmark.png' },
   { label: 'Wordmark (white) — SVG', detail: 'Vector, for dark backgrounds', href: '/press/lanyard-wordmark-white.svg' },
@@ -27,7 +30,7 @@ const ASSETS: Array<{ label: string; detail: string; href: string }> = [
   { label: 'App icon', detail: 'PNG, 1024×1024', href: '/press/lanyard-app-icon.png' },
   { label: 'Screenshots, device-framed (8)', detail: 'Transparent PNG on a titanium iPhone, article-ready — previewed below, ~7 MB', href: '/press/lanyard-screenshots-framed.zip' },
   { label: 'Screenshots, raw (8)', detail: 'Straight app captures, 1320×2868 PNG, ~6 MB', href: '/press/lanyard-screenshots-raw.zip' },
-  { label: 'Screenshots, App Store set (8)', detail: 'The store listing art with captions, ~5 MB', href: '/press/lanyard-screenshots-appstore.zip' },
+  { label: 'Screenshots, App Store set (8)', detail: 'The store listing art with captions, ~6 MB', href: '/press/lanyard-screenshots-appstore.zip' },
 ];
 
 // The device-framed set is what an article actually embeds, so it gets the
@@ -49,7 +52,24 @@ const SCREENSHOTS = [
       <p class="legal__lead">Everything you need to cover Lanyard. The facts, the story, and the assets. Need a quote, an interview, or something that isn't here? Email <a href="mailto:dan@lanyardpass.com">dan@lanyardpass.com</a> and you'll hear back from the founder directly.</p>
 
       <h2>Boilerplate</h2>
-      <p>Lanyard is the annual pass companion. An independent iOS app that puts a passholder's blockout dates, perks, events, park hours, and pass payback in one place, across Walt Disney World, Universal Orlando, SeaWorld, and Busch Gardens. Free for your first pass, no account required, and nothing attributed to you, ever. Built in Orlando by a passholder. <em>You shall pass.</em></p>
+      <p>Lanyard is the annual pass companion. An independent iOS app that puts a passholder's blockout dates, perks, events, park hours, crowds, and pass payback in one place, across Walt Disney World, Universal Orlando, SeaWorld, and Busch Gardens. Free for your first pass, no account required, and nothing attributed to you, ever. Built in Orlando by a passholder. <em>You shall pass.</em></p>
+
+      {/* The guides Callout (tip variant) — the green box makes the current
+          version's news pop out of the prose wall; title rides inside the box
+          (newin__title zeroes .legal h2's section margin). Swap contents each
+          cut. */}
+      <Callout variant="tip">
+        <h2 class="newin__title">New: Halloween Horror Nights pass tracking</h2>
+        {/* Thumb joins the lightbox cycle (it's first in the anchor collection);
+            the gif animates natively in the lightbox <img>. No-JS fallback:
+            href opens the gif in the tab. Full files ride the assets list. */}
+        <div class="newin__row">
+          <p>Halloween Horror Nights passes dropped, and Lanyard is ready. Add your Frequent Fear, see every night it covers, and watch it pay for itself night by night. And on event nights the House Tracker keeps your score. Check off each house as you walk it, see your season at a glance, rate the houses if you feel like it. Tap the preview for the 15-second demo.</p>
+          <a class="newin__demo" href="/press/lanyard-house-tracker.gif">
+            <img src="/press/lanyard-house-tracker-thumb.webp" alt="Animated demo of Lanyard's House Tracker: the ten HHN 35 houses being stamped off one by one, night badges filling the grid" loading="lazy" decoding="async" width="400" height="826" />
+          </a>
+        </div>
+      </Callout>
 
       <h2>Fact sheet</h2>
       <dl class="facts">
@@ -62,10 +82,12 @@ const SCREENSHOTS = [
       </dl>
 
       <h2>Story angles</h2>
-      <p><strong>The tool no single park could build.</strong> Most Central Florida passholders hold passes from more than one operator, and no park can track its competitors' blockout dates or surface their perks. A cross-operator passholder tool has to be neutral, which means it has to be independent. That's the structural gap Lanyard fills.</p>
-      <p><strong>A coach, not an auditor.</strong> Lanyard never asks "is your pass worth it?" It assumes you have the pass and makes sure it pays off. The perks you're owed, the days you can actually go, the moment it breaks even. Pro-passholder, pro-visiting, and friendly to the parks whose perks it helps people use.</p>
-      <p><strong>Privacy, practiced professionally.</strong> No account, no sign-up, and nothing you do in Lanyard is ever attributed to you. That stance isn't borrowed marketing. Dan works in information security by day, and Lanyard is what a security person builds for himself. It tracks your passes, never you.</p>
-      <p><strong>The founder who found another way in.</strong> An Orlando passholder who knew he'd never be a daily vlogger built his way into the theme park world instead. The full story is on the <a href="/about">about page</a>.</p>
+      <p><strong>The parks are covered. Your pass isn't.</strong> Vloggers, crowd calendars, and planning sites tell you what's happening inside the gates, and many do it well. None of it tracks what your own pass is doing. So passholders improvise, a note on the phone, a spreadsheet, a podcast host hand-tallying 29 park days to work out his cost per visit. One of Lanyard's first App Store reviews starts with exactly that, "I started recording my park visits and passholder savings in a note on my phone, but it quickly became messy." Lanyard is the missing ledger. Every visit, every perk, the day each pass breaks even, kept automatically.</p>
+      <p><strong>Ten houses, thirty nights, no Express included.</strong> This year Universal's multi-night Halloween Horror Nights passes don't bundle Express Pass, it's sold night by night as an add-on. So the season's real game is standby strategy, splitting ten houses across your nights and making sure the ones you love get repeat runs. A few nights in, remembering which house you did, which night, and how many times is the phone-note problem all over again. Lanyard's House Tracker keeps the score. Check off each house as you walk it, see the season night by night, rate the houses if you feel like it. It shipped the day passes went on sale.</p>
+      <p><strong>The app that moves at park speed.</strong> When Universal put Halloween Horror Nights passes on sale, Lanyard shipped tracking for them the same day. Blockout calendars, perks, hours, and events are checked continuously across four operators, and that unglamorous upkeep is what makes everything else trustworthy. The parks change constantly. A pass companion is only as good as its ability to keep up.</p>
+      <p><strong>The crowd tracker that would rather say nothing than guess.</strong> Every park on the home screen wears one of three honest words, quiet, normal, or packed, judged against that park's own two-year history. When the data isn't sure, the app stays silent. And when Universal took Hagrid's off Express this month and standby shifted by about half an hour, Lanyard measured its own drift with a matched-week comparison and corrected the scale in the open. In a category full of fake-precise crowd scores, restraint is the feature. The full methodology is public at <a href="/crowds">lanyardpass.com/crowds</a>.</p>
+      <p><strong>A security chief's idea of a theme park app.</strong> Dan runs information security for a living, and Lanyard is what that job builds when it makes something for itself. No account, no sign-up, no ads, and nothing you do in the app is ever attributed to you. It tracks your passes, never you.</p>
+      <p><strong>Built by the passholder it's for.</strong> Dan is a Winter Garden local who holds annual passes at Universal, Disney, and SeaWorld at the same time and is in the parks most weeks. Lanyard is the companion app he wanted and couldn't buy. The longer story, including why he built his way into the theme park world instead of vlogging his way in, is on the <a href="/about">about page</a>.</p>
 
       <h2>Assets</h2>
       <ul class="assets" role="list">
@@ -77,14 +99,40 @@ const SCREENSHOTS = [
         ))}
       </ul>
 
-      {/* Grid shows ~25KB webp thumbs; the click downloads the full-res PNG.
-          Keeps a casual page visit at ~0.2MB instead of ~8MB of bandwidth. */}
+      {/* Grid shows ~25KB webp thumbs; a click opens the lightbox viewer
+          (full-res PNG loads on demand, so a casual visit stays ~0.2MB).
+          No-JS fallback: the bare href opens the PNG in the tab — never a
+          blind download. */}
       <div class="shots" aria-label="Screenshot previews">
         {SCREENSHOTS.map((s) => (
-          <a href={`/press/screenshots-framed/${s}`} download>
+          <a href={`/press/screenshots-framed/${s}`}>
             <img src={`/press/screenshots-framed/thumbs/${s.replace('.png', '.webp')}`} alt={`Lanyard screenshot in an iPhone frame: ${s.replace('lanyard-framed-', '').replace('.png', '').replace(/-/g, ' ')}`} loading="lazy" decoding="async" width="406" height="808" />
           </a>
         ))}
+      </div>
+
+      {/* Lightbox — the actual press win on this page: flip through the set
+          full-size, download from inside. Arrow keys + Esc wired in script. */}
+      <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer" hidden>
+        <div class="lightbox__backdrop" data-lb-close></div>
+        <figure class="lightbox__stage">
+          <img class="lightbox__img" alt="" />
+        </figure>
+        <div class="lightbox__top">
+          <a class="lightbox__btn" data-lb-download href="/press/lanyard-screenshots-framed.zip" download aria-label="Download this screenshot">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M4 19h16"/></svg>
+          </a>
+          <button class="lightbox__btn" data-lb-close aria-label="Close viewer">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
+          </button>
+        </div>
+        <button class="lightbox__btn lightbox__nav lightbox__nav--prev" data-lb-prev aria-label="Previous screenshot">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="lightbox__btn lightbox__nav lightbox__nav--next" data-lb-next aria-label="Next screenshot">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <p class="lightbox__count" aria-live="polite"></p>
       </div>
 
       <h2 id="usage">Usage</h2>
@@ -100,12 +148,71 @@ const SCREENSHOTS = [
   // journalists actually take?"
   import { track } from '@/lib/telemetry';
 
-  document.querySelectorAll<HTMLAnchorElement>('.assets a, .shots a').forEach((a) => {
+  // Zip-list downloads keep the original signal. Grid clicks now open the
+  // lightbox (no download), so the download signal moved to the lightbox's
+  // download button — same event, same "which assets do journalists take?"
+  // question, plus Press.View for which shots they enlarge.
+  document.querySelectorAll<HTMLAnchorElement>('.assets a').forEach((a) => {
     a.addEventListener('click', () => {
       const asset = a.getAttribute('href')?.split('/').pop() ?? 'unknown';
       track('Press.Download', { asset });
     });
   });
+
+  // ---- Lightbox ---------------------------------------------------------
+  // The callout's demo thumb rides the same collection (DOM-first, so it's
+  // index 0); the gif animates natively inside the lightbox <img>.
+  const shots = Array.from(document.querySelectorAll<HTMLAnchorElement>('.newin__demo, .shots a'));
+  const lb = document.getElementById('lightbox');
+  if (lb && shots.length) {
+    const img = lb.querySelector<HTMLImageElement>('.lightbox__img')!;
+    const dl = lb.querySelector<HTMLAnchorElement>('[data-lb-download]')!;
+    const counter = lb.querySelector<HTMLElement>('.lightbox__count')!;
+    const closeBtn = lb.querySelector<HTMLButtonElement>('button[data-lb-close]')!;
+    let idx = 0;
+    let lastFocus: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      idx = (i + shots.length) % shots.length;
+      const a = shots[idx];
+      img.src = a.href;
+      img.alt = a.querySelector('img')?.alt ?? '';
+      dl.href = a.href;
+      counter.textContent = `${idx + 1} / ${shots.length}`;
+      track('Press.View', { asset: a.href.split('/').pop() ?? 'unknown' });
+      // Warm the neighbors so arrowing feels instant.
+      [idx + 1, idx - 1].forEach((n) => {
+        const p = new Image();
+        p.src = shots[(n + shots.length) % shots.length].href;
+      });
+    };
+    const open = (i: number) => {
+      lastFocus = document.activeElement as HTMLElement;
+      show(i);
+      lb.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    };
+    const close = () => {
+      lb.hidden = true;
+      document.body.style.overflow = '';
+      lastFocus?.focus();
+    };
+
+    shots.forEach((a, i) => a.addEventListener('click', (e) => { e.preventDefault(); open(i); }));
+    lb.querySelectorAll('[data-lb-close]').forEach((el) => el.addEventListener('click', close));
+    lb.querySelector('[data-lb-prev]')!.addEventListener('click', () => show(idx - 1));
+    lb.querySelector('[data-lb-next]')!.addEventListener('click', () => show(idx + 1));
+    dl.addEventListener('click', () => {
+      track('Press.Download', { asset: dl.href.split('/').pop() ?? 'unknown' });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') show(idx - 1);
+      else if (e.key === 'ArrowRight') show(idx + 1);
+    });
+  }
 </script>
 
 <style>
@@ -132,6 +239,26 @@ const SCREENSHOTS = [
     margin-top: 2.6rem;
     margin-bottom: 0.6rem;
   }
+  /* Section title living INSIDE the New-in callout box — drop the section
+     margin (the box supplies the separation) and take the green head color. */
+  .legal h2.newin__title {
+    margin-top: 0;
+    margin-bottom: 0.2rem;
+    color: var(--green-primary);
+  }
+  /* Demo thumb in the New-in box — flex row keeps it INSIDE the callout
+     (a float escapes the box; earned 2026-07-21). */
+  .newin__row { display: flex; gap: 1rem; align-items: flex-start; }
+  .newin__row p { flex: 1; margin-bottom: 0; }
+  .newin__demo {
+    flex: 0 0 clamp(96px, 22%, 132px);
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    cursor: zoom-in;
+  }
+  .newin__demo img { width: 100%; height: auto; display: block; }
   .legal p {
     color: var(--muted);
     font-size: 1rem;
@@ -172,4 +299,48 @@ const SCREENSHOTS = [
     display: block;
   }
   @media (max-width: 560px) { .shots { grid-template-columns: repeat(2, 1fr); } }
+  .shots a { cursor: zoom-in; }
+
+  /* ---- Lightbox ---- */
+  .lightbox { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; }
+  .lightbox[hidden] { display: none; }
+  .lightbox__backdrop { position: absolute; inset: 0; background: rgba(10, 25, 18, 0.93); cursor: zoom-out; }
+  .lightbox__stage { position: relative; margin: 0; pointer-events: none; }
+  .lightbox__img { display: block; max-height: 88vh; max-width: min(88vw, 640px); width: auto; }
+  .lightbox__top { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.6rem; }
+  .lightbox__btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .lightbox__btn:hover { background: rgba(255, 255, 255, 0.28); }
+  .lightbox__btn:focus-visible { outline: 2px solid var(--green-accent); outline-offset: 2px; }
+  .lightbox__nav { position: absolute; top: 50%; transform: translateY(-50%); }
+  .lightbox__nav--prev { left: 1rem; }
+  .lightbox__nav--next { right: 1rem; }
+  .lightbox__count {
+    position: absolute;
+    bottom: 1.1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 560px) {
+    .lightbox__nav--prev { left: 0.4rem; }
+    .lightbox__nav--next { right: 0.4rem; }
+    .lightbox__img { max-width: 78vw; }
+  }
 </style>

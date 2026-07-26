@@ -10,7 +10,7 @@ import Founder from '@/components/act3/Founder.astro';
 import FAQ from '@/components/act3/FAQ.astro';
 import FinalCTA from '@/components/act3/FinalCTA.astro';
 import FeatureSpotlight from '@/components/FeatureSpotlight.astro';
-import { PERKS_BEAT } from '@/data/acts';
+import { PERKS_BEAT, NEW_FEATURE_BEAT } from '@/data/acts';
 
 // Static-rendered (no server work on the homepage).
 export const prerender = true;
@@ -21,6 +21,21 @@ export const prerender = true;
 
   {/* Act 3 — the rational closer, conventional stacked sections. */}
   <Capabilities />
+  {/* Standing new-feature slot (green band): content lives in NEW_FEATURE_BEAT —
+      swap it there when the next headline feature ships. Phone left to
+      alternate with the Perks spotlight below. */}
+  <FeatureSpotlight
+    id="whats-new"
+    dark
+    pill
+    side="left"
+    kicker={NEW_FEATURE_BEAT.kicker}
+    headline={NEW_FEATURE_BEAT.headline}
+    body={NEW_FEATURE_BEAT.body}
+    screen={NEW_FEATURE_BEAT.screen}
+    screenAlt={NEW_FEATURE_BEAT.screenAlt}
+    cta={NEW_FEATURE_BEAT.cta}
+  />
   <FeatureSpotlight
     id="perks"
     kicker={PERKS_BEAT.kicker}

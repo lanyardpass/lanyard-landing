@@ -4,11 +4,10 @@
 // CrowdExplainerSheet.swift — that URL is a RELEASE GATE for the 1.2 un-gate:
 // this page must be live on lanyardpass.com before the sheet ships un-gated).
 //
-// ⚠ 1.2 GATE — TWO FLIPS WHEN THE FEATURE SHIPS:
-//   1. Remove `noindex` below (page is dark-launched: reachable by URL for
-//      the app link, invisible to search).
-//   2. /details hub: swap the dashed "The crowd — coming" teaser card for a
-//      live chapter card linking here.
+// 1.2 GATE — FLIPPED 2026-07-18 (staged on plant-street with the 1.2.1
+// submission; live when the branch promotes): noindex removed + sitemap
+// exclusion dropped (astro.config.mjs). The /details hub's live chapter card
+// landed earlier with details-launch. Page is now fully public at promotion.
 //
 // Voice contract: this page deepens CrowdExplainerSheet's ten Q&As — same
 // facts, one register down. If the sheet's copy changes, re-read this page.
@@ -40,7 +39,6 @@ const description =
   heroKicker="The details · Crowd Intelligence"
   heroTitle="How we do the wizardry."
   heroSub="Your park card carries a one-word crowd report. Quiet, Normal, or Packed, judged the only fair way, against that park's own history. The card keeps it to one word. This page is the rest of the story."
-  noindex={true}
 >
   <section class="chapter">
     <p class="chapter__kicker">The window</p>

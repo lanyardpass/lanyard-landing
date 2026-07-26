@@ -10,6 +10,7 @@ export interface Capability {
   body: string;
   pro?: boolean; // true = Pro-only feature; renders a "Pro" pill on the card
   soon?: boolean; // true = in development; renders a dashed "Coming soon" pill (never combine with pro)
+  newIn?: string; // version string (e.g. '1.2') — renders a solid "New in X" pill; use one of pro/soon/newIn
 }
 export const CAPABILITIES: Capability[] = [
   { icon: '🎟️', title: 'Every pass in one vault', body: 'Your passes and add-ons across Universal, Disney and United Parks, held in one place.' },
@@ -22,7 +23,7 @@ export const CAPABILITIES: Capability[] = [
   { icon: '📍', title: 'Arrival detection', body: 'Reach a park and Lanyard offers to log your visit. Opt-in, and all on your phone.' },
   { icon: '📓', title: 'Visit history', body: 'A clean record of every visit, so the cost-per-visit math is always honest.' },
   { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more — tracked alongside your everyday pass.', pro: true },
-  { icon: '👥', title: 'Crowd Intelligence', body: 'Quiet, normal, or packed: how each park day will actually feel, before you commit to the drive.', soon: true },
+  { icon: '👥', title: 'Crowd Intelligence', body: 'Quiet, normal, or packed: how each park day will actually feel, before you commit to the drive.', newIn: '1.2' },
 ];
 
 // ---- 2. Works with your pass (coverage) ----
@@ -62,15 +63,26 @@ export const PRIVACY_POINTS = [
 ];
 
 // ---- 5. Social proof ----
-// Real beta-tester quotes (verbatim, lightly punctuated for readability; "…"
-// marks omitted middle). Kept ANONYMOUS for now so they can go live without
-// waiting on permission — attach first names later if/when testers approve.
+// Real quotes only, verbatim (lightly punctuated for readability; "…" marks
+// omitted middle). Beta quotes stay ANONYMOUS (permission never requested);
+// App Store reviews are PUBLIC under the reviewer's own handle, so they get
+// full attribution + stars — quote a PORTION, never the whole review, and
+// never edit words inside the quoted spans.
 export interface Quote {
   text: string;
   attribution: string;
+  /** 1–5 → renders a star row above the quote (App Store reviews). */
+  stars?: number;
   placeholder?: boolean;
 }
 export const QUOTES: Quote[] = [
+  {
+    // App Store review "Theme park enthusiasts best friend!", 2026-07 —
+    // the origin story IS the target persona (the messy-note passholder).
+    text: 'I started recording my park visits and passholder savings in a note on my phone, but it quickly became messy… When I found Lanyard it felt like a dream come true!',
+    attribution: 'RachaelQK · App Store review',
+    stars: 5,
+  },
   {
     text: 'It’s such a W. It’s so clean and easy to navigate. You’re doing an amazing job on it!',
     attribution: 'Beta tester',

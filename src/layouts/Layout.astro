@@ -34,8 +34,13 @@ const ogImage = ogImageOverride ?? new URL('/og-image.png?v=2', Astro.site).href
 // Normalize the path to the slashless, extensionless canonical form: with
 // `build.format: 'file'` Astro.url.pathname comes through as `/beta.html`, and a
 // trailing slash can sneak in too — strip both so the canonical is always
-// `/beta` (never `/beta.html` or `/beta/`). Root stays `/`.
-const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/';
+// `/beta` (never `/beta.html` or `/beta/`). Root stays `/`. Since Astro 7 the
+// home page's pathname arrives as `/index.html` (v5 gave `/`), so strip a
+// trailing `/index` segment too or the root canonical becomes `/index`.
+const cleanPath = Astro.url.pathname
+  .replace(/\.html$/, '')
+  .replace(/\/index$/, '/')
+  .replace(/\/+$/, '') || '/';
 const canonical = new URL(cleanPath, Astro.site).href;
 
 // Structured data: tells search engines this site is an iOS app, not a blog.

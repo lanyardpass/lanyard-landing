@@ -26,6 +26,10 @@ export default defineConfig({
   // behavior is Netlify's — verify on the deploy.
   trailingSlash: 'never',
   build: { format: 'file' },
+  // Astro 7 defaults compressHTML to 'jsx' (JSX-style whitespace collapsing),
+  // which can shift inline spacing in running prose. Pin the pre-7 behavior
+  // for the parity upgrade; migrating to 'jsx' is a deliberate later change.
+  compressHTML: true,
   integrations: [
     react(),
     // Guides (and the future blog) author prose in MDX so content + components
@@ -36,11 +40,9 @@ export default defineConfig({
     // Google Search Console — the robots.txt is Cloudflare-managed, so we
     // don't reference it there.
     sitemap({
-      // /crowds is dark-launched until Crowd Intelligence ships (1.2) — the
-      // page carries noindex AND stays out of the sitemap. ⚠ 1.2 GATE: remove
-      // the /crowds exclusion (and the page's noindex) when the feature goes
-      // live.
-      filter: (page) => !page.includes('/admin') && !page.includes('/crowds'),
+      // /crowds un-darked 2026-07-18 with the 1.2.1 submission (noindex
+      // removed in crowds.astro the same commit) — public at promotion.
+      filter: (page) => !page.includes('/admin'),
     }),
   ],
 });
