@@ -1,5 +1,6 @@
 ---
 import '@/styles/global.css';
+import { Font } from 'astro:assets';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import { SITE, APP_STORE_ID, APP_STORE_URL } from '@/data/site';
@@ -111,8 +112,7 @@ const tdTestMode = import.meta.env.PUBLIC_NOINDEX === 'true';
 
     <script type="application/ld+json" set:html={JSON.stringify(appSchema)} />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <Font cssVariable="--font-montserrat" preload />
 
     {/* Privacy-first web analytics. Fires one pageView per load; ?src=… rides
         in the URL for channel attribution. Excluded from /admin (own layout).

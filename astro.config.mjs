@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import react from '@astrojs/react';
 import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
@@ -25,6 +25,20 @@ export default defineConfig({
   // NOTE: Astro's trailingSlash only governs dev/routing; production redirect
   // behavior is Netlify's — verify on the deploy.
   trailingSlash: 'never',
+  // Montserrat via Astro's Fonts API: downloaded at build and self-hosted from
+  // /_astro, with generated size-adjusted fallbacks + a preload link (the
+  // <Font/> component in Layout.astro). Replaces the old Google Fonts CSS
+  // @import — no third-party font requests remain.
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Montserrat',
+      cssVariable: '--font-montserrat',
+      weights: [600, 700, 800, 900],
+      styles: ['normal'],
+      fallbacks: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+    },
+  ],
   build: { format: 'file' },
   // Astro 7 defaults compressHTML to 'jsx' (JSX-style whitespace collapsing),
   // which can shift inline spacing in running prose. Pin the pre-7 behavior

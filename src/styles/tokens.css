@@ -5,7 +5,6 @@
    No surface hardcodes a hex value; everything references these.
    ============================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
 
 :root {
   /* ---------- Brand greens ---------- */
@@ -43,7 +42,9 @@
   --plate-aspect: 1024 / 1536;
 
   /* ---------- Type ---------- */
-  --font-display: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Montserrat is self-hosted via the Fonts API (astro.config.mjs); the
+     variable it emits already carries optimized fallbacks. */
+  --font-display: var(--font-montserrat);
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   /* Fluid display scale */
