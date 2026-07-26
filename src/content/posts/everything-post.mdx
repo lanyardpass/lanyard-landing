@@ -1,0 +1,341 @@
+---
+title: "The everything post"
+seoTitle: "The Everything Post (Internal Reference) | Lanyard"
+description: "Internal reference. Every block the Lanyard blog can render, in one place, each one annotated with the media it needs. Never ships to production."
+dek: "Every block this blog can render, in one place, with the shooting list to fill it. This is the shelf we'll raid when we build real posts."
+published: 2026-07-26
+byline: "By Dan, Orlando passholder"
+draft: true
+---
+
+import Callout from '@/components/guides/Callout.astro';
+import Figure from '@/components/guides/Figure.astro';
+import LocalAside from '@/components/guides/LocalAside.astro';
+import InViewVideoLoop from '@/components/guides/InViewVideoLoop.astro';
+import ChronosDissolve from '@/components/guides/ChronosDissolve.astro';
+import DepthParallax from '@/components/guides/DepthParallax.astro';
+
+import CaptureSpec from '@/components/blog/CaptureSpec.astro';
+import PullQuote from '@/components/blog/PullQuote.astro';
+import SideNote from '@/components/blog/SideNote.astro';
+import NerdBox from '@/components/blog/NerdBox.astro';
+import ImageGrid from '@/components/blog/ImageGrid.astro';
+import CompareSlider from '@/components/blog/CompareSlider.astro';
+import TimeScrubber from '@/components/blog/TimeScrubber.astro';
+import AnnotatedShot from '@/components/blog/AnnotatedShot.astro';
+import VideoGrid from '@/components/blog/VideoGrid.astro';
+import StatRow from '@/components/blog/StatRow.astro';
+import BuildChart from '@/components/blog/BuildChart.astro';
+import ScrollStory from '@/components/blog/ScrollStory.astro';
+import AudioClip from '@/components/blog/AudioClip.astro';
+
+import stardustSign from '@/assets/guides/epic/stardust-racers-sign.jpg';
+import macCheese from '@/assets/guides/epic/mac-cheese-cone.jpg';
+import ceiling from '@/assets/guides/epic/constellation-ceiling.jpg';
+import chronosDay from '@/assets/guides/epic/chronos-day.jpg';
+import chronosNight from '@/assets/guides/epic/chronos-night.jpg';
+import homeToday from '@/assets/blog/home-today.png';
+import tod0904 from '@/assets/blog/reference/tod-0904.png';
+import tod1310 from '@/assets/blog/reference/tod-1310.png';
+import tod1745 from '@/assets/blog/reference/tod-1745.png';
+import tod2102 from '@/assets/blog/reference/tod-2102.png';
+
+import eventsSnap from '@/data/events_snapshot.json';
+import blockoutsSnap from '@/data/blockouts.json';
+
+export const weekData = (() => {
+  const start = new Date(eventsSnap.snapshot_date + 'T00:00:00Z');
+  const buckets = Array.from({ length: 13 }, (_, i) => {
+    const d = new Date(start.getTime() + i * 7 * 86400000);
+    return {
+      label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }),
+      value: 0,
+    };
+  });
+  for (const ev of eventsSnap.events) {
+    for (const ds of ev.dates ?? []) {
+      const idx = Math.floor((new Date(ds + 'T00:00:00Z').getTime() - start.getTime()) / (7 * 86400000));
+      if (idx >= 0 && idx < buckets.length) buckets[idx].value += 1;
+    }
+  }
+  return buckets;
+})();
+
+export const stats = (() => {
+  const nights = eventsSnap.events.reduce((n, e) => n + (e.dates?.length ?? 0), 0);
+  const parks = new Set(blockoutsSnap.operators.flatMap((o) => o.parkNames)).size;
+  const tiers = blockoutsSnap.operators.reduce((n, o) => n + o.tiers.length, 0);
+  return [
+    { value: String(eventsSnap.events.length), label: 'events curated in the next 90 days' },
+    { value: String(nights), label: 'dated event nights on the calendar' },
+    { value: String(tiers), label: 'pass tiers with blockout coverage' },
+    { value: String(parks), label: 'parks tracked' },
+  ];
+})();
+
+This post never ships. It's the internal reference for what the Lanyard blog can physically do, every block in one scrollable place, so that when a real post is being planned we can point at this page and say grab that one, and that one, and we'll need to go shoot that.
+
+Two things to know while you scroll. First, every demo uses real Lanyard content where we have it (real photos, the real events corpus, a real app screenshot), and an honest labeled placeholder where we don't. Second, the amber chips are the shopping list.<SideNote n={1}>The chips are a component too (`CaptureSpec`). Real posts never include them, they exist so this page doubles as a capture checklist.</SideNote> Wherever you see one, that block is waiting on media we haven't captured yet, and the chip says exactly what to go get.
+
+## Words first
+
+Plain prose is the default, and it already handles **bold**, *italics*, [links to other posts](/blog/weather-system-nobody-asked-for), `inline code`, and lists without any components. That covers maybe eighty percent of a post. The rest of this section is what we reach for when a paragraph isn't enough.
+
+A **pull quote** takes our best sentence and sets it large enough to screenshot. Use one per post, maybe. It's the line we'd want quoted back at us.
+
+<PullQuote>
+The sky on your card is drawn from the real forecast, down to tonight's actual moon.
+</PullQuote>
+
+A standard **blockquote** is for someone else's words. It stays quiet and italic, because the voice isn't ours.
+
+> A beta tester watched a raindrop run down the glass, trailing a short wet track behind it, and described it with one word, "biological."
+
+**Callouts** carry the aside that matters. Three variants, all in the green family. `info` is the default, `tip` is louder, `note` is quieter.
+
+<Callout variant="tip" title="The passholder move" icon="🎢">
+This is the callout style. Use it for the thing a passholder should actually *do* with the information, not for decoration. If every section has one, none of them work.
+</Callout>
+
+A **LocalAside** is the dark block for lived-in Orlando knowledge. It's deliberately the visual opposite of the page, because it's the moment the founder leans over and talks off the record.
+
+<LocalAside title="From a local: what this block is for" bg={ceiling} bgAlt="A gold constellation ceiling.">
+The insider tip goes here. Parking tricks, which entrance, what time the line actually dies. This block earns its contrast by being rare and by being right. The background photo is optional.
+</LocalAside>
+
+A **NerdBox** hides the deep end behind a click, so the math-curious get their reward and nobody else pays for it. Code inside gets Shiki syntax highlighting at build time, no client JavaScript.
+
+<NerdBox title="How payback actually accrues">
+The simplified shape of the app's payback math, which is the kind of thing that belongs in one of these.
+
+```swift
+// Simplified. The real rulebook has more edges (same-park-twice days,
+// park-to-park increments, perk frequency caps).
+var totalRecovered: Decimal {
+    let visitValue = visits.reduce(0) { $0 + $1.gatePriceThatDay }
+    let perkSavings = perkUsages.reduce(0) { $0 + $1.valueSaved }
+    return visitValue + perkSavings
+}
+```
+
+Every visit is valued at what a one-day ticket to that park cost *on that date*, not at an average. That single decision is most of the rigor.
+</NerdBox>
+
+Small **markdown tables** work inline for quick facts. (Real comparisons should use the TierTable component instead, which collapses to cards on phones.)
+
+| Block | Job | Frequency |
+| --- | --- | --- |
+| Pull quote | The screenshotable line | One per post |
+| Callout | The actionable aside | A few |
+| LocalAside | Off-the-record knowledge | Rare |
+| NerdBox | The optional deep end | Where earned |
+
+And **margin notes**, which you've already met.<SideNote n={2}>On a wide screen this sits in the margin like a good textbook. On a phone it's a tappable footnote. Same source, no page-bottom graveyard.</SideNote> They're for citations, caveats, and the wink that doesn't deserve a paragraph.
+
+## Stills
+
+The workhorse is a **Figure** with a caption. Responsive, lazy, WebP/AVIF at build time, fades up on scroll.
+
+<Figure
+  src={stardustSign}
+  alt="The Stardust Racers sign at Epic Universe."
+  caption="A plain Figure. Shot on a phone, made respectable by the build pipeline."
+/>
+
+<CaptureSpec needs="photo" spec="Every post wants 3–6 stills minimum. Phone camera is fine; the pipeline handles the rest. Shoot wider than you think, captions do the pointing." />
+
+The same component goes **full-bleed wide** for the establishing shot, and can carry a slow **Ken Burns** drift or **parallax** scroll for the one image that deserves motion.
+
+<Figure
+  src={ceiling}
+  alt="A constellation ceiling, gold on deep blue."
+  caption="The wide treatment. One per post is a rhythm break; three is a slideshow."
+  wide
+  kenBurns
+/>
+
+An **ImageGrid** groups shots that only make sense together. One caption for the set, small labels on each cell.
+
+<ImageGrid
+  images={[
+    { src: stardustSign, alt: 'Stardust Racers sign.', label: 'the sign' },
+    { src: macCheese, alt: 'A mac and cheese cone.', label: 'the snack' },
+    { src: ceiling, alt: 'Constellation ceiling.', label: 'the ceiling' },
+  ]}
+  caption="A set reads as one figure. Good for menus, three details of one land, before/during/after."
+/>
+
+<CaptureSpec needs="photo ×3" spec="Sets that belong together. Three details of one place, or the same subject three ways. Shoot them in one session so light matches." />
+
+A **CompareSlider** is the two-shot argument. Same framing, one handle. Day and night here, but the real power is empty versus packed, or before and after a refurb.
+
+<CompareSlider
+  before={chronosDay}
+  beforeAlt="The Chronos portal by day."
+  beforeLabel="2:00 PM"
+  after={chronosNight}
+  afterAlt="The same Chronos portal at night."
+  afterLabel="9:30 PM"
+  caption="Drag it. Keyboard arrows work too. These two are real; they're the day/night pair from the Epic guide."
+/>
+
+<CaptureSpec needs="photo ×2" spec="Two shots, identical framing, different moment. Tripod or a ledge; mark your feet. Day/night, empty/packed, sun/storm." />
+
+A **TimeScrubber** is the four-plus-shot version. The reader drags through a whole day at one spot. These four frames are placeholders; the component crossfades between whatever we feed it.
+
+<TimeScrubber
+  frames={[
+    { src: tod0904, alt: 'Placeholder frame for 9:04 AM.', time: '9:04 AM' },
+    { src: tod1310, alt: 'Placeholder frame for 1:10 PM.', time: '1:10 PM' },
+    { src: tod1745, alt: 'Placeholder frame for 5:45 PM.', time: '5:45 PM' },
+    { src: tod2102, alt: 'Placeholder frame for 9:02 PM.', time: '9:02 PM' },
+  ]}
+  caption="Scrub through the day. With real frames this is the mood piece of a post."
+/>
+
+<CaptureSpec needs="photo ×4–6" spec="One framing, tripod, one frame per beat of the day (rope drop / midday / golden hour / night). The castle stage, a land gateway, or a skyline all work." />
+
+An **AnnotatedShot** is how we talk about the app itself. Numbered pins on a real screenshot, notes listed underneath, so it works with or without tapping.
+
+<AnnotatedShot
+  src={homeToday}
+  alt="Lanyard's home screen showing the Glance to Go bar and the Today card for a Disney World pass under a rendered rainy sky."
+  pins={[
+    { x: 50, y: 20, note: 'Glance to Go. Six days of go/no-go for the pass you\'re holding, straight from the blockout corpus.' },
+    { x: 84, y: 34, note: 'Real temperature, and a condition word a human would say.' },
+    { x: 28, y: 46, note: 'The sky is drawn, not stock. Those streaks are today\'s actual precipitation.' },
+    { x: 83, y: 63, note: 'A park that\'s off the table today says so right on the card.' },
+  ]}
+  caption="Pins are placed in percent, so they stay put at every screen size."
+/>
+
+<CaptureSpec needs="screenshot" spec="Simulator captures of the exact surface being discussed, statically posed via the debug scrubber so the data tells the story we're telling." />
+
+And the show-off. A **DepthParallax** gives one photo real 2.5D depth from a grayscale depth map, displaced live on the reader's GPU. This one is real, borrowed from the Epic guide.
+
+<DepthParallax
+  src="/guides/epic/berk/scene.jpg"
+  depth="/guides/epic/berk/depth.png"
+  alt="The Isle of Berk at Epic Universe, Viking statues flanking the village."
+  caption="Move your pointer (or scroll on a phone). One photo, one depth map, a tiny shader."
+  wide
+/>
+
+<CaptureSpec needs="photo + depth map" spec="A strong wide shot with clear foreground/background layers. Depth map is generated in the image pipeline, no special capture beyond good depth in the composition." />
+
+## Motion
+
+An **InViewVideoLoop** is a muted clip that plays only while on screen and loads only when near it. This one is real footage.
+
+<InViewVideoLoop
+  src="/guides/epic/fountain-helios-loop.mp4"
+  poster="/guides/epic/fountain-helios-poster.jpg"
+  label="The nightly fountain and light show in Celestial Park."
+  caption="The closing show from Bar Helios. Real clip, shipped in the Epic guide."
+  wide
+/>
+
+A **VideoGrid** runs two or three loops in sync, which is the honest way to make a comparison in motion. Same walkway at two times, three queues at the same minute. Placeholders below.
+
+<VideoGrid
+  clips={[
+    { src: '/blog/reference/clip-a.mp4', poster: '/blog/reference/poster-clip-a.jpg', label: '8:58 AM' },
+    { src: '/blog/reference/clip-b.mp4', poster: '/blog/reference/poster-clip-b.jpg', label: '3:22 PM' },
+  ]}
+  caption="Clips restart together every time they enter the viewport, so the comparison never drifts."
+/>
+
+<CaptureSpec needs="video ×2–3" spec="Locked-off 10–15s clips, identical framing, different times. Phone on a railing works. The pair is the argument; don't pan." />
+
+The same loop component carries a **timelapse**, which might be the single highest love-per-second format we have. Placeholder below.
+
+<InViewVideoLoop
+  src="/blog/reference/lapse.mp4"
+  poster="/blog/reference/poster-lapse.jpg"
+  label="Placeholder timelapse clip."
+  caption="Imagine an afternoon of Florida cumulus building over a skyline in eight seconds."
+/>
+
+<CaptureSpec needs="video (timelapse)" spec="30–60 min static timelapse, phone in timelapse mode propped somewhere stable. Storm build-up, sunset over a lagoon, a parking lot filling at open." />
+
+And the **ChronosDissolve**, the scroll-driven crossfade. The reader's own scroll drags one landmark from day into night. It's the signature move from the Epic guide and it transfers to any matched pair.
+
+<ChronosDissolve
+  day={chronosDay}
+  dayAlt="The Chronos portal during the day."
+  night={chronosNight}
+  nightAlt="The same portal at night."
+  caption="Scroll slowly. Same framing rule as the slider, but the scroll does the work."
+/>
+
+## Numbers
+
+This is the rigor half of the promise. The rule for numbers on this blog is simple. **Every figure is computed from the real corpus at build time**, with a source line saying so. Nothing below was typed by hand.
+
+<StatRow
+  stats={stats}
+  source={`Counted from the live data corpus at build time, snapshots dated ${eventsSnap.snapshot_date}.`}
+/>
+
+A **BuildChart** renders to static SVG at build, straight from the same JSON the app ships. No chart library, no client JavaScript, and it can't drift from the data because it *is* the data. Hover any bar.
+
+<BuildChart
+  title="Dated event nights per week, next 90 days"
+  data={weekData}
+  unit=" nights"
+  labelEvery={2}
+  source={`Source: the events corpus snapshot (${eventsSnap.snapshot_date}), the same file the app reads.`}
+/>
+
+<CaptureSpec needs="data" spec="No capture needed. Charts pull from src/data snapshots. When a post needs a dataset we don't snapshot yet (hours history, price history, crowd calibration), add a snapshot script first, then chart it." />
+
+## Scroll
+
+**Scrollytelling.** The ring stays pinned while the story scrolls past, and each beat drives it. This one retells the app's core loop with example numbers (a made-up season, priced the way the app prices).
+
+<ScrollStory
+  steps={[
+    { title: 'October', text: 'The pass costs $499 out the door. The ring starts empty, and honestly, so does the faith.', line: 'Paid $499 · 0 visits', recovered: 0, paid: 499 },
+    { title: 'First visit', text: 'A one-day ticket that Saturday would have run $139. The ring remembers that, because the app values every visit at that day\'s real gate price.', line: 'Visit 1 · $139 recovered', recovered: 139, paid: 499 },
+    { title: 'The holidays', text: 'Four more visits and two parking saves later, the math is no longer hypothetical.', line: 'Visit 5 · $348 recovered', recovered: 348, paid: 499 },
+    { title: 'A quiet Tuesday in February', text: 'This is the visit that tips it. Somewhere around lunch, the pass finishes paying for itself.', line: 'Visit 8 · PAID BACK', recovered: 512, paid: 499 },
+    { title: 'Everything after', text: 'Profit. The ring laps, the receipt keeps printing, and every dollar from here is the reason passholders are smug.', line: 'Visit 11 · $641 recovered · 128%', recovered: 641, paid: 499 },
+  ]}
+/>
+
+<CaptureSpec needs="design time" spec="No media. Scrollytelling needs a story with real beats and a visual that can hold a pin. Budget it like a mini-feature, one per big post at most." />
+
+## Sound
+
+A **field recording** might be the most underused format in park writing. Rope drop has a sound. So does a train whistle, and the second before fireworks. The clip below is a placeholder tone.
+
+<AudioClip
+  src="/blog/reference/ambience-placeholder.m4a"
+  title="Rope drop at the Studios (placeholder)"
+  meta="0:08 · placeholder audio, the real thing gets recorded at a gate"
+/>
+
+<CaptureSpec needs="audio" spec="15–30s phone voice-memo recordings, held still. Rope drop countdown, the fountain show, a queue room. Label with place + time." />
+
+## The shopping list
+
+Everything above, reduced to what goes in the camera roll. This is the standing list for any park day where content is a goal.
+
+- **Stills, always.** 3–6 per post minimum, shot wider than feels right.
+- **The matched pair.** One framing, two moments. Feeds the CompareSlider and the ChronosDissolve both.
+- **The day series.** One framing, 4–6 beats of one day, tripod. Feeds the TimeScrubber. This is a dedicated trip goal, not a maybe.
+- **Locked-off clips.** 10–15s, no panning, same framing at different times. Feeds the VideoGrid.
+- **One timelapse per trip.** 30–60 minutes propped somewhere stable.
+- **Field audio.** 15–30s clips of moments that have a sound.
+- **Simulator screenshots** posed via the debug scrubber for any app surface being discussed.
+- **A depth-worthy wide shot** any time a scene has strong foreground/background separation.
+
+## Not built yet, and deliberately
+
+A few things the platform can do that this page doesn't demo, noted so they aren't forgotten.
+
+- **View transitions** between the blog index and posts (the hero morphs into place). Site-level wiring, worth doing with the Astro upgrade.
+- **An RSS feed.** The blog doesn't have one yet; passholders are exactly the audience that still uses RSS.
+- **Reader polls** ("which park tonight?"). The site already has a serverless backend for the waitlist, so a one-tap poll with live results is possible without any account.
+- **Live data blocks** (Astro 6+ live content collections). A post whose chart updates without a rebuild. Wants the framework upgrade first.
+- **The calculator island**. The real payback calculator already embeds in guides, and can drop into any post where the math is the point.

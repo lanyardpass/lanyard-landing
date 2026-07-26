@@ -1,0 +1,75 @@
+---
+// AudioClip — a small styled player for field audio: rope-drop crowd noise,
+// a train whistle, fountain ambience. Native <audio> under a custom button so
+// it matches the site instead of the browser chrome. Nothing preloads until
+// the reader asks.
+interface Props {
+  src: string;
+  title: string;
+  /** e.g. "0:08 · recorded at the Studios gate" */
+  meta?: string;
+}
+const { src, title, meta } = Astro.props;
+---
+<div class="aclip" data-aclip data-reveal>
+  <button class="aclip__btn" aria-label={`Play: ${title}`}>
+    <span class="aclip__glyph" data-glyph>▶</span>
+  </button>
+  <div class="aclip__body">
+    <p class="aclip__title">{title}</p>
+    {meta && <p class="aclip__meta">{meta}</p>}
+    <div class="aclip__bar"><div class="aclip__fill" data-fill></div></div>
+  </div>
+  <audio preload="none" src={src}></audio>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-aclip]')) {
+    const audio = root.querySelector('audio')!;
+    const btn = root.querySelector<HTMLButtonElement>('.aclip__btn')!;
+    const glyph = root.querySelector<HTMLElement>('[data-glyph]')!;
+    const fill = root.querySelector<HTMLElement>('[data-fill]')!;
+    btn.addEventListener('click', () => {
+      if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); }
+    });
+    audio.addEventListener('play', () => { glyph.textContent = '❚❚'; });
+    audio.addEventListener('pause', () => { glyph.textContent = '▶'; });
+    audio.addEventListener('ended', () => { glyph.textContent = '▶'; fill.style.width = '0%'; });
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) fill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+    });
+  }
+</script>
+
+<style>
+  .aclip {
+    display: flex; align-items: center; gap: 0.9rem;
+    margin: 1.8rem 0; padding: 0.9rem 1.1rem;
+    border-radius: var(--radius); border: 1px solid rgba(45, 106, 79, 0.16);
+    background: #fff;
+  }
+  .aclip__btn {
+    flex: 0 0 auto; width: 3rem; height: 3rem; border-radius: 50%;
+    border: 0; background: var(--green-primary); color: #fff;
+    font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+    transition: background 0.15s ease;
+  }
+  .aclip__btn:hover { background: var(--green-dark); }
+  .aclip__body { flex: 1; min-width: 0; }
+  .aclip__title {
+    margin: 0; font-family: var(--font-display); font-weight: 800;
+    font-size: 0.95rem; color: var(--ink);
+  }
+  .aclip__meta { margin: 0.15rem 0 0; font-size: 0.78rem; color: var(--muted); }
+  .aclip__bar {
+    margin-top: 0.5rem; height: 4px; border-radius: 2px;
+    background: rgba(45, 106, 79, 0.12); overflow: hidden;
+  }
+  .aclip__fill { width: 0%; height: 100%; background: var(--green-accent); }
+
+  .aclip[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .aclip[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .aclip[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

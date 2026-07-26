@@ -1,0 +1,48 @@
+---
+// NerdBox — a collapsible deep-dive for the readers who want the math, the
+// shader, or the rulebook citation, without making everyone scroll past it.
+// Native <details> so it costs nothing and works everywhere. Code blocks,
+// tables, and math prose all render fine inside.
+interface Props {
+  title?: string;
+}
+const { title = 'For the nerds' } = Astro.props;
+---
+<details class="nerdbox">
+  <summary class="nerdbox__head">
+    <span class="nerdbox__icon" aria-hidden="true">▸</span>
+    <span class="nerdbox__title">{title}</span>
+    <span class="nerdbox__hint">optional deep dive</span>
+  </summary>
+  <div class="nerdbox__body">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .nerdbox {
+    margin: 1.8rem 0; border-radius: var(--radius);
+    border: 1px solid rgba(45, 106, 79, 0.16);
+    background: #fff;
+    overflow: hidden;
+  }
+  .nerdbox__head {
+    display: flex; align-items: baseline; gap: 0.6rem;
+    padding: 0.9rem 1.2rem; cursor: pointer; list-style: none;
+    font-family: var(--font-display); font-weight: 800; color: var(--green-primary);
+  }
+  .nerdbox__head::-webkit-details-marker { display: none; }
+  .nerdbox__icon { transition: transform 0.2s ease; }
+  .nerdbox[open] .nerdbox__icon { transform: rotate(90deg); }
+  .nerdbox__hint { margin-left: auto; font-family: inherit; font-weight: 400; font-size: 0.8rem; color: var(--muted); }
+  .nerdbox__body {
+    padding: 0.2rem 1.2rem 1.2rem;
+    border-top: 1px solid rgba(45, 106, 79, 0.10);
+    color: var(--ink); line-height: 1.65;
+  }
+  .nerdbox__body :global(pre) {
+    border-radius: var(--radius-sm); padding: 1rem; overflow-x: auto;
+    font-size: 0.85rem; line-height: 1.55;
+  }
+  .nerdbox__body :global(p) { margin: 0.8rem 0 0; }
+</style>

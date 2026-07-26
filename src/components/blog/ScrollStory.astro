@@ -1,0 +1,151 @@
+---
+// ScrollStory — pinned-graphic scrollytelling. A visual stays stuck while step
+// cards scroll past; each step that enters the viewport drives the visual to a
+// new state. This instance's visual is a payback ring + running ledger (the
+// app's core loop retold as scroll), with the state per step supplied as data.
+// The shell (sticky frame + step observer) is the reusable pattern; if a
+// second story needs a different visual, extract the shell then.
+interface Step {
+  title: string;
+  text: string;
+  /** Ledger line, e.g. "Visit 6 · Islands of Adventure". */
+  line: string;
+  /** Dollars recovered so far. */
+  recovered: number;
+  /** Dollars paid for the pass. */
+  paid: number;
+}
+interface Props {
+  steps: Step[];
+}
+const { steps } = Astro.props;
+const R = 52, C = 2 * Math.PI * R;
+---
+<section class="sstory" data-sstory>
+  <div class="sstory__pin">
+    <div class="sstory__visual">
+      <svg viewBox="0 0 140 140" class="sstory__ring" aria-hidden="true">
+        <circle cx="70" cy="70" r={R} class="sstory__track" />
+        <circle
+          cx="70" cy="70" r={R}
+          class="sstory__fill"
+          data-ring
+          stroke-dasharray={C}
+          stroke-dashoffset={C}
+          transform="rotate(-90 70 70)"
+        />
+      </svg>
+      <div class="sstory__center">
+        <p class="sstory__pct" data-pct>0%</p>
+        <p class="sstory__sub">paid back</p>
+      </div>
+      <p class="sstory__line" data-line>&nbsp;</p>
+    </div>
+  </div>
+  <div class="sstory__steps">
+    {steps.map((s, i) => (
+      <div
+        class="sstory__step"
+        data-step={i}
+        data-recovered={s.recovered}
+        data-paid={s.paid}
+        data-linetext={s.line}
+      >
+        <h3 class="sstory__steptitle">{s.title}</h3>
+        <p class="sstory__steptext">{s.text}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  // The most-recently-entered step drives the ring. The circle's dashoffset
+  // transition does the animating; we just set targets. Percent counter tweens
+  // with rAF so the number moves with the ring.
+  for (const root of document.querySelectorAll<HTMLElement>('[data-sstory]')) {
+    const ring = root.querySelector<SVGCircleElement>('[data-ring]')!;
+    const pctEl = root.querySelector<HTMLElement>('[data-pct]')!;
+    const lineEl = root.querySelector<HTMLElement>('[data-line]')!;
+    const C = parseFloat(ring.getAttribute('stroke-dasharray')!);
+    let shown = 0, target = 0, raf = 0;
+    const tween = () => {
+      shown += (target - shown) * 0.12;
+      if (Math.abs(target - shown) < 0.5) { shown = target; }
+      pctEl.textContent = `${Math.round(shown)}%`;
+      if (shown !== target) raf = requestAnimationFrame(tween);
+    };
+    const setState = (recovered: number, paid: number, line: string) => {
+      const pct = paid > 0 ? (recovered / paid) * 100 : 0;
+      ring.style.strokeDashoffset = String(C * (1 - Math.min(pct, 100) / 100));
+      ring.classList.toggle('is-over', pct >= 100);
+      target = pct;
+      cancelAnimationFrame(raf); raf = requestAnimationFrame(tween);
+      lineEl.textContent = line;
+    };
+    const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const el = e.target as HTMLElement;
+          steps.forEach((s) => s.classList.toggle('is-on', s === el));
+          setState(parseFloat(el.dataset.recovered!), parseFloat(el.dataset.paid!), el.dataset.linetext!);
+        }
+      },
+      { rootMargin: '-40% 0px -40% 0px' }
+    );
+    steps.forEach((s) => io.observe(s));
+  }
+</script>
+
+<style>
+  .sstory {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    margin: 2.4rem 0;
+  }
+  .sstory__pin { position: relative; }
+  .sstory__visual {
+    position: sticky; top: 20vh;
+    padding: 1.6rem 1rem; text-align: center;
+    border-radius: var(--radius); border: 1px solid rgba(45, 106, 79, 0.14);
+    background: #fff; box-shadow: var(--shadow-card);
+  }
+  .sstory__ring { width: min(60%, 190px); margin-inline: auto; display: block; }
+  .sstory__track { fill: none; stroke: rgba(45, 106, 79, 0.12); stroke-width: 12; }
+  .sstory__fill {
+    fill: none; stroke: var(--green-accent); stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.9s cubic-bezier(0.25, 0.8, 0.3, 1), stroke 0.4s ease;
+  }
+  .sstory__fill.is-over { stroke: var(--green-primary); }
+  .sstory__center { margin-top: -0.4rem; }
+  .sstory__pct {
+    margin: 0; font-family: var(--font-display); font-weight: 800;
+    font-size: 1.9rem; color: var(--green-primary); font-variant-numeric: tabular-nums;
+  }
+  .sstory__sub { margin: 0; font-size: 0.8rem; color: var(--muted); }
+  .sstory__line {
+    margin: 0.9rem 0 0; min-height: 1.4em;
+    font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .sstory__steps { display: flex; flex-direction: column; gap: 38vh; padding-block: 12vh; }
+  .sstory__step { opacity: 0.35; transition: opacity 0.4s ease; }
+  .sstory__step.is-on { opacity: 1; }
+  .sstory__steptitle {
+    margin: 0; font-family: var(--font-display); font-weight: 800;
+    font-size: 1.05rem; color: var(--ink);
+  }
+  .sstory__steptext { margin: 0.4rem 0 0; color: var(--ink); line-height: 1.6; }
+
+  @media (max-width: 700px) {
+    .sstory { grid-template-columns: 1fr; }
+    .sstory__pin { position: sticky; top: 0; z-index: 2; }
+    .sstory__visual { position: static; border-radius: 0 0 var(--radius) var(--radius); padding: 0.9rem; }
+    .sstory__ring { width: 110px; }
+    .sstory__steps { gap: 30vh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sstory__fill { transition: none; }
+    .sstory__step { opacity: 1; }
+  }
+</style>

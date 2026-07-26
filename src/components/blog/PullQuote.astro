@@ -1,0 +1,35 @@
+---
+// PullQuote — a line lifted out of the prose and set big, for the sentence a
+// reader would screenshot. Distinct from a blockquote (quoting someone else):
+// this is OUR line, amplified. Optional attribution for when it IS someone
+// else's words said about us (a tester, a review).
+interface Props {
+  attribution?: string;
+}
+const { attribution } = Astro.props;
+---
+<aside class="pullquote">
+  <p class="pullquote__mark" aria-hidden="true">&ldquo;</p>
+  <blockquote class="pullquote__text"><slot /></blockquote>
+  {attribution && <p class="pullquote__attr">{attribution}</p>}
+</aside>
+
+<style>
+  .pullquote {
+    margin: 2.4rem 0; padding: 0 clamp(0rem, 3vw, 1.5rem);
+    text-align: center; position: relative;
+  }
+  .pullquote__mark {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 4rem; line-height: 0.5; margin: 0 0 0.2rem;
+    color: var(--green-accent);
+  }
+  .pullquote__text {
+    margin: 0; border: 0; padding: 0;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.35rem, 3.4vw, 1.8rem); line-height: 1.3;
+    color: var(--green-primary); text-wrap: balance;
+  }
+  .pullquote__text :global(p) { margin: 0; }
+  .pullquote__attr { margin: 0.9rem 0 0; font-size: 0.88rem; color: var(--muted); }
+</style>

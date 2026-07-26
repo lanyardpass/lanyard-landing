@@ -1,0 +1,90 @@
+---
+// VideoGrid — two or three muted loops side by side, playing in sync while in
+// view. The use case is the multi-shot argument: the same walkway at 9 AM and
+// 3 PM, or three queues at the same minute. Same lazy/reduced-motion contract
+// as InViewVideoLoop; on top of it, clips are (re)started together so the
+// comparison stays honest.
+interface Clip {
+  src: string;
+  poster: string;
+  label: string;
+}
+interface Props {
+  clips: Clip[];
+  caption?: string;
+}
+const { clips, caption } = Astro.props;
+const cols = Math.min(Math.max(clips.length, 2), 3);
+---
+<figure class="vgrid" data-reveal>
+  <div class="vgrid__row" style={`--cols: ${cols};`} data-vgrid>
+    {clips.map((c) => (
+      <div class="vgrid__cell">
+        <video
+          class="vgrid__video"
+          muted loop playsinline preload="none"
+          poster={c.poster}
+          aria-label={c.label}
+        >
+          <source src={c.src} type="video/mp4" />
+        </video>
+        <span class="vgrid__label">{c.label}</span>
+      </div>
+    ))}
+  </div>
+  {caption && <figcaption class="vgrid__cap">{caption}</figcaption>}
+</figure>
+
+<script>
+  // In view → rewind all clips to 0 and play together; out of view → pause.
+  // Reduced-motion / data-saver: posters only, nothing plays.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = !!(navigator as any).connection?.saveData;
+  const grids = Array.from(document.querySelectorAll<HTMLElement>('[data-vgrid]'));
+  if (grids.length && !reduce && !saveData) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const vids = Array.from(e.target.querySelectorAll<HTMLVideoElement>('video'));
+          if (e.isIntersecting) {
+            vids.forEach((v) => { v.currentTime = 0; v.play().catch(() => {}); });
+          } else {
+            vids.forEach((v) => v.pause());
+          }
+        }
+      },
+      { threshold: 0.35 }
+    );
+    grids.forEach((g) => io.observe(g));
+  }
+</script>
+
+<style>
+  .vgrid { margin: 2.2rem 0; }
+  .vgrid__row { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 0.6rem; }
+  .vgrid__cell {
+    position: relative; overflow: hidden; border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card); background: var(--green-dark);
+    aspect-ratio: 16 / 9;
+  }
+  .vgrid__video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .vgrid__label {
+    position: absolute; left: 0.5rem; bottom: 0.5rem;
+    padding: 0.2rem 0.55rem; border-radius: 999px;
+    background: rgba(20, 53, 42, 0.72); color: #fff;
+    font-size: 0.72rem; font-weight: 700;
+  }
+  .vgrid__cap {
+    margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+  @media (max-width: 560px) {
+    .vgrid__row { grid-template-columns: 1fr; }
+  }
+
+  .vgrid[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .vgrid[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .vgrid[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

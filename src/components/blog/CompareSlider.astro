@@ -1,0 +1,109 @@
+---
+// CompareSlider — two shots of the SAME framing, one dragging handle. The
+// classic use: same spot at two times (day/night, empty/packed, before/after
+// refurb). Built on a range input for full keyboard + touch accessibility;
+// the top image is clipped to the handle position. No dependencies.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  before: ImageMetadata;
+  beforeAlt: string;
+  beforeLabel?: string;
+  after: ImageMetadata;
+  afterAlt: string;
+  afterLabel?: string;
+  caption?: string;
+  ratio?: string;
+}
+const {
+  before, beforeAlt, beforeLabel = 'Before',
+  after, afterAlt, afterLabel = 'After',
+  caption, ratio = '16 / 9',
+} = Astro.props;
+const widths = [480, 800, 1200, 1600];
+const sizes = '(min-width: 960px) 700px, 100vw';
+---
+<figure class="cmp" data-reveal>
+  <div class="cmp__frame" style={`aspect-ratio: ${ratio};`} data-compare>
+    <Image src={before} alt={beforeAlt} widths={widths} sizes={sizes} loading="lazy" class="cmp__img cmp__img--under" />
+    <div class="cmp__overwrap" data-compare-over>
+      <Image src={after} alt={afterAlt} widths={widths} sizes={sizes} loading="lazy" class="cmp__img" />
+    </div>
+    <div class="cmp__bar" data-compare-bar aria-hidden="true"><span class="cmp__knob">⇔</span></div>
+    <span class="cmp__label cmp__label--l">{beforeLabel}</span>
+    <span class="cmp__label cmp__label--r">{afterLabel}</span>
+    <input
+      class="cmp__range"
+      type="range" min="0" max="100" value="50" step="0.1"
+      aria-label={`Compare: ${beforeLabel} vs ${afterLabel}`}
+    />
+  </div>
+  {caption && <figcaption class="cmp__cap">{caption}</figcaption>}
+</figure>
+
+<script>
+  // The range input IS the interaction surface (invisible, full-frame), so
+  // drag, tap, and arrow keys all just work. We mirror its value into a CSS
+  // custom property that clips the top image and places the bar.
+  for (const frame of document.querySelectorAll<HTMLElement>('[data-compare]')) {
+    const range = frame.querySelector<HTMLInputElement>('.cmp__range')!;
+    const apply = () => frame.style.setProperty('--cut', `${range.value}%`);
+    range.addEventListener('input', apply);
+    apply();
+  }
+</script>
+
+<style>
+  .cmp { margin: 2.2rem 0; }
+  .cmp__frame {
+    --cut: 50%;
+    position: relative; overflow: hidden; border-radius: var(--radius);
+    box-shadow: var(--shadow-card); background: rgba(45, 106, 79, 0.06);
+  }
+  .cmp__frame :global(.cmp__img) {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .cmp__overwrap {
+    position: absolute; inset: 0;
+    clip-path: polygon(var(--cut) 0, 100% 0, 100% 100%, var(--cut) 100%);
+  }
+  .cmp__bar {
+    position: absolute; top: 0; bottom: 0; left: var(--cut); width: 2px;
+    background: #fff; transform: translateX(-1px);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cmp__knob {
+    position: absolute; width: 2.2rem; height: 2.2rem; border-radius: 50%;
+    background: #fff; color: var(--green-primary);
+    display: grid; place-items: center; font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  .cmp__label {
+    position: absolute; top: 0.6rem; padding: 0.2rem 0.6rem;
+    border-radius: 999px; background: rgba(20, 53, 42, 0.72); color: #fff;
+    font-size: 0.72rem; font-weight: 700;
+  }
+  .cmp__label--l { left: 0.6rem; }
+  .cmp__label--r { right: 0.6rem; }
+  .cmp__range {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: ew-resize; margin: 0; touch-action: none;
+  }
+  .cmp__range:focus-visible ~ * { outline: none; }
+  .cmp__frame:has(.cmp__range:focus-visible) {
+    outline: 3px solid var(--green-accent); outline-offset: 2px;
+  }
+  .cmp__cap {
+    margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+
+  .cmp[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .cmp[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .cmp[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

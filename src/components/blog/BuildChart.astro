@@ -1,0 +1,125 @@
+---
+// BuildChart — a bar chart rendered to static SVG at BUILD time from data the
+// MDX imports (a src/data snapshot, same pattern as EventsStrip). No charting
+// library, no client JS: the rigor is that the numbers come from the real
+// corpus and the chart is just their shape. Single series by design — one hue,
+// no legend needed; identity lives in the title. Native <title> tooltips per
+// bar. Peak bar gets the one direct label (never a number on every bar).
+interface Point {
+  label: string;
+  value: number;
+  /** Optional fuller tooltip line; falls back to "label: value". */
+  tip?: string;
+}
+interface Props {
+  title: string;
+  data: Point[];
+  /** Unit suffix for labels/tooltips, e.g. " nights". */
+  unit?: string;
+  /** Show every Nth x label (dense series stay readable). */
+  labelEvery?: number;
+  /** e.g. "Source: events corpus snapshot, 2026-07-06." */
+  source?: string;
+}
+const { title, data, unit = '', labelEvery = 1, source } = Astro.props;
+
+const W = 680, H = 240;
+const PAD_L = 30, PAD_R = 6, PAD_T = 26, PAD_B = 26;
+const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
+
+const maxVal = Math.max(1, ...data.map((d) => d.value));
+// Nice ceiling for the y scale: 1/2/5 × 10^n at or above the max.
+const pow = Math.pow(10, Math.floor(Math.log10(maxVal)));
+const yMax = [1, 2, 5, 10].map((m) => m * pow).find((c) => c >= maxVal) ?? maxVal;
+const ticks = [0, yMax / 2, yMax];
+
+const n = data.length;
+const slot = plotW / n;
+const gap = Math.min(4, slot * 0.25); // ≥2px surface gap between bars
+const barW = Math.max(2, slot - gap);
+const r = Math.min(4, barW / 2); // rounded data-end, anchored baseline
+
+const y = (v: number) => PAD_T + plotH * (1 - v / yMax);
+const peak = data.reduce((best, d, i) => (d.value > data[best].value ? i : best), 0);
+
+function barPath(i: number, v: number): string {
+  const x = PAD_L + i * slot + gap / 2;
+  const top = y(v), base = PAD_T + plotH;
+  const h = base - top;
+  const rr = Math.min(r, h); // shorter than the radius → shrink the rounding
+  return `M${x},${base} V${top + rr} Q${x},${top} ${x + rr},${top} H${x + barW - rr} Q${x + barW},${top} ${x + barW},${top + rr} V${base} Z`;
+}
+const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
+---
+<figure class="bchart" data-reveal>
+  <p class="bchart__title">{title}</p>
+  <svg
+    class="bchart__svg"
+    viewBox={`0 0 ${W} ${H}`}
+    role="img"
+    aria-label={`Bar chart: ${title}`}
+  >
+    {ticks.map((t) => (
+      <g>
+        <line x1={PAD_L} x2={W - PAD_R} y1={y(t)} y2={y(t)} class="bchart__grid" />
+        <text x={PAD_L - 6} y={y(t)} class="bchart__ytick" text-anchor="end" dominant-baseline="middle">{fmt(t)}</text>
+      </g>
+    ))}
+    {data.map((d, i) => (
+      <path d={barPath(i, d.value)} class:list={['bchart__bar', { 'bchart__bar--peak': i === peak }]}>
+        <title>{d.tip ?? `${d.label}: ${fmt(d.value)}${unit}`}</title>
+      </path>
+    ))}
+    {/* One direct label, on the peak. */}
+    <text
+      x={PAD_L + peak * slot + slot / 2}
+      y={y(data[peak].value) - 6}
+      class="bchart__peaklabel"
+      text-anchor="middle"
+    >{fmt(data[peak].value)}{unit}</text>
+    {data.map((d, i) => (
+      i % labelEvery === 0 ? (
+        <text
+          x={PAD_L + i * slot + slot / 2}
+          y={H - 8}
+          class="bchart__xtick"
+          text-anchor="middle"
+        >{d.label}</text>
+      ) : null
+    ))}
+  </svg>
+  {source && <figcaption class="bchart__source">{source}</figcaption>}
+</figure>
+
+<style>
+  .bchart {
+    margin: 2.2rem 0; padding: 1.1rem 1.2rem 0.9rem;
+    border-radius: var(--radius); border: 1px solid rgba(45, 106, 79, 0.14);
+    background: #fff;
+  }
+  .bchart__title {
+    margin: 0 0 0.6rem; font-family: var(--font-display); font-weight: 800;
+    font-size: 0.95rem; color: var(--ink);
+  }
+  .bchart__svg { width: 100%; height: auto; display: block; }
+  .bchart__grid { stroke: rgba(45, 106, 79, 0.10); stroke-width: 1; }
+  .bchart__ytick, .bchart__xtick {
+    font-size: 10px; fill: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .bchart__bar { fill: var(--green-primary); }
+  .bchart__bar:hover { fill: var(--green-accent); }
+  .bchart__bar--peak { fill: var(--green-dark); }
+  .bchart__peaklabel {
+    font-size: 11px; font-weight: 700; fill: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .bchart__source {
+    margin: 0.5rem 0 0.2rem; font-size: 0.78rem; color: var(--muted); font-style: italic;
+  }
+
+  .bchart[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .bchart[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .bchart[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

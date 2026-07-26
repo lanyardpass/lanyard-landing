@@ -1,0 +1,116 @@
+---
+// TimeScrubber — N stills of the SAME framing across a day, scrubbed with a
+// timeline. Where CompareSlider is a two-shot argument, this is a four-plus
+// shot mood piece: the reader drags through morning → night and watches one
+// place change. Frames crossfade; tick labels mark each capture time.
+// Capture recipe: tripod, identical framing, one frame per beat of the day.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Frame {
+  src: ImageMetadata;
+  alt: string;
+  /** Tick label, e.g. "9:04 AM". */
+  time: string;
+}
+interface Props {
+  frames: Frame[];
+  caption?: string;
+  ratio?: string;
+}
+const { frames, caption, ratio = '16 / 9' } = Astro.props;
+const max = frames.length - 1;
+---
+<figure class="tscrub" data-reveal>
+  <div class="tscrub__frame" style={`aspect-ratio: ${ratio};`} data-tscrub>
+    {frames.map((f, i) => (
+      <Image
+        src={f.src}
+        alt={f.alt}
+        widths={[480, 800, 1200, 1600]}
+        sizes="(min-width: 960px) 700px, 100vw"
+        loading="lazy"
+        class="tscrub__img"
+        data-idx={i}
+        style={i === 0 ? 'opacity: 1;' : ''}
+      />
+    ))}
+    <span class="tscrub__time" data-tscrub-time>{frames[0].time}</span>
+  </div>
+  <div class="tscrub__rail">
+    <input
+      class="tscrub__range"
+      type="range" min="0" max={max} value="0" step="0.01"
+      aria-label="Scrub through the day"
+    />
+    <div class="tscrub__ticks">
+      {frames.map((f) => <span class="tscrub__tick">{f.time}</span>)}
+    </div>
+  </div>
+  {caption && <figcaption class="tscrub__cap">{caption}</figcaption>}
+</figure>
+
+<script>
+  // Fractional scrub position crossfades between the two nearest frames, so
+  // the drag feels continuous even with four captures.
+  for (const root of document.querySelectorAll<HTMLElement>('[data-tscrub]')) {
+    const wrap = root.closest('.tscrub')!;
+    const range = wrap.querySelector<HTMLInputElement>('.tscrub__range')!;
+    const imgs = Array.from(root.querySelectorAll<HTMLElement>('.tscrub__img'));
+    const timeEl = root.querySelector<HTMLElement>('[data-tscrub-time]')!;
+    const ticks = Array.from(wrap.querySelectorAll<HTMLElement>('.tscrub__tick'));
+    const apply = () => {
+      const v = parseFloat(range.value);
+      const lo = Math.floor(v), hi = Math.min(lo + 1, imgs.length - 1), t = v - lo;
+      imgs.forEach((img, i) => {
+        img.style.opacity = i === lo ? String(1) : i === hi ? String(t) : '0';
+        // Stack order: the fading-in frame sits above the base frame.
+        img.style.zIndex = i === hi ? '2' : i === lo ? '1' : '0';
+      });
+      const nearest = Math.round(v);
+      timeEl.textContent = ticks[nearest]?.textContent ?? '';
+      ticks.forEach((el, i) => el.classList.toggle('is-on', i === nearest));
+    };
+    range.addEventListener('input', apply);
+    apply();
+  }
+</script>
+
+<style>
+  .tscrub { margin: 2.2rem 0; }
+  .tscrub__frame {
+    position: relative; overflow: hidden; border-radius: var(--radius);
+    box-shadow: var(--shadow-card); background: var(--green-dark);
+  }
+  .tscrub__frame :global(.tscrub__img) {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block; opacity: 0;
+  }
+  .tscrub__time {
+    position: absolute; right: 0.6rem; top: 0.6rem; z-index: 3;
+    padding: 0.2rem 0.6rem; border-radius: 999px;
+    background: rgba(20, 53, 42, 0.72); color: #fff;
+    font-size: 0.78rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .tscrub__rail { margin-top: 0.7rem; }
+  .tscrub__range {
+    width: 100%; accent-color: var(--green-primary); cursor: ew-resize;
+  }
+  .tscrub__ticks {
+    display: flex; justify-content: space-between; margin-top: 0.15rem;
+  }
+  .tscrub__tick {
+    font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .tscrub__tick.is-on { color: var(--green-primary); font-weight: 700; }
+  .tscrub__cap {
+    margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+
+  .tscrub[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .tscrub[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .tscrub[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

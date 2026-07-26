@@ -1,0 +1,75 @@
+---
+// ImageGrid — a 2- or 3-up set of stills that belong together (a diptych of the
+// same gate at open and close, three menu items, before/during/after). One
+// shared caption keeps it reading as a single figure; per-image labels overlay
+// each cell. astro:assets responsive images, same reveal treatment as Figure.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Cell {
+  src: ImageMetadata;
+  alt: string;
+  /** Small overlay label, e.g. a time or place. */
+  label?: string;
+}
+interface Props {
+  images: Cell[];
+  caption?: string;
+  /** CSS aspect-ratio applied per cell so mismatched sources still grid cleanly. */
+  ratio?: string;
+}
+const { images, caption, ratio = '4 / 3' } = Astro.props;
+const cols = Math.min(Math.max(images.length, 2), 3);
+---
+<figure class="igrid" data-reveal>
+  <div class="igrid__row" style={`--cols: ${cols};`}>
+    {images.map((cell) => (
+      <div class="igrid__cell" style={`aspect-ratio: ${ratio};`}>
+        <Image
+          src={cell.src}
+          alt={cell.alt}
+          widths={[400, 640, 900]}
+          sizes={`(min-width: 960px) ${Math.round(700 / cols)}px, ${Math.round(100 / cols)}vw`}
+          loading="lazy"
+          class="igrid__img"
+        />
+        {cell.label && <span class="igrid__label">{cell.label}</span>}
+      </div>
+    ))}
+  </div>
+  {caption && <figcaption class="igrid__cap">{caption}</figcaption>}
+</figure>
+
+<style>
+  .igrid { margin: 2rem 0; }
+  .igrid__row {
+    display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 0.6rem;
+  }
+  .igrid__cell {
+    position: relative; overflow: hidden; border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card); background: rgba(45, 106, 79, 0.06);
+  }
+  .igrid__cell :global(.igrid__img) {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .igrid__label {
+    position: absolute; left: 0.5rem; bottom: 0.5rem;
+    padding: 0.2rem 0.55rem; border-radius: 999px;
+    background: rgba(20, 53, 42, 0.72); color: #fff;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+    backdrop-filter: blur(4px);
+  }
+  .igrid__cap {
+    margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+  @media (max-width: 560px) {
+    .igrid__row { grid-template-columns: 1fr; }
+  }
+
+  .igrid[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .igrid[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .igrid[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

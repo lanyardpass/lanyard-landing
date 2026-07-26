@@ -1,0 +1,63 @@
+---
+// SideNote — a numbered margin note. On wide viewports the note floats into the
+// right margin beside the paragraph (Tufte-style); on narrow ones the number is
+// a tap target that expands the note inline. Number is supplied by the author
+// so prose and note can't drift apart.
+//
+// TRAP: this component lives INSIDE a <p> in MDX, so it may only render
+// phrasing content (span/button/sup). A <details> here is invalid HTML — the
+// browser parser splits the paragraph apart (learned on first render of the
+// everything-post).
+interface Props {
+  n: number;
+}
+const { n } = Astro.props;
+---
+<span class="sidenote" data-sidenote>
+  <button class="sidenote__ref" aria-expanded="false" aria-label={`Note ${n}`}><sup>{n}</sup></button>
+  <span class="sidenote__note"><sup class="sidenote__num">{n}</sup> <slot /></span>
+</span>
+
+<script>
+  // Narrow-viewport toggle. On wide viewports CSS shows the note permanently
+  // and the button is inert.
+  for (const root of document.querySelectorAll<HTMLElement>('[data-sidenote]')) {
+    const btn = root.querySelector<HTMLButtonElement>('.sidenote__ref')!;
+    btn.addEventListener('click', () => {
+      const open = root.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  }
+</script>
+
+<style>
+  .sidenote__ref {
+    display: inline; border: 0; padding: 0; background: none;
+    cursor: pointer; color: var(--green-primary); font-weight: 700;
+    font-size: inherit; font-family: inherit;
+  }
+  .sidenote__ref sup { font-size: 0.78em; }
+  .sidenote__note {
+    display: none; font-size: 0.82rem; line-height: 1.55; color: var(--muted);
+  }
+  .sidenote__num { color: var(--green-primary); font-weight: 700; }
+
+  /* Narrow: tap the number, note expands inline under the line. */
+  .sidenote.is-open .sidenote__note {
+    display: block; margin: 0.5rem 0; padding: 0.6rem 0.8rem;
+    background: rgba(82, 183, 136, 0.08);
+    border-left: 2px solid var(--green-accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  /* Wide (room beyond the measure): always-visible floated margin note. */
+  @media (min-width: 1160px) {
+    .sidenote .sidenote__note,
+    .sidenote.is-open .sidenote__note {
+      display: block; float: right; clear: right;
+      width: 12rem; margin: 0 -14.5rem 0.8rem 0;
+      padding: 0; background: none; border: 0; text-align: left;
+    }
+    .sidenote__ref { cursor: default; pointer-events: none; }
+  }
+</style>

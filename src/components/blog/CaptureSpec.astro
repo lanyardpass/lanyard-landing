@@ -1,0 +1,33 @@
+---
+// CaptureSpec — the amber "what to go get" chip that makes the everything-post
+// double as a shooting list. REFERENCE-POST ONLY: real posts never ship this;
+// it exists so each demo block carries its own capture requirements inline.
+interface Props {
+  /** e.g. "video", "photo ×4", "audio", "data" */
+  needs: string;
+  /** The concrete capture instruction. */
+  spec: string;
+}
+const { needs, spec } = Astro.props;
+---
+<aside class="capspec" aria-label="Capture requirements">
+  <span class="capspec__chip">🎬&nbsp;to capture · {needs}</span>
+  <span class="capspec__spec">{spec}</span>
+</aside>
+
+<style>
+  .capspec {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.7rem;
+    margin: 0.8rem 0 1.6rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: var(--radius-sm);
+    border: 1px dashed rgba(180, 130, 20, 0.45);
+    background: rgba(240, 200, 90, 0.10);
+    font-size: 0.82rem; line-height: 1.5;
+  }
+  .capspec__chip {
+    font-family: var(--font-display); font-weight: 800; white-space: nowrap;
+    color: #8a6410;
+  }
+  .capspec__spec { color: var(--muted); }
+</style>
