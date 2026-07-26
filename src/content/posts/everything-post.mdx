@@ -75,7 +75,7 @@ export const stats = (() => {
 
 This post never ships. It's the internal reference for what the Lanyard blog can physically do, every block in one scrollable place, so that when a real post is being planned we can point at this page and say grab that one, and that one, and we'll need to go shoot that.
 
-Two things to know while you scroll. First, every demo uses real Lanyard content where we have it (real photos, the real events corpus, a real app screenshot), and an honest labeled placeholder where we don't. Second, the amber chips are the shopping list.<SideNote n={1}>The chips are a component too (`CaptureSpec`). Real posts never include them, they exist so this page doubles as a capture checklist.</SideNote> Wherever you see one, that block is waiting on media we haven't captured yet, and the chip says exactly what to go get.
+Three things to know while you scroll. First, every demo uses real Lanyard content where we have it (real photos, the real events corpus, a real app screenshot), and an honest labeled placeholder where we don't. Second, this post has no hero image *on purpose*. The frontmatter supports `hero`/`heroAlt`/`ogImage`, and the weather post demonstrates that path; this one demonstrates the fallback (the blog index card shows the brand panel instead). A real post should almost always ship a hero, since it's also the social share card. Third, the amber chips are the shopping list.<SideNote n={1}>The chips are a component too (`CaptureSpec`). Real posts never include them, they exist so this page doubles as a capture checklist.</SideNote> Wherever you see one, that block is waiting on media we haven't captured yet, and the chip says exactly what to go get.
 
 ## Words first
 
@@ -321,7 +321,7 @@ A **field recording** might be the most underused format in park writing. Rope d
 
 Everything above, reduced to what goes in the camera roll. This is the standing list for any park day where content is a goal.
 
-- **Stills, always.** 3–6 per post minimum, shot wider than feels right.
+- **Stills, always.** 3–6 per post minimum, shot wider than feels right, and one strong enough to be the hero/share card.
 - **The matched pair.** One framing, two moments. Feeds the CompareSlider and the ChronosDissolve both.
 - **The day series.** One framing, 4–6 beats of one day, tripod. Feeds the TimeScrubber. This is a dedicated trip goal, not a maybe.
 - **Locked-off clips.** 10–15s, no panning, same framing at different times. Feeds the VideoGrid.
