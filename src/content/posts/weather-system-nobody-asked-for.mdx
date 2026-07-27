@@ -7,8 +7,22 @@ published: 2026-07-06
 byline: "By Dan, Orlando passholder"
 hero: ../../assets/blog/home-today.png
 heroAlt: "Lanyard's home screen, with the Today card showing live park conditions under a rendered sky."
-draft: false
+draft: true
 ---
+
+import PullQuote from '@/components/blog/PullQuote.astro';
+import AnnotatedShot from '@/components/blog/AnnotatedShot.astro';
+import NerdBox from '@/components/blog/NerdBox.astro';
+import CompareSlider from '@/components/blog/CompareSlider.astro';
+import TimeScrubber from '@/components/blog/TimeScrubber.astro';
+import InViewVideoLoop from '@/components/guides/InViewVideoLoop.astro';
+import CaptureSpec from '@/components/blog/CaptureSpec.astro';
+
+import homeToday from '@/assets/blog/home-today.png';
+import tod0904 from '@/assets/blog/reference/tod-0904.png';
+import tod1310 from '@/assets/blog/reference/tod-1310.png';
+import tod1745 from '@/assets/blog/reference/tod-1745.png';
+import tod2102 from '@/assets/blog/reference/tod-2102.png';
 
 I knew Lanyard needed a weather system. You're deciding whether today is a park day, and the sky has a vote.
 
@@ -18,9 +32,28 @@ No. Nobody asked for that. I built it because I'm a giant nerd and it made me ha
 
 ## The window
 
-Lanyard's home screen has a card for each of your parks, and from the beginning I wanted those cards to feel like a window, not a dashboard. A dashboard tells you it's 91 degrees. A window shows you the afternoon cumulus stacking up behind the skyline, and you think, yeah, that's a Florida summer sky, I know exactly how this day goes.
+Lanyard's home screen has a card for each of your parks, and from the beginning I wanted those cards to feel like a window, not a dashboard.
 
-So that's what it does now. A few of my favorite things about it:
+<PullQuote>
+A dashboard tells you it's 91 degrees. A window shows you the afternoon stacking up behind the skyline.
+</PullQuote>
+
+You look at a dashboard and you get a number. You look at a window and you think, yeah, that's a Florida summer sky, I know exactly how this day goes. That second thing is what the card does now.
+
+<AnnotatedShot
+  src={homeToday}
+  alt="Lanyard's home screen showing the Today card for a Disney World pass under a rendered sky with light rain."
+  pins={[
+    { x: 28, y: 46, note: 'The sky is drawn, not stock imagery. Those streaks are today\'s actual precipitation, falling at today\'s actual rate.' },
+    { x: 84, y: 34, note: 'A real temperature and a condition a human would say out loud. No "scattered hydrometeors."' },
+    { x: 82, y: 50, note: 'The sun sits where the real sun is right now. After dark, it\'s the moon, in tonight\'s actual phase.' },
+  ]}
+  caption="One card, doing quiet work."
+/>
+
+## What it actually does
+
+A few of my favorite things about it, in escalating order of nobody-asked-for-this.
 
 - No two days ever draw the same sky. And no two parks share clouds, even when they're in the same storm system. Universal and SeaWorld are under the same weather, but not under the same cloud, because that's how being a few miles apart works.
 - The cloud ceiling hangs low on humid days, because that's what humid days do.
@@ -29,17 +62,66 @@ So that's what it does now. A few of my favorite things about it:
 - When a hurricane warning posts, your card closes the parks before you've checked the news.
 - The moon on your card is tonight's actual moon. This one isn't even weather. It stays in the list.
 
-## What building it was like
+Drag through a day of it. Same card, same park, four moments.
 
-I'll spare you the shader math and tell you about the bugs instead, because the bugs are where a thing like this earns its keep.
+<TimeScrubber
+  frames={[
+    { src: tod0904, alt: 'Placeholder frame, morning card.', time: 'Morning' },
+    { src: tod1310, alt: 'Placeholder frame, midday card.', time: 'Midday' },
+    { src: tod1745, alt: 'Placeholder frame, golden hour card.', time: 'Golden hour' },
+    { src: tod2102, alt: 'Placeholder frame, night card.', time: 'Night' },
+  ]}
+  caption="One park card across a day. The night frame carries the real moon."
+/>
 
-For one glorious afternoon, the rain fell up. It would fall, slow down, and then drift back into the clouds like the sky was taking it back. It turns out that if you do the gust math slightly wrong, easing wind literally rewinds the rain. Physics has opinions about shortcuts.
+<CaptureSpec needs="sim capture ×4" spec="Same card, same pass, posed via the debug scrubber at morning / midday / golden hour / night. Night frame on a date with a photogenic moon phase." />
 
-The clouds went through a phase where every one of them looked like a bunch of perfectly round balls glued together. Real cumulus is lumpy in an irregular, cauliflower way, and getting from "soap bubbles" to "cloud" took three separate passes and a rule where the little bumps on a cloud only grow on top, because the flat bottom is the whole point of a cumulus.
+And because the same sky engine runs everywhere on the dial, the difference between a good park day and a stay-home day is legible from across the room.
 
-A beta tester watched a raindrop run down the glass, trailing a short wet track behind it, and described it with one word, "biological." She was right. The trail is three times longer now and wobbles less. It reads as rain.
+<CompareSlider
+  before={tod1310}
+  beforeAlt="Placeholder, clear-day card."
+  beforeLabel="A good park day"
+  after={tod2102}
+  afterAlt="Placeholder, severe-storm card."
+  afterLabel="A stay-home day"
+  caption="Same card, two forecasts. Placeholder frames for now; the real pair is one debug-scrubber session away."
+/>
 
-And the clouds on two neighboring park cards were briefly identical, same shapes, same spots, which nobody would consciously notice but everybody would feel. Each card seeds its own sky now.
+<CaptureSpec needs="sim capture ×2" spec="Identical card, clear sunny day vs. severe storm (lightning active if you can time it). Same time of day so only the weather changes." />
+
+## The bugs are where it earned it
+
+I'll spare you the shader math and tell you about the bugs instead, because a system like this earns its keep in the debugging.
+
+For one glorious afternoon, the rain fell up. It would fall, slow down, and then drift back into the clouds like the sky was taking it back. It turns out that if you do the gust math slightly wrong, easing the wind literally rewinds the rain.
+
+<NerdBox title="Why easing wind rewinds rain">
+Each raindrop's position was computed as speed times time. Both of those change every frame, and that's the trap. When a gust eased off, the speed in that multiplication dropped, so the product dropped, so every drop's computed position moved backward along its own path. Up, in other words.
+
+The fix is the one physics already knew about. Position isn't speed times time, it's the accumulation of speed over time. Integrate the speed into a running phase each frame and drops can slow down without un-falling. The broader lesson got written on the shop wall. Any time something's speed varies, animate from the accumulated distance, never from the instantaneous rate.
+</NerdBox>
+
+Then there was the haze. On overcast days, the whole gray deck would occasionally slide across the card like a wipe transition in a 1990s home video. I went through three theories. First the wind data, so I set wind to zero, and the slide kept sliding. Then the cloud drift math, and I actually found and fixed two real defects in it, except neither of them was this bug. The clue that cracked it was embarrassing in hindsight. Swipe the card carousel from the left, and the haze slid in from the right. The bug tracked my thumb, not the weather. The fade-in animation was accidentally grabbing the card's settle motion and replaying it on the weather layer. Three theories about meteorology, and the answer was the swipe.
+
+The clouds themselves went through a phase where every one of them looked like a bunch of perfectly round balls glued together. Real cumulus is lumpy in an irregular, cauliflower way, and getting from "soap bubbles" to "cloud" took three separate passes and a rule where the little bumps only grow on a cloud's top, because the flat bottom is the whole point of a cumulus.
+
+And then my favorite bug report of the whole project, which wasn't even filed as a bug.
+
+> A beta tester watched a raindrop run down the glass, trailing a short wet track behind it, and described it with one word, "biological."
+
+She was right. The trail is three times longer now and wobbles less. It reads as rain.
+
+One more, for completeness. The clouds on two neighboring park cards were briefly identical, same shapes, same spots. Nobody would consciously notice. Everybody would feel it. Each card seeds its own sky now.
+
+<InViewVideoLoop
+  src="/blog/reference/lapse.mp4"
+  poster="/blog/reference/poster-lapse.jpg"
+  label="Placeholder for a storm-card screen recording."
+  caption="Placeholder clip. The real one is a storm card doing its thing, lightning and all."
+/>
+
+<CaptureSpec needs="screen recording, 15–30s" spec="A severe-storm card left running. Lightning flash, rain, and at least one runner drop on the glass. This is the post's money shot and probably the hero of the share card too." />
 
 ## What it won't do
 
@@ -50,3 +132,14 @@ It won't tell you it'll rain at 7:14. It'll tell you afternoon storms are likely
 That's the whole feature. It costs you nothing, it runs on knowledge the app already had, and it makes checking your parks feel less like reading a spreadsheet and more like looking out the window at a place you love.
 
 The moon thing still makes me smile every time.
+
+## Closing this post out
+
+*Delete this whole section (and the amber capture chips above) before publish. Everything below is reproducible in the simulator via the debug scrubber — no park trip required for this post.*
+
+- **Hero swap.** Replace `home-today.png` with a **storm-card capture** (severe storm posed on the Today card) as both `hero` and the share image. The sunny screenshot stays in the AnnotatedShot.
+- **TimeScrubber ×4** — same card at morning / midday / golden hour / night. Pick a date whose moon phase looks good in the night frame.
+- **CompareSlider ×2** — same card, clear day vs. severe storm, same time of day.
+- **Screen recording 15–30s** — storm card with lightning and a runner drop, for the InViewVideoLoop (`.mp4` + a poster frame). The money shot.
+- **Capture route** — all of the above via the Dev build's debug scrubber (any weather × any time of day, reproducibly) + the `SIMCTL_CHILD_LANYARD_*` launch hooks for clean sim screenshots.
+- **Final pass** — your voice check end to end, set the real `published`/`updated` dates, drop `draft: true`, delete this section.
