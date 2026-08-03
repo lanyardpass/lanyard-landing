@@ -56,13 +56,23 @@ const canonical = new URL(cleanPath, Astro.site).href;
 
 // Structured data: tells search engines this site is an iOS app, not a blog.
 // Category is Travel (theme-park vertical — same neighborhood as the official
-// Disney/Universal apps + Touring Plans), with a free offer. NO aggregateRating
-// until there are real App Store ratings — faking review markup is a Google
-// penalty. downloadUrl/installUrl light up once APP_STORE_ID is filled;
-// aggregateRating stays out until real ratings exist.
+// Disney/Universal apps + Touring Plans), with a free offer.
+// downloadUrl/installUrl light up once APP_STORE_ID is filled.
+//
+// TRAP — @type must be literally `SoftwareApplication`, never a schema.org
+// subtype like `TravelApplication`. The travel flavour belongs in
+// `applicationCategory` (a Google-supported value), not in @type. Google's
+// Software App / Review snippet validator whitelists exact types; the
+// "and their subtypes" clause in its docs covers only the secondary list
+// (Organization, Game, MediaObject…), NOT SoftwareApplication. Shipping
+// `TravelApplication` alongside aggregateRating produced the Search Console
+// error `Invalid object type for field "<parent_node>"` on every page
+// recrawled after 2026-07-26 (/ and /guides confirmed via the URL Inspection
+// API 2026-08-02). Harmless while the rating was absent — adding the rating
+// is what routed the node into the Review-snippets validator.
 const appSchema = {
   '@context': 'https://schema.org',
-  '@type': 'TravelApplication',
+  '@type': 'SoftwareApplication',
   name: SITE.name,
   applicationCategory: 'TravelApplication',
   operatingSystem: 'iOS',
