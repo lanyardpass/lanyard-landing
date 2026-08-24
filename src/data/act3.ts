@@ -22,8 +22,8 @@ export const CAPABILITIES: Capability[] = [
   { icon: '🔁', title: 'Renewal-save nudges', body: 'Quiet reminders when there’s a smarter way to renew or pay — advice, never pressure.' },
   { icon: '📍', title: 'Arrival detection', body: 'Reach a park and Lanyard offers to log your visit. Opt-in, and all on your phone.' },
   { icon: '📓', title: 'Visit history', body: 'A clean record of every visit, so the cost-per-visit math is always honest.' },
-  { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more — tracked alongside your everyday pass.', pro: true },
-  { icon: '👥', title: 'Crowd Intelligence', body: 'Quiet, normal, or packed: how each park day will actually feel, before you commit to the drive.', newIn: '1.2' },
+  { icon: '🎃', title: 'Special-event passes', body: 'HHN, Howl-O-Scream and more. Log each night, stamp every house, watch your Nightmare Tally grow.', pro: true },
+  { icon: '👥', title: 'Crowd Intelligence', body: 'Quiet, normal, or packed: how each park day will actually feel, before you commit to the drive.' },
 ];
 
 // ---- 2. Works with your pass (coverage) ----
