@@ -12,16 +12,19 @@ interface Props {
   night: ImageMetadata;
   nightAlt: string;
   caption?: string;
+  /** Which frame reduced-motion users see (no dissolve runs for them).
+   * Default 'day' (the Epic guide's original behavior). */
+  staticPhase?: 'day' | 'night';
 }
-const { day, dayAlt, night, nightAlt, caption } = Astro.props;
+const { day, dayAlt, night, nightAlt, caption, staticPhase = 'day' } = Astro.props;
 const widths = [480, 800, 1200, 1600];
 const sizes = '(min-width: 960px) 700px, 100vw';
 ---
-<figure class="chronos" data-chronos>
+<figure class:list={['chronos', { 'chronos--static-night': staticPhase === 'night' }]} data-chronos>
   <div class="chronos__frame">
     <Image src={day} alt={dayAlt} widths={widths} sizes={sizes} loading="lazy" class="chronos__img chronos__img--day" />
     <Image src={night} alt={nightAlt} widths={widths} sizes={sizes} loading="lazy" class="chronos__img chronos__img--night" data-chronos-night aria-hidden="true" />
-    <span class="chronos__phase" data-chronos-phase aria-hidden="true">Day</span>
+    <span class="chronos__phase" data-chronos-phase aria-hidden="true">{staticPhase === 'night' ? 'Night' : 'Day'}</span>
   </div>
   {caption && <figcaption class="chronos__cap">{caption}</figcaption>}
 </figure>
@@ -92,6 +95,10 @@ const sizes = '(min-width: 960px) 700px, 100vw';
   }
   /* Night starts hidden; JS (or, in reduced-motion, nothing) reveals it. */
   .chronos__img--night { opacity: 0; will-change: opacity; }
+  /* staticPhase="night": reduced-motion users get the night frame instead. */
+  @media (prefers-reduced-motion: reduce) {
+    .chronos--static-night .chronos__img--night { opacity: 1; }
+  }
   .chronos__phase {
     position: absolute; left: 0.8rem; bottom: 0.8rem; z-index: 2;
     font-family: var(--font-display); font-weight: 800; font-size: 0.7rem;

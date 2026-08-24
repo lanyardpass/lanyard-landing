@@ -33,12 +33,14 @@ interface Props {
   headings: MarkdownHeading[];
   readingTime: number;
   related?: RelatedItem[];
+  ctaHeading?: string;
+  ctaBody?: string;
 }
 
 const {
   title, seoTitle, description, dek, answer, byline,
   lastVerified, published, hero, heroAlt, ogImage,
-  faq, headings, readingTime, related = [],
+  faq, headings, readingTime, related = [], ctaHeading, ctaBody,
 } = Astro.props;
 
 const pageTitle = seoTitle ?? `${title} | ${SITE.name}`;
@@ -111,7 +113,7 @@ const faqSchema = faq.length
     </div>
 
     <div class="guide-cta-wrap">
-      <GuideCTA />
+      <GuideCTA heading={ctaHeading} body={ctaBody} />
     </div>
   </article>
 

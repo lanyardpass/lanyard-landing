@@ -1,0 +1,84 @@
+---
+// HouseGrid — the season's haunted-house lineup in Lanyard's own colorized
+// house art, styled to rhyme with the app's House Tracker: every tile wears
+// the dashed "unstamped" frame, waiting to be walked. This is the guide→app
+// continuity beat (the CTA next to it says "walk them, stamp them").
+// Names + order come from the app's data (perks.json parking_options) via the
+// MDX — never retyped from memory. Art is ours; no official key art, ever.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface House {
+  name: string;
+  image: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  houses: House[];
+  caption?: string;
+}
+const { houses, caption } = Astro.props;
+---
+<figure class="housegrid" data-reveal>
+  <ul class="housegrid__list">
+    {houses.map((h) => (
+      <li class="housegrid__tile">
+        <div class="housegrid__stamp">
+          <Image
+            src={h.image}
+            alt={h.alt}
+            widths={[240, 400, 800]}
+            sizes="(min-width: 960px) 130px, (min-width: 640px) 25vw, 40vw"
+            loading="lazy"
+            class="housegrid__art"
+          />
+        </div>
+        <p class="housegrid__name">{h.name}</p>
+      </li>
+    ))}
+  </ul>
+  {caption && <figcaption class="housegrid__cap">{caption}</figcaption>}
+</figure>
+
+<style>
+  .housegrid { margin: 2.2rem 0; }
+  .housegrid__list {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: 0.9rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 8rem), 1fr));
+  }
+  @media (min-width: 960px) {
+    .housegrid__list { grid-template-columns: repeat(5, 1fr); }
+  }
+  .housegrid__tile { text-align: center; }
+  /* The unstamped frame from the app's House Tracker: dashed, waiting. */
+  .housegrid__stamp {
+    border: 2px dashed rgba(45, 106, 79, 0.35);
+    border-radius: var(--radius);
+    padding: 0.35rem;
+    background: #fff;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .housegrid__tile:hover .housegrid__stamp {
+    border-color: var(--green-accent); transform: translateY(-2px);
+  }
+  .housegrid__art {
+    width: 100%; height: auto; aspect-ratio: 1; object-fit: cover;
+    border-radius: calc(var(--radius) - 4px); display: block;
+  }
+  .housegrid__name {
+    margin: 0.5rem 0 0; font-family: var(--font-display); font-weight: 700;
+    font-size: 0.78rem; line-height: 1.25; color: var(--ink);
+  }
+  .housegrid__cap {
+    margin-top: 0.9rem; font-size: 0.82rem; color: var(--muted);
+    line-height: 1.5; text-align: center;
+  }
+
+  /* Reveal-on-scroll (observer in GuideLayout toggles .is-in). */
+  .housegrid[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .housegrid[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .housegrid[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

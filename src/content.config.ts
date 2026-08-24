@@ -45,6 +45,17 @@ const guides = defineCollection({
         .array(z.object({ question: z.string(), answer: z.string() }))
         .default([]),
 
+      // RelatedGuides footer links — content-driven so each guide names its own
+      // (and a launch can add the new guide to an old one's list explicitly,
+      // rather than every page auto-linking every other).
+      related: z
+        .array(z.object({ title: z.string(), href: z.string(), dek: z.string().optional() }))
+        .default([]),
+
+      // Optional per-guide GuideCTA copy (falls back to the component's default).
+      ctaHeading: z.string().optional(),
+      ctaBody: z.string().optional(),
+
       // Sort/lifecycle
       draft: z.boolean().default(false),
     }),

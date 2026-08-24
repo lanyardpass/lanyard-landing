@@ -14,12 +14,20 @@ interface Props {
   placement?: string;
   title?: string;
   intro?: string;
+  /** The fine-print line under the island. Defaults to the Epic-guide wording. */
+  note?: string;
 }
 const {
   placement = 'epic-guide',
   title = 'See what your base pass is worth',
   intro = 'Plug in what you paid and how often you go — see your real cost per visit and when the pass pays for itself. This is your base Universal pass; Epic is a separate call we help you make below.',
+  note = 'Heads up: this figures your **base pass** (Universal Studios Florida + Islands of Adventure). It doesn’t include Epic Universe — that’s a separate ticket, and the section above walks through when it’s worth adding.',
 } = Astro.props;
+
+// The note supports **bold** spans only (kept deliberately tiny — not markdown).
+const noteHtml = note
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 ---
 <section class="calc-embed" aria-label="Pass payback calculator">
   <div class="calc-embed__head">
@@ -30,11 +38,7 @@ const {
   <div class="calc-embed__app">
     <CalculatorApp client:visible placement={placement} />
   </div>
-  <p class="calc-embed__note">
-    Heads up: this figures your <strong>base pass</strong> (Universal Studios Florida + Islands of
-    Adventure). It doesn’t include Epic Universe — that’s a separate ticket, and the section above
-    walks through when it’s worth adding.
-  </p>
+  <p class="calc-embed__note" set:html={noteHtml} />
 </section>
 
 <style>
