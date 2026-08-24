@@ -67,11 +67,12 @@ const { src, alt, lean = 'right', video } = Astro.props;
     height: auto;
   }
   /* When a clip is present the img is its static stand-in: hidden while the
-     video plays, shown instead of it for prefers-reduced-motion. */
-  .device__still { display: none; }
+     video plays, shown instead of it for prefers-reduced-motion. (Selectors
+     carry .device__screen to outrank the display:block rule above.) */
+  .device__screen img.device__still { display: none; }
   @media (prefers-reduced-motion: reduce) {
-    .device__video { display: none; }
-    .device__still { display: block; }
+    .device__screen video.device__video { display: none; }
+    .device__screen img.device__still { display: block; }
   }
   /* rotateY turns the face toward the named side; rotateX leans it back a
      touch (grounded); rotateZ adds a hair of dynamism. */
