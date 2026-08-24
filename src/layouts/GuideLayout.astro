@@ -35,12 +35,14 @@ interface Props {
   related?: RelatedItem[];
   ctaHeading?: string;
   ctaBody?: string;
+  /** Draft guides only render on non-production builds; they carry noindex + a banner. */
+  draft?: boolean;
 }
 
 const {
   title, seoTitle, description, dek, answer, byline,
   lastVerified, published, hero, heroAlt, ogImage,
-  faq, headings, readingTime, related = [], ctaHeading, ctaBody,
+  faq, headings, readingTime, related = [], ctaHeading, ctaBody, draft = false,
 } = Astro.props;
 
 const pageTitle = seoTitle ?? `${title} | ${SITE.name}`;
@@ -78,11 +80,15 @@ const faqSchema = faq.length
 <Layout title={pageTitle} description={description} ogImage={ogAbs} viewTransitions>
   <Fragment slot="head">
     <meta property="og:type" content="article" />
+    {draft && <meta name="robots" content="noindex, nofollow" />}
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
     {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
   </Fragment>
 
   <article class="guide-page">
+    {draft && (
+      <p class="guide-draftbar">DRAFT — visible on preview deploys only, never on lanyardpass.com</p>
+    )}
     <GuideHero
       title={title}
       dek={dek}
@@ -197,6 +203,13 @@ const faqSchema = faq.length
 </Layout>
 
 <style>
+  /* Draft banner (preview deploys only) — same treatment as the blog's. */
+  .guide-draftbar {
+    margin: 0; padding: 0.5rem var(--gutter); text-align: center;
+    background: rgba(240, 200, 90, 0.18); color: #8a6410;
+    border-bottom: 1px dashed rgba(180, 130, 20, 0.45);
+    font-size: 0.78rem; font-weight: 800; letter-spacing: 0.05em;
+  }
   .guide-answer-wrap {
     max-width: 44rem; margin-inline: auto;
     padding: 0 var(--gutter); margin-top: clamp(1.2rem, 3vw, 1.8rem);
