@@ -15,13 +15,19 @@ interface Props {
   /** Which frame reduced-motion users see (no dissolve runs for them).
    * Default 'day' (the Epic guide's original behavior). */
   staticPhase?: 'day' | 'night';
+  /** CSS aspect-ratio for the frame, e.g. "4 / 3". Default is the Epic guide's
+   * portrait 4:5 crop; pass the source images' native ratio to avoid cropping
+   * landscape pairs (the frame then also fills the column width). */
+  ratio?: string;
 }
-const { day, dayAlt, night, nightAlt, caption, staticPhase = 'day' } = Astro.props;
+const { day, dayAlt, night, nightAlt, caption, staticPhase = 'day', ratio } = Astro.props;
+// Inline style wins over the default portrait ratios (incl. the mobile 3:4).
+const frameStyle = ratio ? `aspect-ratio: ${ratio}; max-width: none;` : undefined;
 const widths = [480, 800, 1200, 1600];
 const sizes = '(min-width: 960px) 700px, 100vw';
 ---
 <figure class:list={['chronos', { 'chronos--static-night': staticPhase === 'night' }]} data-chronos>
-  <div class="chronos__frame">
+  <div class="chronos__frame" style={frameStyle}>
     <Image src={day} alt={dayAlt} widths={widths} sizes={sizes} loading="lazy" class="chronos__img chronos__img--day" />
     <Image src={night} alt={nightAlt} widths={widths} sizes={sizes} loading="lazy" class="chronos__img chronos__img--night" data-chronos-night aria-hidden="true" />
     <span class="chronos__phase" data-chronos-phase aria-hidden="true">{staticPhase === 'night' ? 'Night' : 'Day'}</span>
