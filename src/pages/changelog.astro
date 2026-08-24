@@ -1,0 +1,128 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { CHANGELOG } from '@/data/changelog';
+import { appStoreUrl } from '@/data/site';
+
+// /changelog — the progression story. The homepage band announces what's new
+// THIS cycle; this page is where the history lives so "New" on the homepage
+// can stay honest. Content in src/data/changelog.ts.
+export const prerender = true;
+---
+<Layout
+  title="Changelog — Lanyard"
+  description="Every Lanyard release and what it brought. From launch to Crowd Intelligence to the Halloween build, the app moves at park speed."
+>
+  <article class="legal changelog">
+    <div class="legal__inner">
+      <p class="kicker legal__label">Moves at park speed</p>
+      <h1 class="display legal__title">Everything Lanyard has shipped.</h1>
+      <p class="legal__lead">
+        The parks change constantly, and a pass companion is only as good as its ability to keep up.
+        Here's every release since launch and what it brought. The newest one is always
+        <a href={appStoreUrl('changelog')}>on the App Store</a>.
+      </p>
+
+      <ol class="timeline">
+        {CHANGELOG.map((entry) => (
+          <li class="timeline__entry">
+            <div class="timeline__meta">
+              <span class="timeline__version">{entry.version}</span>
+              {entry.tag && <span class="timeline__tag">{entry.tag}</span>}
+              <span class="timeline__date">{entry.date}</span>
+            </div>
+            <h2 class="timeline__headline">{entry.headline}</h2>
+            <ul class="timeline__points">
+              {entry.points.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .legal { background: var(--off-white); color: var(--ink); }
+  .legal__inner {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) clamp(4rem, 10vw, 7rem);
+  }
+  .legal__label { color: var(--green-primary); margin-bottom: 1rem; }
+  .legal__title { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; }
+  .legal__lead {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-top: 1.4rem;
+  }
+  .legal__lead a { color: var(--green-primary); font-weight: 600; }
+
+  .timeline {
+    list-style: none;
+    margin: 3rem 0 0;
+    padding: 0;
+  }
+  .timeline__entry {
+    position: relative;
+    padding: 0 0 2.4rem 1.75rem;
+    border-left: 2px solid color-mix(in srgb, var(--green-primary) 22%, transparent);
+  }
+  .timeline__entry:last-child { padding-bottom: 0; }
+  /* The dot on the rail, aligned with the version pill. */
+  .timeline__entry::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0.35rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green-primary);
+  }
+  .timeline__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+  .timeline__version {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--green-primary);
+  }
+  .timeline__tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green-primary);
+    border: 1px solid color-mix(in srgb, var(--green-primary) 40%, transparent);
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+  }
+  .timeline__date {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .timeline__headline {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin: 0.5rem 0 0.6rem;
+  }
+  .timeline__points {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  .timeline__points li {
+    color: var(--muted);
+    font-size: 0.97rem;
+    line-height: 1.7;
+    margin-bottom: 0.45rem;
+  }
+</style>
