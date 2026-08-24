@@ -74,14 +74,16 @@ export const PERKS_BEAT: Act = {
 // announcement. Swap the content here when the next big feature ships; the
 // version in the kicker is deliberate, so a reader still on the previous
 // build understands why their app doesn't show it yet.
-export const NEW_FEATURE_BEAT: Act & { cta: { label: string; href: string } } = {
-  id: 'crowd-intelligence',
-  kicker: 'New in 1.2',
-  headline: 'Crowd Intelligence is here.',
+// Headline + body together are the 1.3 App Store promotional text verbatim
+// (submission spec § 17.6 pairing rule) — change one, change both.
+export const NEW_FEATURE_BEAT: Act & { cta?: { label: string; href: string }; video?: string } = {
+  id: 'house-tracker',
+  kicker: 'New in 1.3',
+  headline: 'Spooky season is here.',
   body:
-    'Every park on your Home screen now wears one of three honest words. Quiet, normal, or packed, judged against that park’s own typical day and updated live. One glance tells you how the day will feel before you commit to the drive.',
-  screen: '/assets/screen-home.webp',
+    'Track your Halloween Horror Nights or Howl-O-Scream pass night by night, house by house, and watch your Nightmare Tally grow!',
+  screen: '/assets/screen-housetracker-poster.webp',
+  video: '/assets/screen-housetracker.mp4',
   screenAlt:
-    'Lanyard home screen at night showing crowd words under each park: Magic Kingdom packed, Epcot normal, Hollywood Studios quiet.',
-  cta: { label: 'See how it works', href: '/crowds' },
+    'Lanyard House Tracker for a Halloween Horror Nights pass: houses stamped off one by one as the Nightmare Tally climbs to 6 of 10 houses.',
 };

@@ -8,12 +8,30 @@ interface Props {
   src: string;
   alt: string;
   lean?: 'left' | 'right' | 'none';
+  /** Optional looping demo clip (same 1320:2868 capture, muted). `src` then
+      doubles as the poster and the prefers-reduced-motion static fallback. */
+  video?: string;
 }
-const { src, alt, lean = 'right' } = Astro.props;
+const { src, alt, lean = 'right', video } = Astro.props;
 ---
 <div class={`device device--lean-${lean}`}>
   <div class="device__screen">
-    <img src={src} alt={alt} width="1320" height="2868" loading="lazy" decoding="async" />
+    {video && (
+      <video
+        class="device__video"
+        src={video}
+        poster={src}
+        width="1320"
+        height="2868"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        aria-label={alt}
+      ></video>
+    )}
+    <img class={video ? 'device__still' : undefined} src={src} alt={alt} width="1320" height="2868" loading="lazy" decoding="async" />
   </div>
 </div>
 
@@ -42,10 +60,18 @@ const { src, alt, lean = 'right' } = Astro.props;
     background: #000;
     line-height: 0;
   }
-  .device__screen img {
+  .device__screen img,
+  .device__screen video {
     display: block;
     width: 100%;
     height: auto;
+  }
+  /* When a clip is present the img is its static stand-in: hidden while the
+     video plays, shown instead of it for prefers-reduced-motion. */
+  .device__still { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .device__video { display: none; }
+    .device__still { display: block; }
   }
   /* rotateY turns the face toward the named side; rotateX leans it back a
      touch (grounded); rotateZ adds a hair of dynamism. */

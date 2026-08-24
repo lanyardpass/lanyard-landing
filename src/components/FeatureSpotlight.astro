@@ -15,8 +15,10 @@ interface Props {
   pill?: boolean;
   /** Optional ghost-button link under the body (e.g. a deep-dive page). */
   cta?: { label: string; href: string };
+  /** Optional looping demo clip for the phone; `screen` becomes its poster. */
+  video?: string;
 }
-const { id, kicker, headline, body, screen, screenAlt, side = 'right', dark = false, pill = false, cta } = Astro.props;
+const { id, kicker, headline, body, screen, screenAlt, side = 'right', dark = false, pill = false, cta, video } = Astro.props;
 // Lean the phone toward the copy (opposite the side it sits on).
 const lean = side === 'left' ? 'right' : 'left';
 ---
@@ -29,7 +31,7 @@ const lean = side === 'left' ? 'right' : 'left';
       {cta && <a class="btn btn--ghost spotlight__cta" href={cta.href}>{cta.label}</a>}
     </div>
     <div class="spotlight__device">
-      <DeviceFrame src={screen} alt={screenAlt} lean={lean} />
+      <DeviceFrame src={screen} alt={screenAlt} lean={lean} video={video} />
     </div>
   </div>
 </section>
