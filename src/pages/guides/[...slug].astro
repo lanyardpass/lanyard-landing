@@ -9,7 +9,12 @@ import GuideLayout from '@/layouts/GuideLayout.astro';
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const guides = await getCollection('guides', ({ data }) => !data.draft);
+  // Same draft gate as the index: draft guides build on every context EXCEPT
+  // production, so a draft page exists on branch deploys for review but never
+  // on lanyardpass.com (and, since the sitemap is generated from built pages,
+  // never in the production sitemap either).
+  const showDrafts = process.env.CONTEXT !== 'production';
+  const guides = await getCollection('guides', ({ data }) => showDrafts || !data.draft);
   return guides.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 

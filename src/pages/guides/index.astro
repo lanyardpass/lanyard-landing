@@ -10,7 +10,14 @@ import { SITE } from '@/data/site';
 
 export const prerender = true;
 
-const guides = (await getCollection('guides', ({ data }) => !data.draft)).sort(
+// Drafts are visible everywhere EXCEPT production (Netlify sets CONTEXT to
+// "production" only on main deploys; branch deploys / previews / local dev all
+// show drafts, wearing a DRAFT chip). Same gate as the blog index: a draft
+// guide rides a branch deploy for in-context review without ever shipping to
+// lanyardpass.com. Launch = flip `draft: false`, nothing else.
+const showDrafts = process.env.CONTEXT !== 'production';
+
+const guides = (await getCollection('guides', ({ data }) => showDrafts || !data.draft)).sort(
   (a, b) =>
     (b.data.published ?? b.data.lastVerified).valueOf() -
     (a.data.published ?? a.data.lastVerified).valueOf()
@@ -27,7 +34,9 @@ const listSchema = {
   name: 'Lanyard Guides',
   description,
   url: new URL('/guides', Astro.site).href,
-  hasPart: guides.map((g) => ({
+  // Drafts never enter the schema, even on previews — structured data should
+  // only ever describe published pages.
+  hasPart: guides.filter((g) => !g.data.draft).map((g) => ({
     '@type': 'Article',
     headline: g.data.title,
     url: new URL(`/guides/${g.id}`, Astro.site).href,
@@ -71,6 +80,7 @@ const listSchema = {
                 <p class="guide-card__dek">{g.data.dek}</p>
                 <div class="guide-card__meta">
                   <LastVerifiedBadge date={g.data.lastVerified} />
+                  {g.data.draft && <span class="chip-draft">DRAFT</span>}
                 </div>
               </div>
             </a>
@@ -120,5 +130,12 @@ const listSchema = {
     color: var(--green-primary); line-height: 1.2; margin: 0;
   }
   .guide-card__dek { color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; font-size: 0.95rem; }
-  .guide-card__meta { margin-top: 0.9rem; }
+  .guide-card__meta { margin-top: 0.9rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+  /* DRAFT chip (preview deploys only) — lifted from the blog index. */
+  .chip-draft {
+    padding: 0.1rem 0.5rem; border-radius: 999px;
+    border: 1px dashed rgba(180, 130, 20, 0.5); background: rgba(240, 200, 90, 0.14);
+    color: #8a6410; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em;
+  }
 </style>
