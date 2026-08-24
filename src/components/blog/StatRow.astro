@@ -1,0 +1,56 @@
+---
+// StatRow — three-ish big honest numbers. The rule that keeps this Lanyard and
+// not growth-marketing: every number must be computable from real data at
+// build time (pass the values in from a JSON import in the MDX), and the row
+// carries a source line saying where they came from.
+interface Stat {
+  value: string;
+  label: string;
+}
+interface Props {
+  stats: Stat[];
+  /** e.g. "Counted from the live blockout corpus, snapshot 2026-07-06." */
+  source?: string;
+}
+const { stats, source } = Astro.props;
+---
+<div class="statrow" data-reveal>
+  <div class="statrow__row">
+    {stats.map((s) => (
+      <div class="statrow__cell">
+        <p class="statrow__value">{s.value}</p>
+        <p class="statrow__label">{s.label}</p>
+      </div>
+    ))}
+  </div>
+  {source && <p class="statrow__source">{source}</p>}
+</div>
+
+<style>
+  .statrow { margin: 2.2rem 0; }
+  .statrow__row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.6rem;
+  }
+  .statrow__cell {
+    text-align: center; padding: 1.2rem 0.8rem;
+    border-radius: var(--radius); border: 1px solid rgba(45, 106, 79, 0.14);
+    background: #fff;
+  }
+  .statrow__value {
+    margin: 0; font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1;
+    color: var(--green-primary); font-variant-numeric: tabular-nums;
+  }
+  .statrow__label { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); }
+  .statrow__source {
+    margin: 0.6rem 0 0; font-size: 0.78rem; color: var(--muted);
+    text-align: center; font-style: italic;
+  }
+
+  .statrow[data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .statrow[data-reveal].is-in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .statrow[data-reveal] { opacity: 1; transform: none; transition: none; }
+  }
+</style>

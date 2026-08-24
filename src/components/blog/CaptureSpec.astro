@@ -1,0 +1,49 @@
+---
+// CaptureSpec — the amber "what to go get" chip that marks a block waiting on
+// content, saying exactly what to go get. Born in the everything-post as a
+// shooting list; the HHN guide uses the `kind="write"` variant as its visible
+// gap blocks (Dan fills them in-context on the preview). DRAFT-ONLY either
+// way: a page never ships to production with one of these still in it.
+interface Props {
+  /** e.g. "video", "photo ×4", "audio", "data" — or the gap id ("G1") for write gaps. */
+  needs: string;
+  /** The concrete capture/writing instruction. */
+  spec: string;
+  /** "capture" (default): media shopping-list chip. "write": a prose gap Dan
+   * fills in-context — bigger, block-level, impossible to miss on a preview. */
+  kind?: 'capture' | 'write';
+}
+const { needs, spec, kind = 'capture' } = Astro.props;
+---
+<aside class:list={['capspec', { 'capspec--write': kind === 'write' }]} aria-label={kind === 'write' ? 'Content gap — Dan writes this' : 'Capture requirements'}>
+  <span class="capspec__chip">{kind === 'write' ? `✍️ Dan writes · ${needs}` : `🎬 to capture · ${needs}`}</span>
+  <span class="capspec__spec">{spec}</span>
+</aside>
+
+<style>
+  .capspec {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.7rem;
+    margin: 0.8rem 0 1.6rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: var(--radius-sm);
+    border: 1px dashed rgba(180, 130, 20, 0.45);
+    background: rgba(240, 200, 90, 0.10);
+    font-size: 0.82rem; line-height: 1.5;
+  }
+  .capspec__chip {
+    font-family: var(--font-display); font-weight: 800; white-space: nowrap;
+    color: #8a6410;
+  }
+  .capspec__spec { color: var(--muted); }
+
+  /* Write gaps are full content blocks, not footnote chips: stacked, roomier,
+     louder border — the point is that a preview reader CANNOT miss them. */
+  .capspec--write {
+    flex-direction: column; align-items: stretch; gap: 0.4rem;
+    margin: 1.8rem 0; padding: 1rem 1.2rem;
+    border: 2px dashed rgba(180, 130, 20, 0.55);
+    background: rgba(240, 200, 90, 0.14);
+    font-size: 0.95rem;
+  }
+  .capspec--write .capspec__spec { color: var(--ink); }
+</style>
