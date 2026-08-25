@@ -37,6 +37,10 @@ const show = !expired && !onDestination;
 
 <style>
   .seasonband {
+    /* Own stacking level: the scroll-morph hero's transformed layers otherwise
+       paint over the band on mobile (it kept its flow space but lost the
+       paint order). Below the sticky header's z-index 50. */
+    position: relative; z-index: 40;
     display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center;
     gap: 0.35rem 0.8rem;
     padding: 0.5rem var(--gutter);
