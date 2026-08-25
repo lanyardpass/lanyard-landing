@@ -15,11 +15,11 @@ interface Props {
 const { message, ctaLabel, href, until } = Astro.props;
 
 const expired = new Date() > new Date(`${until}T23:59:59-04:00`);
-const onDestination = Astro.url.pathname.replace(/\/$/, '') === href.replace(/\/$/, '');
+const onDestination = Astro.url.pathname.replace(/\/$/, '') === href.split('?')[0].replace(/\/$/, '');
 const show = !expired && !onDestination;
 ---
 {show && (
-  <a class="seasonband" href={href} data-until={until} data-src-link>
+  <a class="seasonband" href={href} data-until={until}>
     <span class="seasonband__msg">{message}</span>
     <span class="seasonband__cta">{ctaLabel} &rarr;</span>
   </a>
