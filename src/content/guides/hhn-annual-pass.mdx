@@ -160,7 +160,7 @@ Two findings lead, because they're the ones nobody tells you.
 And the folklore casualty. **Wednesday is not the answer.** Midweek folklore crowns it every year, but Wednesday ran even-or-worse against Thursday in every source we checked, and in 2025 it was worse than Friday. The genuinely quiet pocket is Thursday and Friday. Wednesday is fine. It is not magic.
 
 <TierTable
-  caption="Average posted house wait in minutes per event night (7 pm to midnight, all houses reporting). Tuesdays excluded (at most one per season). 2024 is recovered from a messier archive year — its hurricane-closure nights are simply missing — and 2025 ran ten-plus minutes hotter than either earlier season."
+  caption="Average posted house wait in minutes per event night (7 pm to midnight, all houses reporting). Tuesdays and 2024's hurricane-closure nights excluded. 2025 ran ten-plus minutes hotter than either earlier season."
   columns={["Night", "HHN 2023", "HHN 2024", "HHN 2025"]}
   rows={[
     ["Friday", "54.9", "52.4", "63.1"],
@@ -182,15 +182,14 @@ A fair pushback lands right here. "So Saturday costs me seven extra minutes over
 </Callout>
 
 <NerdBox title="How we computed the crowd numbers">
-The source is a public historical archive of posted wait times, the same corpus that seeds Lanyard's Crowd Intelligence baselines. For each event night we take every house's posted standby wait, hourly, from 7 pm to midnight, average each house's readings into a house-night mean, then average the houses into the night's number. A night only counts if at least four houses report, and readings above 300 minutes are dropped as data-feed junk (they come in as 995-minute placeholders, not real lines).
-
-Why stop at midnight? The archive has almost no readings after 12, so the cutoff is where the data runs out, and applying it to every night keeps them comparable (including 2023, when weeknights closed at 1 and weekends at 2 — the modern event runs to 2 am every night). Starting with the 2026 season our own live plane records straight through close, so the after-midnight hours finally enter the dataset.
-
-The 2024 season needed rescue work. That year's archive rows carry placeholder readings on the houses (daytime fives, and entire fake "nights" on days the event didn't run), so we identified houses by their season-only footprint and kept only nights with real cross-house spread. That yields 45 clean nights; the hurricane closures are simply absent, and excluding the surrounding weeks moves the season average by less than a minute.
-
-The marquee tier is defined per season as the top group of houses by season-long evening average, and every tier stat (the premium, the peg rates, the 143-of-144 figure) is computed per night against that group. The rain analysis joins hourly precipitation history for the park area, summed over 5 to 11 pm, and compares nights only against other nights of the same season and weekday, so a rainy Saturday is never being compared to a dry Wednesday.
-
-Standing caveats. These are posted waits, not stopwatch-walked ones, so treat every number as relative, night versus night. And all of it was cross-checked against an independent extraction of published per-night averages and a separately-run, source-blind research pass — the claims in this section are the ones that survived all three.
+- **Data.** Posted standby waits for every HHN house, hourly snapshots, three seasons (2023, 2024, 2025) — 144 event nights, roughly 7,500 house-hour readings. Same historical corpus that seeds Lanyard's Crowd Intelligence baselines.
+- **Night metric.** Per house, the mean of its hourly posted waits from 7:00 pm to 11:59 pm (a house-night mean). A night's number is the mean of its house-night means. A night qualifies with ≥4 houses reporting, ≥2 readings each. Readings over 300 minutes are discarded as feed placeholders.
+- **Why midnight.** That's where the archive's coverage ends, so the cutoff applies uniformly to keep every night comparable (2023 weeknights closed at 1 am; the modern event runs to 2 am nightly). Our live plane records through close starting with the 2026 season, so after-midnight hours enter the dataset this year.
+- **Tier stats.** The marquee tier is each season's top group by season-long evening mean, set by the cliff in the ranking (two houses in 2023 and 2024, three in 2025). Headliner premium = the night's top house over the night's median house. Peg rate = the share of 8 pm–midnight readings at 90+ or 120+ minutes.
+- **Weather join.** Hourly precipitation history for the park area, summed 5–11 pm per night. Rain buckets are compared on residuals against the season-and-weekday mean, so a wet Saturday is only ever measured against dry Saturdays of the same season.
+- **Exclusions.** Nights the event didn't run (including 2024's hurricane closures) and the lone Tuesday each season.
+- **Validation.** Every headline claim was cross-checked against an independent extraction of published per-night averages and a separately run, source-blind research pass. Claims that didn't replicate across methods were softened or cut, and the text above says so where it matters.
+- **Caveat.** These are posted waits, not stopwatch-walked ones. Read every number as relative (night versus night, house versus house), never as a promised wait.
 </NerdBox>
 
 So calendar strategy, honestly stated:
