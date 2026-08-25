@@ -41,16 +41,16 @@ const show = !expired && !onDestination;
     gap: 0.35rem 0.8rem;
     padding: 0.5rem var(--gutter);
     text-decoration: none; text-align: center;
-    /* The HHN-orange seasonal signal against the site's greens (same family
-       as the guide's early-house stamps). */
-    background: rgba(234, 115, 23, 0.10);
-    border-bottom: 1px solid rgba(234, 115, 23, 0.28);
+    /* Event-night colors: near-black strip, HHN-orange signal (same orange
+       family as the guide's early-house stamps). */
+    background: #141110;
+    border-bottom: 2px solid rgba(234, 115, 23, 0.65);
     transition: background 0.15s ease;
   }
-  .seasonband:hover { background: rgba(234, 115, 23, 0.16); }
-  .seasonband__msg { color: var(--ink); font-size: 0.88rem; }
+  .seasonband:hover { background: #1f1815; }
+  .seasonband__msg { color: rgba(255, 246, 238, 0.92); font-size: 0.88rem; }
   .seasonband__cta {
-    color: #b45309; font-family: var(--font-display); font-weight: 800; font-size: 0.85rem;
+    color: #f68a33; font-family: var(--font-display); font-weight: 800; font-size: 0.85rem;
     white-space: nowrap;
   }
 </style>
