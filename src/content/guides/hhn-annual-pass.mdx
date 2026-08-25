@@ -63,6 +63,16 @@ import hHellraiser from '@/assets/guides/hhn/houses/hellraiser.webp';
 import hEvilDead from '@/assets/guides/hhn/houses/evil_dead_burn.webp';
 import hOzzy from '@/assets/guides/hhn/houses/ozzy_osbourne.webp';
 
+import sSinners from '@/assets/guides/hhn/stamps/SinnersShape.svg';
+import sJack from '@/assets/guides/hhn/stamps/JackOddfellowShape.svg';
+import sStranger from '@/assets/guides/hhn/stamps/StrangerThings5Shape.svg';
+import sMadlands from '@/assets/guides/hhn/stamps/MadlandsShape.svg';
+import sCybergoria from '@/assets/guides/hhn/stamps/CybergoriaShape.svg';
+import sInvasion from '@/assets/guides/hhn/stamps/InvasionShape.svg';
+import sBloodengutz from '@/assets/guides/hhn/stamps/BloodengutzShape.svg';
+import sHellraiser from '@/assets/guides/hhn/stamps/HellraiserShape.svg';
+import sGeneric from '@/assets/guides/hhn/stamps/GenericHouseShape.svg';
+
 ## What changed for 2026
 
 Let's start with the news, because it rewrites the whole strategy. Universal Orlando discontinued every season-long "Fear plus Express" bundle for 2026. That's not a rumor or a fan-site read of a menu change. Universal's own Know Before You Go FAQ says it has "discontinued all Fear plus Express Pass products." (Worth saying plainly, because some outlets have muddled this with unrelated checkout changes at Universal Hollywood. This is Orlando, and it's confirmed.)
@@ -290,28 +300,28 @@ Ten houses this year, shown in our own art, the same stamps you'll find in Lanya
       label: "Front of the park",
       note: "Right off the Infernal Carnival of Nightmares scare zone at the entry. These are the first doors the gate crowd sees, which is exactly why you save them.",
       houses: [
-        { name: "Stranger Things 5", image: hStranger, alt: "Lanyard's colorized stamp art for the Stranger Things 5 haunted house." },
-        { name: "Evil Dead Burn", image: hEvilDead, alt: "Lanyard's colorized stamp art for the Evil Dead Burn haunted house." },
+        { name: "Stranger Things 5", image: hStranger, stamp: sStranger, alt: "Lanyard's colorized stamp art for the Stranger Things 5 haunted house." },
+        { name: "Evil Dead Burn", image: hEvilDead, stamp: sGeneric, alt: "Lanyard's colorized stamp art for the Evil Dead Burn haunted house." },
       ],
     },
     {
       label: "Mid-park",
       note: "Jack & Oddfellow queues through the cattle pens in front of the stage, and that line bakes in full sun during the afternoon Stay & Scream waves, so hydrate before you commit. Ozzy and Madlands load behind the stage to the right, under the new Fast & Furious: Hollywood Drift coaster track. Cybergoria enters through the old Fast & Furious building.",
       houses: [
-        { name: "Jack & Oddfellow: Chaos & Control", image: hJack, alt: "Lanyard's colorized stamp art for the Jack & Oddfellow haunted house." },
-        { name: "Ozzy Osbourne: Prince of Darkness", image: hOzzy, alt: "Lanyard's colorized stamp art for the Ozzy Osbourne haunted house." },
-        { name: "Madlands: Caged Cannibals", image: hMadlands, alt: "Lanyard's colorized stamp art for the Madlands haunted house." },
-        { name: "Cybergoria", image: hCybergoria, alt: "Lanyard's colorized stamp art for the Cybergoria haunted house." },
+        { name: "Jack & Oddfellow: Chaos & Control", image: hJack, stamp: sJack, alt: "Lanyard's colorized stamp art for the Jack & Oddfellow haunted house." },
+        { name: "Ozzy Osbourne: Prince of Darkness", image: hOzzy, stamp: sGeneric, alt: "Lanyard's colorized stamp art for the Ozzy Osbourne haunted house." },
+        { name: "Madlands: Caged Cannibals", image: hMadlands, stamp: sMadlands, alt: "Lanyard's colorized stamp art for the Madlands haunted house." },
+        { name: "Cybergoria", image: hCybergoria, stamp: sCybergoria, alt: "Lanyard's colorized stamp art for the Cybergoria haunted house." },
       ],
     },
     {
       label: "Back of the park",
       note: "The long walk, and the smart first move. Hellraiser and Sinners share the World Expo back lot, Bloodengutz sits to the right of Men in Black by the restrooms, and INVASION queues through the Simpsons ride.",
       houses: [
-        { name: "Hellraiser", image: hHellraiser, alt: "Lanyard's colorized stamp art for the Hellraiser haunted house." },
-        { name: "Sinners", image: hSinners, alt: "Lanyard's colorized stamp art for the Sinners haunted house." },
-        { name: "H.R. Bloodengutz Presents: A Halloween Fright-Tacular", image: hBloodengutz, alt: "Lanyard's colorized stamp art for the H.R. Bloodengutz haunted house." },
-        { name: "INVASION: Alien Abduction", image: hInvasion, alt: "Lanyard's colorized stamp art for the INVASION haunted house." },
+        { name: "Hellraiser", image: hHellraiser, stamp: sHellraiser, alt: "Lanyard's colorized stamp art for the Hellraiser haunted house." },
+        { name: "Sinners", image: hSinners, stamp: sSinners, alt: "Lanyard's colorized stamp art for the Sinners haunted house." },
+        { name: "H.R. Bloodengutz Presents: A Halloween Fright-Tacular", image: hBloodengutz, stamp: sBloodengutz, alt: "Lanyard's colorized stamp art for the H.R. Bloodengutz haunted house." },
+        { name: "INVASION: Alien Abduction", image: hInvasion, stamp: sInvasion, alt: "Lanyard's colorized stamp art for the INVASION haunted house." },
       ],
     },
   ]}

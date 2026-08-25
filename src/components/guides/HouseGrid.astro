@@ -14,6 +14,11 @@ interface House {
   name: string;
   image: ImageMetadata;
   alt: string;
+  /** Silhouette stamp SVG (unit-square viewBox, single path) used as a CSS
+   * mask. Default state on hover-capable devices: the stamp; hovering
+   * "stamps" the tile — the full art fades in. Touch devices get the art
+   * directly (most of the audience; the reveal is a pointer nicety). */
+  stamp?: ImageMetadata;
 }
 interface HouseGroup {
   label: string;
@@ -35,7 +40,14 @@ const { groups, caption } = Astro.props;
       <ul class="housegrid__list">
         {g.houses.map((h) => (
           <li class="housegrid__tile">
-            <div class="housegrid__stamp">
+            <div class:list={['housegrid__stamp', { 'housegrid__stamp--reveal': !!h.stamp }]}>
+              {h.stamp && (
+                <span
+                  class="housegrid__silhouette"
+                  style={`-webkit-mask-image: url(${h.stamp.src}); mask-image: url(${h.stamp.src});`}
+                  aria-hidden="true"
+                />
+              )}
               <Image
                 src={h.image}
                 alt={h.alt}
@@ -84,6 +96,29 @@ const { groups, caption } = Astro.props;
   .housegrid__art {
     width: 100%; height: auto; aspect-ratio: 1; object-fit: cover;
     border-radius: calc(var(--radius) - 4px); display: block;
+  }
+
+  /* ---- Stamp-until-hover reveal (pointer devices only) ---- */
+  .housegrid__stamp--reveal { position: relative; }
+  .housegrid__silhouette {
+    display: none;
+    position: absolute; inset: 0.35rem;
+    background: var(--green-primary); opacity: 0.75;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-position: center; mask-position: center;
+    -webkit-mask-size: 78%; mask-size: 78%;
+    pointer-events: none;
+  }
+  @media (hover: hover) {
+    /* Default = the unstamped silhouette; hovering "stamps" the tile. */
+    .housegrid__stamp--reveal .housegrid__silhouette { display: block; transition: opacity 0.25s ease; }
+    .housegrid__stamp--reveal .housegrid__art { opacity: 0; transition: opacity 0.25s ease; }
+    .housegrid__tile:hover .housegrid__stamp--reveal .housegrid__art { opacity: 1; }
+    .housegrid__tile:hover .housegrid__stamp--reveal .housegrid__silhouette { opacity: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      .housegrid__stamp--reveal .housegrid__silhouette,
+      .housegrid__stamp--reveal .housegrid__art { transition: none; }
+    }
   }
   .housegrid__name {
     margin: 0.5rem 0 0; font-family: var(--font-display); font-weight: 700;
