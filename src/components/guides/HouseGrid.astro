@@ -19,6 +19,9 @@ interface House {
    * "stamps" the tile — the full art fades in. Touch devices get the art
    * directly (most of the audience; the reveal is a pointer nicety). */
   stamp?: ImageMetadata;
+  /** 2 pm Stay & Scream early house — wears HHN orange (stamp, frame, and a
+   * "2 pm" badge that survives the hover reveal) instead of Lanyard green. */
+  early?: boolean;
 }
 interface HouseGroup {
   label: string;
@@ -39,8 +42,9 @@ const { groups, caption } = Astro.props;
       {g.note && <p class="housegrid__note">{g.note}</p>}
       <ul class="housegrid__list">
         {g.houses.map((h) => (
-          <li class="housegrid__tile">
+          <li class:list={['housegrid__tile', { 'housegrid__tile--early': !!h.early }]}>
             <div class:list={['housegrid__stamp', { 'housegrid__stamp--reveal': !!h.stamp }]}>
+              {h.early && <span class="housegrid__early">2 pm</span>}
               {h.stamp && (
                 <span
                   class="housegrid__silhouette"
@@ -84,6 +88,7 @@ const { groups, caption } = Astro.props;
   .housegrid__tile { flex: 1 1 8rem; max-width: 10.5rem; text-align: center; }
   /* The unstamped frame from the app's House Tracker: dashed, waiting. */
   .housegrid__stamp {
+    position: relative;
     border: 2px dashed rgba(45, 106, 79, 0.35);
     border-radius: var(--radius);
     padding: 0.35rem;
@@ -96,6 +101,18 @@ const { groups, caption } = Astro.props;
   .housegrid__art {
     width: 100%; height: auto; aspect-ratio: 1; object-fit: cover;
     border-radius: calc(var(--radius) - 4px); display: block;
+  }
+
+  /* ---- 2 pm Stay & Scream houses wear HHN orange ---- */
+  .housegrid__tile--early .housegrid__stamp { border-color: rgba(198, 106, 30, 0.55); }
+  .housegrid__tile--early:hover .housegrid__stamp { border-color: rgba(198, 106, 30, 0.9); }
+  .housegrid__tile--early .housegrid__silhouette { background: #c66a1e; }
+  .housegrid__early {
+    position: absolute; top: 0.55rem; right: 0.55rem; z-index: 2;
+    padding: 0.08rem 0.42rem; border-radius: 999px;
+    background: rgba(198, 106, 30, 0.92); color: #fff;
+    font-family: var(--font-display); font-weight: 800; font-size: 0.62rem;
+    letter-spacing: 0.04em;
   }
 
   /* ---- Stamp-until-hover reveal (pointer devices only) ---- */
