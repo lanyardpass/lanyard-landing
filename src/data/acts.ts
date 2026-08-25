@@ -86,4 +86,5 @@ export const NEW_FEATURE_BEAT: Act & { cta?: { label: string; href: string }; vi
   video: '/assets/screen-housetracker.mp4',
   screenAlt:
     'Lanyard House Tracker for a Halloween Horror Nights pass: houses stamped off one by one as the Nightmare Tally climbs to 6 of 10 houses.',
+  cta: { label: 'Read the HHN guide', href: '/guides/hhn-annual-pass' },
 };
