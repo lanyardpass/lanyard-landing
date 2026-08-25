@@ -43,6 +43,7 @@ import ChronosDissolve from '@/components/guides/ChronosDissolve.astro';
 import HouseGrid from '@/components/guides/HouseGrid.astro';
 import CaptureSpec from '@/components/blog/CaptureSpec.astro';
 import StatRow from '@/components/blog/StatRow.astro';
+import NerdBox from '@/components/blog/NerdBox.astro';
 
 import sign35 from '@/assets/guides/hhn/sign-35.webp';
 import dayArch from '@/assets/guides/hhn/day-arch-build.webp';
@@ -179,6 +180,18 @@ A fair pushback lands right here. "So Saturday costs me seven extra minutes over
 - **Averages hide the peak.** The nightly number includes the soft early waves and the late-night collapse, which are decent almost every night. A night that averages seven minutes worse isn't seven minutes worse everywhere. It's near-even on most of the lineup and concentrated in the 9-to-midnight crush on the two or three headliner houses, which is exactly where and when you'll be standing. (How lopsided that split gets has its own section below.)
 - **And seven is the small lever.** That's just the weekday effect. Night to night across 2025 alone, our measured range ran from 57-minute nights to an 85-minute one. Per house. The right week buys back multiples of what the right weekday does.
 </Callout>
+
+<NerdBox title="How we computed the crowd numbers">
+The source is a public historical archive of posted wait times, the same corpus that seeds Lanyard's Crowd Intelligence baselines. For each event night we take every house's posted standby wait, hourly, from 7 pm to midnight, average each house's readings into a house-night mean, then average the houses into the night's number. A night only counts if at least four houses report, and readings above 300 minutes are dropped as data-feed junk (they come in as 995-minute placeholders, not real lines).
+
+Why stop at midnight? Historically the archive has almost no readings after 12, and cutting there keeps every night comparable. It also means the Friday finding is conservative, since Fridays run the latest hours and we're not even counting their bonus time. Starting with the 2026 season our own live plane records straight through close, so the after-midnight hours finally enter the dataset.
+
+The 2024 season needed rescue work. That year's archive rows carry placeholder readings on the houses (daytime fives, and entire fake "nights" on days the event didn't run), so we identified houses by their season-only footprint and kept only nights with real cross-house spread. That yields 45 clean nights; the hurricane closures are simply absent, and excluding the surrounding weeks moves the season average by less than a minute.
+
+The marquee tier is defined per season as the top group of houses by season-long evening average, and every tier stat (the premium, the peg rates, the 143-of-144 figure) is computed per night against that group. The rain analysis joins hourly precipitation history for the park area, summed over 5 to 11 pm, and compares nights only against other nights of the same season and weekday, so a rainy Saturday is never being compared to a dry Wednesday.
+
+Standing caveats. These are posted waits, not stopwatch-walked ones, so treat every number as relative, night versus night. And all of it was cross-checked against an independent extraction of published per-night averages and a separately-run, source-blind research pass — the claims in this section are the ones that survived all three.
+</NerdBox>
 
 So calendar strategy, honestly stated:
 
