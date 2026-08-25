@@ -70,6 +70,21 @@ const { groups, caption } = Astro.props;
   {caption && <figcaption class="housegrid__cap">{caption}</figcaption>}
 </figure>
 
+<script>
+  // Tap-to-stamp: on touch devices (no hover) a tap toggles the reveal, the
+  // same gesture as stamping a house in the app. Desktop clicks toggle too —
+  // harmless alongside hover. Tiles re-collect per pageview for client-side
+  // navigation; each tile is wired at most once.
+  import { onPageReady } from '@/lib/vt';
+  onPageReady(() => {
+    document.querySelectorAll<HTMLElement>('.housegrid__tile').forEach((tile) => {
+      if (tile.dataset.stampWired || !tile.querySelector('.housegrid__stamp--reveal')) return;
+      tile.dataset.stampWired = '1';
+      tile.addEventListener('click', () => tile.classList.toggle('is-stamped'));
+    });
+  });
+</script>
+
 <style>
   .housegrid { margin: 2.2rem 0; }
   .housegrid__group { margin-top: 1.6rem; }
@@ -104,38 +119,41 @@ const { groups, caption } = Astro.props;
   }
 
   /* ---- 2 pm Stay & Scream houses wear HHN orange ---- */
-  .housegrid__tile--early .housegrid__stamp { border-color: rgba(198, 106, 30, 0.55); }
-  .housegrid__tile--early:hover .housegrid__stamp { border-color: rgba(198, 106, 30, 0.9); }
-  .housegrid__tile--early .housegrid__silhouette { background: #c66a1e; }
+  .housegrid__tile--early .housegrid__stamp { border-color: rgba(234, 115, 23, 0.55); }
+  .housegrid__tile--early:hover .housegrid__stamp { border-color: rgba(234, 115, 23, 0.9); }
+  .housegrid__tile--early .housegrid__silhouette { background: #ea7317; }
   .housegrid__early {
     position: absolute; top: 0.55rem; right: 0.55rem; z-index: 2;
     padding: 0.08rem 0.42rem; border-radius: 999px;
-    background: rgba(198, 106, 30, 0.92); color: #fff;
+    background: rgba(234, 115, 23, 0.95); color: #fff;
     font-family: var(--font-display); font-weight: 800; font-size: 0.62rem;
     letter-spacing: 0.04em;
   }
 
-  /* ---- Stamp-until-hover reveal (pointer devices only) ---- */
+  /* ---- Stamp-until-revealed (hover on pointer devices, tap on touch) ---- */
   .housegrid__stamp--reveal { position: relative; }
   .housegrid__silhouette {
-    display: none;
+    display: block;
     position: absolute; inset: 0.35rem;
     background: var(--green-primary); opacity: 0.75;
     -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
     -webkit-mask-position: center; mask-position: center;
     -webkit-mask-size: 78%; mask-size: 78%;
     pointer-events: none;
+    transition: opacity 0.25s ease;
   }
+  .housegrid__stamp--reveal .housegrid__art { opacity: 0; transition: opacity 0.25s ease; }
+  /* Hover stamps it in (pointer devices)... */
   @media (hover: hover) {
-    /* Default = the unstamped silhouette; hovering "stamps" the tile. */
-    .housegrid__stamp--reveal .housegrid__silhouette { display: block; transition: opacity 0.25s ease; }
-    .housegrid__stamp--reveal .housegrid__art { opacity: 0; transition: opacity 0.25s ease; }
     .housegrid__tile:hover .housegrid__stamp--reveal .housegrid__art { opacity: 1; }
     .housegrid__tile:hover .housegrid__stamp--reveal .housegrid__silhouette { opacity: 0; }
-    @media (prefers-reduced-motion: reduce) {
-      .housegrid__stamp--reveal .housegrid__silhouette,
-      .housegrid__stamp--reveal .housegrid__art { transition: none; }
-    }
+  }
+  /* ...and a tap stamps it on any device (the House Tracker gesture). */
+  .housegrid__tile.is-stamped .housegrid__stamp--reveal .housegrid__art { opacity: 1; }
+  .housegrid__tile.is-stamped .housegrid__stamp--reveal .housegrid__silhouette { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .housegrid__silhouette,
+    .housegrid__stamp--reveal .housegrid__art { transition: none; }
   }
   .housegrid__name {
     margin: 0.5rem 0 0; font-family: var(--font-display); font-weight: 700;
