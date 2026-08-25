@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import SeasonBand from '@/components/SeasonBand.astro';
 import ScrollMorph from '@/components/ScrollMorph.tsx';
 import Capabilities from '@/components/act3/Capabilities.astro';
 import Coverage from '@/components/act3/Coverage.astro';
@@ -16,6 +17,14 @@ import { PERKS_BEAT, NEW_FEATURE_BEAT } from '@/data/acts';
 export const prerender = true;
 ---
 <Layout>
+  {/* Seasonal strip under the nav — self-retires after the HHN season. */}
+  <SeasonBand
+    message="🎃 Spooky season is here."
+    ctaLabel="Read the HHN guide"
+    href="/guides/hhn-annual-pass"
+    until="2026-11-01"
+  />
+
   {/* Acts 1–2 — the hook + pitch, as a single pinned scroll-morph island. */}
   <ScrollMorph client:load />
 

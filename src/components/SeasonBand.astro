@@ -1,0 +1,56 @@
+---
+// SeasonBand — a slim site-wide announcement strip under the nav for
+// time-boxed seasonal beats (first use: the HHN guide, 2026 season). It is
+// deliberately self-retiring: `until` gates it at BUILD time and a tiny
+// inline check re-gates at VIEW time, so it disappears on November 2 even if
+// nothing gets pushed for weeks. It also hides itself on the destination
+// page (a banner pointing at the page you're on is noise).
+interface Props {
+  message: string;
+  ctaLabel: string;
+  href: string;
+  /** Last day (inclusive, ISO date) the band shows. */
+  until: string;
+}
+const { message, ctaLabel, href, until } = Astro.props;
+
+const expired = new Date() > new Date(`${until}T23:59:59-04:00`);
+const onDestination = Astro.url.pathname.replace(/\/$/, '') === href.replace(/\/$/, '');
+const show = !expired && !onDestination;
+---
+{show && (
+  <a class="seasonband" href={href} data-until={until} data-src-link>
+    <span class="seasonband__msg">{message}</span>
+    <span class="seasonband__cta">{ctaLabel} &rarr;</span>
+  </a>
+)}
+
+{show && (
+  <script is:inline>
+    // View-time belt: if the season ended and the site hasn't rebuilt, hide it.
+    (function () {
+      var el = document.querySelector('.seasonband');
+      if (el && new Date() > new Date(el.dataset.until + 'T23:59:59-04:00')) el.remove();
+    })();
+  </script>
+)}
+
+<style>
+  .seasonband {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center;
+    gap: 0.35rem 0.8rem;
+    padding: 0.5rem var(--gutter);
+    text-decoration: none; text-align: center;
+    /* The HHN-orange seasonal signal against the site's greens (same family
+       as the guide's early-house stamps). */
+    background: rgba(234, 115, 23, 0.10);
+    border-bottom: 1px solid rgba(234, 115, 23, 0.28);
+    transition: background 0.15s ease;
+  }
+  .seasonband:hover { background: rgba(234, 115, 23, 0.16); }
+  .seasonband__msg { color: var(--ink); font-size: 0.88rem; }
+  .seasonband__cta {
+    color: #b45309; font-family: var(--font-display); font-weight: 800; font-size: 0.85rem;
+    white-space: nowrap;
+  }
+</style>
