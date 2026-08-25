@@ -19,8 +19,12 @@ interface Props {
   parallax?: boolean;
   /** CSS aspect-ratio for the frame, e.g. "16 / 9". Required for parallax. */
   ratio?: string;
+  /** Small inline figure the prose wraps around (desktop only — mobile
+   * unfloats to a centered small figure). For casual snapshots that don't
+   * deserve a full column. Mutually exclusive with wide/parallax. */
+  float?: 'left' | 'right';
 }
-const { src, alt, caption, wide = false, kenBurns = false, parallax = false, ratio } = Astro.props;
+const { src, alt, caption, wide = false, kenBurns = false, parallax = false, ratio, float } = Astro.props;
 // Parallax needs a defined frame height to crop the overscan; default to 16:9.
 const effectiveRatio = ratio ?? (parallax ? '16 / 9' : undefined);
 const frameStyle = effectiveRatio ? `aspect-ratio: ${effectiveRatio};` : '';
@@ -28,7 +32,16 @@ const sizes = wide ? '100vw' : '(min-width: 960px) 700px, 100vw';
 const widths = [480, 800, 1200, 1600, 2000];
 ---
 <figure
-  class:list={['guide-figure', { 'guide-figure--wide': wide, 'guide-figure--parallax': parallax }]}
+  class:list={[
+    'guide-figure',
+    {
+      'guide-figure--wide': wide,
+      'guide-figure--parallax': parallax,
+      'guide-figure--float': !!float,
+      'guide-figure--float-left': float === 'left',
+      'guide-figure--float-right': float === 'right',
+    },
+  ]}
   data-reveal
 >
   <div class="guide-figure__frame" style={frameStyle}>
@@ -116,6 +129,18 @@ const widths = [480, 800, 1200, 1600, 2000];
     .guide-figure--parallax .guide-figure__frame :global(.guide-figure__img--parallax) {
       position: absolute; height: 100%; transform: none !important;
     }
+  }
+
+  /* Float: a small inline figure the prose wraps around. Desktop-only — on
+     narrow viewports it unfloats to a modest centered figure (wrap needs a
+     wide column to breathe). */
+  @media (min-width: 641px) {
+    .guide-figure--float { width: 14rem; margin-top: 0.3rem; }
+    .guide-figure--float-right { float: right; margin-left: 1.4rem; margin-bottom: 0.9rem; }
+    .guide-figure--float-left { float: left; margin-right: 1.4rem; margin-bottom: 0.9rem; }
+  }
+  @media (max-width: 640px) {
+    .guide-figure--float { max-width: 16rem; margin-inline: auto; }
   }
 
   /* Wide banner: full-width (capped at --maxw, no scrollbar), sitting ABOVE the
