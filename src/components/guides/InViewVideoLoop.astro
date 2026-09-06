@@ -11,11 +11,19 @@ interface Props {
   label: string;
   caption?: string;
   wide?: boolean;
+  /** CSS aspect-ratio for the frame, e.g. "3 / 4" for a portrait Live Photo
+   * clip. Default is the 16:9 banner the Epic fountain loop was built for. */
+  ratio?: string;
+  /** Cap the figure's width (centered), e.g. "440px" — pairs with a portrait
+   * ratio so the clip doesn't run the full column height. */
+  maxWidth?: string;
 }
-const { src, poster, label, caption, wide = false } = Astro.props;
+const { src, poster, label, caption, wide = false, ratio, maxWidth } = Astro.props;
+const figStyle = maxWidth ? `max-width: ${maxWidth}; margin-inline: auto;` : undefined;
+const frameStyle = ratio ? `aspect-ratio: ${ratio};` : undefined;
 ---
-<figure class:list={['vloop', { 'vloop--wide': wide }]} data-reveal>
-  <div class="vloop__frame">
+<figure class:list={['vloop', { 'vloop--wide': wide }]} data-reveal style={figStyle}>
+  <div class="vloop__frame" style={frameStyle}>
     <video
       class="vloop__video"
       data-inview-video
