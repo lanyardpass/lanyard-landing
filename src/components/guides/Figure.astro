@@ -23,8 +23,12 @@ interface Props {
    * unfloats to a centered small figure). For casual snapshots that don't
    * deserve a full column. Mutually exclusive with wide/parallax. */
   float?: 'left' | 'right';
+  /** Click-to-enlarge. The frame becomes a button that opens the same image
+   * full-size in a native <dialog> (Esc / backdrop / × close). For figures
+   * whose detail matters at column width — a share card floated at 14rem. */
+  lightbox?: boolean;
 }
-const { src, alt, caption, wide = false, kenBurns = false, parallax = false, ratio, float } = Astro.props;
+const { src, alt, caption, wide = false, kenBurns = false, parallax = false, ratio, float, lightbox = false } = Astro.props;
 // Parallax needs a defined frame height to crop the overscan; default to 16:9.
 const effectiveRatio = ratio ?? (parallax ? '16 / 9' : undefined);
 const frameStyle = effectiveRatio ? `aspect-ratio: ${effectiveRatio};` : '';
@@ -44,6 +48,11 @@ const widths = [480, 800, 1200, 1600, 2000];
   ]}
   data-reveal
 >
+  {lightbox ? (
+    <button type="button" class="guide-figure__frame guide-figure__zoom" style={frameStyle} data-lb-open aria-label={`View full size: ${alt}`}>
+      <Image src={src} alt={alt} widths={widths} sizes={sizes} loading="lazy" class="guide-figure__img" />
+    </button>
+  ) : (
   <div class="guide-figure__frame" style={frameStyle}>
     {parallax ? (
       <Image
@@ -61,8 +70,43 @@ const widths = [480, 800, 1200, 1600, 2000];
       <Image src={src} alt={alt} widths={widths} sizes={sizes} loading="lazy" class="guide-figure__img" />
     )}
   </div>
+  )}
   {caption && <figcaption class="guide-figure__cap">{caption}</figcaption>}
+  {lightbox && (
+    <dialog class="guide-lb" data-lb aria-label={alt}>
+      <button type="button" class="guide-lb__close" data-lb-close aria-label="Close">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+      <div class="guide-lb__stage">
+        <Image src={src} alt={alt} widths={[800, 1200, 1600, 2000]} sizes="min(92vw, 1100px)" loading="lazy" class="guide-lb__img" />
+        {caption && <p class="guide-lb__cap">{caption}</p>}
+      </div>
+    </dialog>
+  )}
 </figure>
+
+{lightbox && (
+  <script>
+    // Lightbox: each [data-lb-open] button opens the <dialog data-lb> inside the
+    // same <figure>. Native showModal gives Esc + focus trap; a click on the
+    // backdrop (the dialog element itself, not its children) closes. Wired
+    // per pageview via onPageReady; buttons mark themselves so client-side
+    // navigation doesn't double-bind.
+    import { onPageReady } from '@/lib/vt';
+    onPageReady(() => {
+      document.querySelectorAll<HTMLButtonElement>('[data-lb-open]:not([data-lb-wired])').forEach((btn) => {
+        btn.dataset.lbWired = '1';
+        const fig = btn.closest('figure');
+        const dlg = fig?.querySelector<HTMLDialogElement>('dialog[data-lb]');
+        if (!dlg || typeof dlg.showModal !== 'function') return;
+        const close = () => dlg.close();
+        btn.addEventListener('click', () => { dlg.showModal(); });
+        dlg.querySelector('[data-lb-close]')?.addEventListener('click', close);
+        dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+      });
+    });
+  </script>
+)}
 
 {parallax && (
   <script>
@@ -115,6 +159,23 @@ const widths = [480, 800, 1200, 1600, 2000];
   .guide-figure__frame :global(.guide-figure__img),
   .guide-figure__frame :global(.kb) { width: 100%; height: 100%; display: block; }
   .guide-figure__frame :global(.guide-figure__img) { object-fit: cover; }
+  .guide-figure__zoom { padding: 0; border: 0; width: 100%; cursor: zoom-in; font: inherit; }
+  .guide-figure__zoom:focus-visible { outline: 2px solid var(--green-accent); outline-offset: 3px; }
+
+  /* Lightbox dialog: dark green backdrop (press page's), image fit to viewport. */
+  .guide-lb { border: 0; padding: 0; background: transparent; max-width: none; max-height: none; width: 100vw; height: 100dvh; }
+  .guide-lb::backdrop { background: rgba(10, 25, 18, 0.93); }
+  .guide-lb[open] { display: grid; place-items: center; cursor: zoom-out; }
+  .guide-lb__stage { pointer-events: none; display: grid; justify-items: center; gap: 0.7rem; padding: 1rem; }
+  .guide-lb :global(.guide-lb__img) { display: block; width: auto; height: auto; max-height: 84dvh; max-width: min(92vw, 1100px); border-radius: var(--radius); box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+  .guide-lb__cap { margin: 0; color: rgba(255,255,255,0.78); font-size: 0.85rem; line-height: 1.5; text-align: center; max-width: 40rem; }
+  .guide-lb__close {
+    position: fixed; top: 1rem; right: 1rem; display: grid; place-items: center;
+    width: 2.9rem; height: 2.9rem; border: 0; border-radius: 50%;
+    background: rgba(255,255,255,0.14); color: #fff; cursor: pointer; transition: background 0.15s ease;
+  }
+  .guide-lb__close:hover { background: rgba(255,255,255,0.28); }
+  .guide-lb__close:focus-visible { outline: 2px solid var(--green-accent); outline-offset: 2px; }
   .guide-figure__cap {
     margin-top: 0.6rem; font-size: 0.82rem; color: var(--muted);
     line-height: 1.5; text-align: center;
